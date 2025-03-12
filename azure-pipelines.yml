@@ -27,7 +27,7 @@ steps:
   inputs:
     contents: |
       preprod/Web.config
-      stagingWeb.config
+      staging/Web.config
       fint/Web.config
       batch.exe.config
       deploy_config.ps1
