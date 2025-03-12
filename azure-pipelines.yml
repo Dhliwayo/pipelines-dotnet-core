@@ -30,6 +30,7 @@ steps:
       staging\Web.config
       fint\Web.config
       batch.exe.config
+      deploy_config.ps1
     targetFolder: $(Build.ArtifactStagingDirectory)
 - task: PublishBuildArtifacts@1
   inputs:
