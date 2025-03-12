@@ -6,6 +6,10 @@
 trigger:
 - master
 
+variables:
+  -environment:
+    -v
+
 pool:
   vmImage: ubuntu-latest
 
@@ -17,3 +21,17 @@ steps:
     echo Add other tasks to build, test, and deploy your project.
     echo See https://aka.ms/yaml
   displayName: 'Run a multi-line script'
+
+- task: CopyFiles@2
+  displayName: 'Copy Config Files to: $(Build.ArtifactStagingDirectory)'
+  inputs:
+    contents: |
+      preprod\Web.config
+      staging\Web.config
+      fint\Web.config
+      batch.exe.config
+    targetFolder: $(Build.ArtifactStagingDirectory)
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: $(Build.ArtifactStagingDirectory)
+    artifactName: MyBuildOutputs
