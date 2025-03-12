@@ -7,19 +7,16 @@ trigger:
 - master
 
 variables:
-  time: $[ format('{0:yyyy}-{0:MM}-{0:dd}', pipeline.startTime) ]
+  time: $[ format('{0:yyyy}-{0:MM}-{0:dd}-{0:HHmm}', pipeline.startTime) ]
 
 pool:
   vmImage: ubuntu-latest
 
 steps:
-- script: echo Hello, world!
+- script: echo Getting latest config files 
   displayName: 'Run a one-line script'
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+
 
 - task: CopyFiles@2
   displayName: 'Copy Staging Config  Files to: $(Build.ArtifactStagingDirectory)'
@@ -32,7 +29,7 @@ steps:
 - task: PublishBuildArtifacts@1
   inputs:
     pathToPublish: $(Build.ArtifactStagingDirectory)
-    artifactName: Prelis-Config-Drop-staging
+    artifactName: Prelis-Config-Drop-staging-$(time)
 
 - task: CopyFiles@2
   displayName: 'Copy Pr-prod Config Staging Files to: $(Build.ArtifactStagingDirectory)'
@@ -45,7 +42,7 @@ steps:
 - task: PublishBuildArtifacts@1
   inputs:
     pathToPublish: $(Build.ArtifactStagingDirectory)
-    artifactName: Prelis-Config-Drop-preprod
+    artifactName: Prelis-Config-Drop-preprod-$(time)
 
 
 - task: CopyFiles@2
@@ -59,7 +56,7 @@ steps:
 - task: PublishBuildArtifacts@1
   inputs:
     pathToPublish: $(Build.ArtifactStagingDirectory)
-    artifactName:  Prelis-Config-Drop-fint
+    artifactName:  Prelis-Config-Drop-fint-$(time)
 
 - task: CopyFiles@2
   displayName: 'Copy Prod Config Files  to: $(Build.ArtifactStagingDirectory)'
