@@ -9,7 +9,7 @@ trigger:
 variables:
   -environment:
     -v
-  time: $[ format('{0:yyyy}-{0:MM}-{0:dd}', pipeline.startTime) ]
+  WildResLegacy: $[ format('{0:yyyy}-{0:MM}-{0:dd}', pipeline.startTime) ]
   pwsh_time: $(Get-Date -Date $(time) -Format yyyy.MMM.dd)
 
 pool:
@@ -75,4 +75,4 @@ steps:
 - task: PublishBuildArtifacts@1
   inputs:
       pathToPublish: $(Build.ArtifactStagingDirectory)
-      artifactName:  'Prelis-Config-Drop-prod-$(pwsh_time)'
+      artifactName:  'Prelis-Config-Drop-prod-$(time)'
