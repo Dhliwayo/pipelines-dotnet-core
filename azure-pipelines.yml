@@ -9,6 +9,8 @@ trigger:
 variables:
   -environment:
     -v
+  time: $[ format('{0:yyyy}-{0:MM}-{0:dd}', pipeline.startTime) ]
+  pwsh_time: $(Get-Date -Date $(time) -Format yyyy.MMM.dd)
 
 pool:
   vmImage: ubuntu-latest
@@ -23,11 +25,36 @@ steps:
   displayName: 'Run a multi-line script'
 
 - task: CopyFiles@2
-  displayName: 'Copy Config Files to: $(Build.ArtifactStagingDirectory)'
+  displayName: 'Copy Staging Config  Files to: $(Build.ArtifactStagingDirectory)'
+  inputs:
+    contents: |
+      staging/Web.config
+      batch.exe.config
+      deploy_config.ps1
+    targetFolder: $(Build.ArtifactStagingDirectory)
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: $(Build.ArtifactStagingDirectory)
+    artifactName: Prelis-Config-Drop-staging
+
+- task: CopyFiles@2
+  displayName: 'Copy Pr-prod Config Staging Files to: $(Build.ArtifactStagingDirectory)'
   inputs:
     contents: |
       preprod/Web.config
-      staging/Web.config
+      batch.exe.config
+      deploy_config.ps1
+    targetFolder: $(Build.ArtifactStagingDirectory)
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: $(Build.ArtifactStagingDirectory)
+    artifactName: Prelis-Config-Drop-preprod
+
+
+- task: CopyFiles@2
+  displayName: 'Copy Fint Config Files to: $(Build.ArtifactStagingDirectory)'
+  inputs:
+    contents: |
       fint/Web.config
       batch.exe.config
       deploy_config.ps1
@@ -35,4 +62,17 @@ steps:
 - task: PublishBuildArtifacts@1
   inputs:
     pathToPublish: $(Build.ArtifactStagingDirectory)
-    artifactName: MyBuildOutputs
+    artifactName:  Prelis-Config-Drop-fint
+
+- task: CopyFiles@2
+  displayName: 'Copy Prod Config Files  to: $(Build.ArtifactStagingDirectory)'
+  inputs:
+      contents: |
+        prod/Web.config
+        batch.exe.config
+        deploy_config.ps1
+      targetFolder: $(Build.ArtifactStagingDirectory)
+- task: PublishBuildArtifacts@1
+  inputs:
+      pathToPublish: $(Build.ArtifactStagingDirectory)
+      artifactName:  Prelis-Config-Drop-prod
