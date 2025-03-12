@@ -7,10 +7,7 @@ trigger:
 - master
 
 variables:
-  -environment:
-    -v
-  WildResLegacy: $[ format('{0:yyyy}-{0:MM}-{0:dd}', pipeline.startTime) ]
-  pwsh_time: $(Get-Date -Date $(time) -Format yyyy.MMM.dd)
+  time: $[ format('{0:yyyy}-{0:MM}-{0:dd}', pipeline.startTime) ]
 
 pool:
   vmImage: ubuntu-latest
