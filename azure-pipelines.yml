@@ -3,18 +3,29 @@ name: $(SourceBranchName)_$(date:yyyy/MMdd)$(rev:.r)_PerilsProximity_Configs_Upd
 trigger:
 - master
 
+appendCommitMessageToRunName: false
+
 variables:
   time: $[ format('{0:yyyy}-{0:MM}-{0:dd}-{0:HHmm}', pipeline.startTime) ]
 
 pool:
   vmImage: ubuntu-latest
 
+parameters:
+  - name: Environment
+    displayName: Environment
+    type: string
+    default: staging
+    values:
+    - staging
+    - fint
+    - preprod
+    - prod
+
 steps:
 - script: echo Getting latest config files 
   displayName: 'Run a one-line script'
-
-
-
+  
 - task: CopyFiles@2
   displayName: 'Copy Staging Config  Files to: $(Build.ArtifactStagingDirectory)'
   inputs:
