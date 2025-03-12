@@ -75,4 +75,4 @@ steps:
 - task: PublishBuildArtifacts@1
   inputs:
       pathToPublish: $(Build.ArtifactStagingDirectory)
-      artifactName:  Prelis-Config-Drop-prod
+      artifactName:  Prelis-Config-Drop-prod-$(pwsh_time)
