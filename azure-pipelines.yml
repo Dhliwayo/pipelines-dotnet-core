@@ -26,8 +26,8 @@ steps:
   displayName: 'Copy Config Files to: $(Build.ArtifactStagingDirectory)'
   inputs:
     contents: |
-      /preprod/Web.config
-      /stagingWeb.config
+      preprod/Web.config
+      stagingWeb.config
       fint/Web.config
       batch.exe.config
       deploy_config.ps1
