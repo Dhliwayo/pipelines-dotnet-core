@@ -29,7 +29,7 @@ steps:
 - task: PublishBuildArtifacts@1
   inputs:
     pathToPublish: $(Build.ArtifactStagingDirectory)
-    artifactName: Prelis-Config-Drop-staging-$(time)
+    artifactName: PnP-Config-Drop-staging-$(time)
 
 - task: CopyFiles@2
   displayName: 'Copy Pr-prod Config Staging Files to: $(Build.ArtifactStagingDirectory)'
@@ -42,7 +42,7 @@ steps:
 - task: PublishBuildArtifacts@1
   inputs:
     pathToPublish: $(Build.ArtifactStagingDirectory)
-    artifactName: Prelis-Config-Drop-preprod-$(time)
+    artifactName: PnP-Config-Drop-preprod-$(time)
 
 
 - task: CopyFiles@2
@@ -56,7 +56,7 @@ steps:
 - task: PublishBuildArtifacts@1
   inputs:
     pathToPublish: $(Build.ArtifactStagingDirectory)
-    artifactName:  Prelis-Config-Drop-fint-$(time)
+    artifactName:  PnP-Config-Drop-fint-$(time)
 
 - task: CopyFiles@2
   displayName: 'Copy Prod Config Files  to: $(Build.ArtifactStagingDirectory)'
@@ -69,4 +69,4 @@ steps:
 - task: PublishBuildArtifacts@1
   inputs:
       pathToPublish: $(Build.ArtifactStagingDirectory)
-      artifactName:  'Prelis-Config-Drop-prod-$(time)'
+      artifactName:  'PnP-Config-Drop-prod-$(time)'
