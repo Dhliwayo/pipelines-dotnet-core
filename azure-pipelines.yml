@@ -60,6 +60,7 @@ jobs:
         script: |
           Move-Item -Path $(Build.ArtifactStagingDirectory)/utilities/deploy_config.ps1 -Destination $(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/deploy_config.ps1
     - task: PublishBuildArtifacts@1
+      displayName: 'Publish artifact'
       inputs:
         pathToPublish: $(Build.ArtifactStagingDirectory)
         artifactName: PnP-Config-Drop-${{ parameters.environment }}-$(time)
@@ -67,12 +68,13 @@ jobs:
     # Download build artifacts v1
     # Download files that were saved as artifacts of a completed build.
     - task: DownloadBuildArtifacts@1
+      displayName: 'Download artifact'
       inputs:
         buildType: 'current' # 'current' | 'specific'. Required. Download artifacts produced by. Default: current.
         #project: # string. Required when buildType == specific. Project. 
         #pipeline: # string. Alias: definition. Required when buildType == specific. Build pipeline. 
         #specificBuildWithTriggering: false # boolean. Optional. Use when buildType == specific. When appropriate, download artifacts from the triggering build. Default: false.
-        #buildVersionToDownload: 'latest' # 'latest' | 'latestFromBranch' | 'specific'. Required when buildType == specific. Build version to download. Default: latest.
+        buildVersionToDownload: 'latest' # 'latest' | 'latestFromBranch' | 'specific'. Required when buildType == specific. Build version to download. Default: latest.
         #allowPartiallySucceededBuilds: false # boolean. Optional. Use when buildType == specific && buildVersionToDownload != specific. Download artifacts even from partially succeeded builds. Default: false.
         #branchName: 'refs/heads/master' # string. Required when buildType == specific && buildVersionToDownload == latestFromBranch. Branch name. Default: refs/heads/master.
         #buildId: # string. Required when buildType == specific && buildVersionToDownload == specific. Build. 
@@ -81,10 +83,10 @@ jobs:
         artifactName: PnP-Config-Drop-${{ parameters.environment }}-$(time) # string. Required when downloadType == single. Artifact name. 
         #itemPattern: '**' # string. Matching pattern. Default: **.
         downloadPath: '$(System.ArtifactsDirectory)' # string. Required. Destination directory. Default: $(System.ArtifactsDirectory).
-        #cleanDestinationFolder: false # boolean. Clean destination folder. Default: false.
+        cleanDestinationFolder: true # boolean. Clean destination folder. Default: false.
       # Advanced
         #parallelizationLimit: '8' # string. Parallelization limit. Default: 8.
-        #checkDownloadedFiles: false # boolean. Check downloaded files. Default: false.
+        checkDownloadedFiles: true # boolean. Check downloaded files. Default: false.
         #retryDownloadCount: '4' # string. Retry count. Default: 4.
         #extractTars: # boolean. Extract all files that are stored inside tar archives.
 
