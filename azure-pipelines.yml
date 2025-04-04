@@ -71,7 +71,6 @@ jobs:
       displayName: 'Copy files to server via SSH to target environment $(deployment_ssh_connection)'
       inputs:
         sshEndpoint: $(deployment_ssh_connection)
-        sourceFolder: '$(Build.ArtifactStagingDirectory)'
         contents: '**'
         targetFolder: 'D:\PnPConfigs\${{ parameters.environment }}'
         isWindowsOnTarget: true
