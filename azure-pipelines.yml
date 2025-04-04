@@ -94,7 +94,7 @@ jobs:
     displayName: 'Copy files to target environment server $(hostname)'
     inputs:
       Contents: '**'
-      TargetFolder: '\\lwukwvri53\d$\PnPConfigs'
+      TargetFolder: '\\$(hostname)\d$\PnPConfigs'
       cleanTargetFolder: true
   
 
