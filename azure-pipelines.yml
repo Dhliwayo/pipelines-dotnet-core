@@ -78,7 +78,7 @@ jobs:
         #buildId: # string. Required when buildType == specific && buildVersionToDownload == specific. Build. 
         #tags: # string. Optional. Use when buildType == specific && buildVersionToDownload != specific. Build Tags. 
         downloadType: 'single' # 'single' | 'specific'. Required. Download type. Default: single.
-        artifactName: # string. Required when downloadType == single. Artifact name. 
+        artifactName: PnP-Config-Drop-${{ parameters.environment }}-$(time) # string. Required when downloadType == single. Artifact name. 
         #itemPattern: '**' # string. Matching pattern. Default: **.
         downloadPath: '$(System.ArtifactsDirectory)' # string. Required. Destination directory. Default: $(System.ArtifactsDirectory).
         #cleanDestinationFolder: false # boolean. Clean destination folder. Default: false.
