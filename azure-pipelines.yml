@@ -1,18 +1,16 @@
-name: $(SourceBranchName)_$(date:yyyy/MMdd)$(rev:.r)_PerilsProximity_Configs_Update
+name: $(SourceBranchName)_$(date:yyyyMMdd)$(rev:.r)_PerilsProximity_Build_Configs
   
 trigger:
-- master
+  - config-pipeline
+  - master
 
 appendCommitMessageToRunName: false
 
-variables:
-  time: $[ format('{0:yyyy}-{0:MM}-{0:dd}-{0:HHmm}', pipeline.startTime) ]
-
 pool:
-  vmImage: ubuntu-latest
+  vmImage: windows-latest
 
 parameters:
-  - name: Environment
+  - name: environment
     displayName: Environment
     type: string
     default: staging
@@ -20,61 +18,84 @@ parameters:
     - staging
     - fint
     - preprod
-    - prod
+    - production
 
-steps:
-- script: echo Getting latest config files 
-  displayName: 'Run a one-line script'
+variables:
+- group: PerilsProximity.Configs.Staging # note there's a dash at the beginning of the line
+- name: time
+  value: $[ format('{0:yyyy}-{0:MM}-{0:dd}-{0:HHmm}', pipeline.startTime) ]
+- name: varname2
+  value: value2
+
+
+jobs:
+- job: CopyFilesForEnvironment
+  steps:
+    - task: CopyFiles@2
+      displayName: 'Copy ${{ parameters.environment }} config  files to: $(Build.ArtifactStagingDirectory)'
+      inputs:
+        contents: |
+          ${{ parameters.environment }}/config/batch.config
+          ${{ parameters.environment }}/config/BatchProcessorService.exe.config
+          ${{ parameters.environment }}/config/BatchProcessor_Log.config
+          ${{ parameters.environment }}/config/BatchSubmissionService.exe.config
+          ${{ parameters.environment }}/config/BatchSubmission_log.config
+          ${{ parameters.environment }}/config/BatchWebTestHarness.exe.config
+          ${{ parameters.environment }}/config/Create_Message.exe.config
+          ${{ parameters.environment }}/config/MQListener.exe.config
+          ${{ parameters.environment }}/config/TEst_App.exe.config
+          ${{ parameters.environment }}/config/BatchManager/Web.config
+          ${{ parameters.environment }}/config/BatchStatus/Web.config
+          ${{ parameters.environment }}/config/BestAddress/Web.config
+          ${{ parameters.environment }}/config/Geoassessment/Web.config
+          ${{ parameters.environment }}/config/GlobalExposure/Web.config
+          ${{ parameters.environment }}/config/LocatorHubWS/Web.config
+          ${{ parameters.environment }}/config/PerilsPlusWS/Web.config
+          utilities/deploy_config.ps1
+        targetFolder: $(Build.ArtifactStagingDirectory)
+    - task: PowerShell@2
+      displayName: 'Move deploy_config script'
+      inputs:
+        targetType: 'inline'
+        script: |
+          Move-Item -Path $(Build.ArtifactStagingDirectory)/utilities/deploy_config.ps1 -Destination $(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/deploy_config.ps1
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathToPublish: $(Build.ArtifactStagingDirectory)
+        artifactName: PnP-Config-Drop-${{ parameters.environment }}-$(time)
+
+
+- job: CopyFilesUsingSSH
+  steps:
+    - task: CopyFilesOverSSH@0
+      displayName: 'Copy files to server via SSH to target environment $(deployment_ssh_connection)'
+      inputs:
+        sshEndpoint: $(deployment_ssh_connection)
+        sourceFolder: '$(Build.ArtifactStagingDirectory)'
+        contents: '**'
+        targetFolder: 'D:\PnPConfigs\${{ parameters.environment }}'
+        isWindowsOnTarget: true
+        cleanTargetFolder: true
+        readyTimeout: '20000'
+
+    - task: SSH@0
+      displayName: 'Run deployment script via SSH on target environment $(deployment_ssh_connection)'
+      inputs:
+        sshEndpoint: $(deployment_ssh_connection)
+        runOptions: 'commands'
+        commands: 'D:\PnPConfigs\${{ parameters.environment }}\deploy_config.ps1'
+        readyTimeout: '20000'
+
+- job: CopyFilesToStagingSharedDrive
+  dependsOn: CopyFilesUsingSSH
+  condition: failed()
+  steps:
+  - task: CopyFiles@2
+    displayName: 'Copy files to target environment server $(hostname)'
+    inputs:
+      Contents: '**'
+      TargetFolder: '\\lwukwvri53\d$\PnPConfigs'
+      cleanTargetFolder: true
   
-- task: CopyFiles@2
-  displayName: 'Copy Staging Config  Files to: $(Build.ArtifactStagingDirectory)'
-  inputs:
-    contents: |
-      staging/Web.config
-      batch.exe.config
-      deploy_config.ps1
-    targetFolder: $(Build.ArtifactStagingDirectory)
-- task: PublishBuildArtifacts@1
-  inputs:
-    pathToPublish: $(Build.ArtifactStagingDirectory)
-    artifactName: PnP-Config-Drop-staging-$(time)
 
-- task: CopyFiles@2
-  displayName: 'Copy Pr-prod Config Staging Files to: $(Build.ArtifactStagingDirectory)'
-  inputs:
-    contents: |
-      preprod/Web.config
-      batch.exe.config
-      deploy_config.ps1
-    targetFolder: $(Build.ArtifactStagingDirectory)
-- task: PublishBuildArtifacts@1
-  inputs:
-    pathToPublish: $(Build.ArtifactStagingDirectory)
-    artifactName: PnP-Config-Drop-preprod-$(time)
-
-
-- task: CopyFiles@2
-  displayName: 'Copy Fint Config Files to: $(Build.ArtifactStagingDirectory)'
-  inputs:
-    contents: |
-      fint/Web.config
-      batch.exe.config
-      deploy_config.ps1
-    targetFolder: $(Build.ArtifactStagingDirectory)
-- task: PublishBuildArtifacts@1
-  inputs:
-    pathToPublish: $(Build.ArtifactStagingDirectory)
-    artifactName:  PnP-Config-Drop-fint-$(time)
-
-- task: CopyFiles@2
-  displayName: 'Copy Prod Config Files  to: $(Build.ArtifactStagingDirectory)'
-  inputs:
-      contents: |
-        prod/Web.config
-        batch.exe.config
-        deploy_config.ps1
-      targetFolder: $(Build.ArtifactStagingDirectory)
-- task: PublishBuildArtifacts@1
-  inputs:
-      pathToPublish: $(Build.ArtifactStagingDirectory)
-      artifactName:  'PnP-Config-Drop-prod-$(time)'
+ 
