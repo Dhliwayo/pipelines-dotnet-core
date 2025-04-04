@@ -86,16 +86,7 @@ jobs:
         commands: 'D:\PnPConfigs\${{ parameters.environment }}\deploy_config.ps1'
         readyTimeout: '20000'
 
-- job: CopyFilesToStagingSharedDrive
-  dependsOn: CopyFilesUsingSSH
-  condition: failed()
-  steps:
-  - task: CopyFiles@2
-    displayName: 'Copy files to target environment server $(hostname)'
-    inputs:
-      Contents: '**'
-      TargetFolder: '\\$(hostname)\d$\PnPConfigs'
-      cleanTargetFolder: true
+
   
 
  
