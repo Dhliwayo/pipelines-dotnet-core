@@ -108,7 +108,7 @@ jobs:
   displayName: Wait for manual approval and deploy to target environment
   dependsOn: CopyConfigFilesToEnvironment
   timeoutInMinutes: 4320 # job times out in 3 days
-  pool: server
+  pool: pool 
   steps:   
   - task: ManualValidation@1
     timeoutInMinutes: 1440 # task times out in 1 day
