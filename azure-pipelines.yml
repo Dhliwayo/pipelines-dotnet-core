@@ -89,7 +89,12 @@ jobs:
         checkDownloadedFiles: true # boolean. Check downloaded files. Default: false.
         #retryDownloadCount: '4' # string. Retry count. Default: 4.
         #extractTars: # boolean. Extract all files that are stored inside tar archives.
-
+    - task: CmdLine@2
+      displayName: Display tree of $(Agent.WorkFolder)
+      inputs:
+        script: |
+          echo ##[debug]List of built in variables in System.ArtifactsDirectory 
+          tree $(System.ArtifactsDirectory)
       
 - job: CopyFilesUsingSSH
   steps:
@@ -99,6 +104,7 @@ jobs:
         script: |
           echo ##[debug]List of built in variables
           echo Agent.WorkFolder: $(Agent.WorkFolder)
+          echo System.ArtifactsDirectory: $(System.ArtifactsDirectory)
           echo Build.ArtifactStagingDirectory: $(Build.ArtifactStagingDirectory)
           echo Build.BinariesDirectory: $(Build.BinariesDirectory)
           echo Build.SourcesDirectory: $(Build.SourcesDirectory)
