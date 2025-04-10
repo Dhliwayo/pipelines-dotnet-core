@@ -64,7 +64,7 @@ jobs:
       inputs:
         script: |
           echo ##[debug]List of built in variables in Build.ArtifactStagingDirectory 
-          tree $(Build.ArtifactStagingDirectory)
+          tree $(Build.ArtifactStagingDirectory) /F
     - task: PublishBuildArtifacts@1
       displayName: 'Publish artifact'
       inputs:
@@ -100,13 +100,13 @@ jobs:
       inputs:
         script: |
           echo ##[debug]List of built in variables in System.ArtifactsDirectory 
-          tree $(System.ArtifactsDirectory)
+          tree $(System.ArtifactsDirectory) /F
     - task: CmdLine@2
       displayName: Display tree of build artifact from $(Build.ArtifactStagingDirectory)
       inputs:
         script: |
           echo ##[debug]List of built in variables in Build.ArtifactStagingDirectory 
-          tree $(Build.ArtifactStagingDirectory)
+          tree $(Build.ArtifactStagingDirectory) /F
       
 - job: CopyFilesUsingSSH
   steps:
