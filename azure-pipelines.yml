@@ -107,7 +107,7 @@ jobs:
         targetFolder: 'C:\PnPConfigs\${{ parameters.environment }}'
         isWindowsOnTarget: true
         cleanTargetFolder: true
-        readyTimeout: '20000'
+        readyTimeout: '100000'
 
     # - task: SSH@0
     #   displayName: 'Run deployment script via SSH on target environment $(deployment_ssh_connection)'
