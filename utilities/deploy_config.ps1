@@ -60,6 +60,14 @@ $configs = @{
     }
 }
 
+$Logfile = "deploy_config.log"
+
+Function LogWrite
+{
+   Param ([string]$logstring)
+
+   Add-content $Logfile -value $logstring
+}
 
 # Functions
 
@@ -81,13 +89,13 @@ New-Item -Path $backuppath -ItemType Directory
 # 2. Copy target file to backup 
 # Skip if target doesn't exist 
 
-Write-Host "Creating backup at" $backuppath
+LogWrite "Creating backup at" $backuppath
 
 $configs.GetEnumerator() | ForEach-Object {
 
     If ((Test-Path -Path $_.Value.Target -PathType Leaf) -eq $False) {
     
-        Write-Host $_.Value.Target "does not exist"
+        LogWrite $_.Value.Target "does not exist"
     
     }
     Else {
@@ -108,21 +116,21 @@ $configs.GetEnumerator() | ForEach-Object {
 
 # 3. Overwrite target file with new source 
 
-Write-Host "Deploying new config files"
+LogWrite "Deploying new config files"
 
 $configs.GetEnumerator() | ForEach-Object {
 
     # Check whether target and source exists before trying to copy 
-    Write-Host "Processing: " $_.Value.Target
+    LogWrite "Processing: " $_.Value.Target
 
     If ((Test-Path -Path $_.Value.Source -PathType Leaf) -eq $False) {
 
-        Write-Host " > Input" $_.Value.Source "does not exist"
+        LogWrite " > Input" $_.Value.Source "does not exist"
 
     }
     ElseIf ((Test-Path -Path $_.Value.Target -PathType Leaf) -eq $False) {
     
-        Write-Host " > Target" $_.Value.Target "does not exist"
+        LogWrite " > Target" $_.Value.Target "does not exist"
     
     }
     Else {
@@ -136,7 +144,7 @@ $configs.GetEnumerator() | ForEach-Object {
     
 	# 	$destinationPath = Split-Path -Path $_.Value.Target
 		
-	# 	Write-Host "Creating destination path: " $destinationPath
+	# 	LogWrite "Creating destination path: " $destinationPath
 	# 	New-Item -Path $destinationPath -ItemType Directory -Force
 		
 	# 	Copy-Item $_.Value.Source -Destination $_.Value.Target -force
