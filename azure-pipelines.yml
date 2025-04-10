@@ -95,21 +95,15 @@ jobs:
         checkDownloadedFiles: true # boolean. Check downloaded files. Default: false.
         #retryDownloadCount: '4' # string. Retry count. Default: 4.
         #extractTars: # boolean. Extract all files that are stored inside tar archives.
+      
+- job: CopyFilesUsingSSH
+  steps:
     - task: CmdLine@2
       displayName: Display tree of sytem artifact dir from $(System.ArtifactsDirectory)
       inputs:
         script: |
           echo ##[debug]List of built in variables in System.ArtifactsDirectory 
           tree $(System.ArtifactsDirectory) /F
-    - task: CmdLine@2
-      displayName: Display tree of build artifact from $(Build.ArtifactStagingDirectory)
-      inputs:
-        script: |
-          echo ##[debug]List of built in variables in Build.ArtifactStagingDirectory 
-          tree $(Build.ArtifactStagingDirectory) /F
-      
-- job: CopyFilesUsingSSH
-  steps:
     - task: CopyFilesOverSSH@0
       displayName: 'Copy files from $(System.ArtifactsDirectory) to server via SSH to target environment $(deployment_ssh_connection)'
       inputs:
@@ -119,7 +113,7 @@ jobs:
         targetFolder: 'C:\PnPConfigs\${{ parameters.environment }}'
         isWindowsOnTarget: true
         cleanTargetFolder: true
-        readyTimeout: '100000'
+        readyTimeout: '300000'
         overwrite: true
         failOnEmptySource: true
 
