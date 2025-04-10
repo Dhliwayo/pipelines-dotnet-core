@@ -98,7 +98,7 @@ jobs:
         sshEndpoint: $(deployment_ssh_connection)
         sourceFolder: '$(System.ArtifactsDirectory)'
         contents: '**'
-        targetFolder: 'D:\PnPConfigs\${{ parameters.environment }}'
+        targetFolder: 'C:\PnPConfigs\${{ parameters.environment }}'
         isWindowsOnTarget: true
         cleanTargetFolder: true
         readyTimeout: '20000'
