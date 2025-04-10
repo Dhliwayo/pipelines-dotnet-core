@@ -59,6 +59,12 @@ jobs:
         targetType: 'inline'
         script: |
           Move-Item -Path $(Build.ArtifactStagingDirectory)/utilities/deploy_config.ps1 -Destination $(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/deploy_config.ps1
+    - task: CmdLine@2
+      displayName: b4 publishing, display tree of build artifact from $(Build.ArtifactStagingDirectory) 
+      inputs:
+        script: |
+          echo ##[debug]List of built in variables in Build.ArtifactStagingDirectory 
+          tree $(Build.ArtifactStagingDirectory)
     - task: PublishBuildArtifacts@1
       displayName: 'Publish artifact'
       inputs:
@@ -90,11 +96,17 @@ jobs:
         #retryDownloadCount: '4' # string. Retry count. Default: 4.
         #extractTars: # boolean. Extract all files that are stored inside tar archives.
     - task: CmdLine@2
-      displayName: Display tree of artifact from $(System.ArtifactsDirectory)
+      displayName: Display tree of sytem artifact dir from $(System.ArtifactsDirectory)
       inputs:
         script: |
           echo ##[debug]List of built in variables in System.ArtifactsDirectory 
           tree $(System.ArtifactsDirectory)
+    - task: CmdLine@2
+      displayName: Display tree of build artifact from $(Build.ArtifactStagingDirectory)
+      inputs:
+        script: |
+          echo ##[debug]List of built in variables in Build.ArtifactStagingDirectory 
+          tree $(Build.ArtifactStagingDirectory)
       
 - job: CopyFilesUsingSSH
   steps:
@@ -108,6 +120,9 @@ jobs:
         isWindowsOnTarget: true
         cleanTargetFolder: true
         readyTimeout: '100000'
+        overwrite: true
+        failOnEmptySource: true
+
 
     # - task: SSH@0
     #   displayName: 'Run deployment script via SSH on target environment $(deployment_ssh_connection)'
