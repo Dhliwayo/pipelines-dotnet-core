@@ -95,15 +95,12 @@ jobs:
         checkDownloadedFiles: true # boolean. Check downloaded files. Default: false.
         #retryDownloadCount: '4' # string. Retry count. Default: 4.
         #extractTars: # boolean. Extract all files that are stored inside tar archives.
-      
-- job: CopyFilesUsingSSH
-  steps:
     - task: CmdLine@2
       displayName: Display tree of sytem artifact dir from $(System.ArtifactsDirectory)
       inputs:
         script: |
-          echo ##[debug]List of built in variables in System.ArtifactsDirectory 
-          tree $(System.ArtifactsDirectory) /F
+            echo ##[debug]List of built in variables in System.ArtifactsDirectory 
+            tree $(System.ArtifactsDirectory) /F
     - task: CopyFilesOverSSH@0
       displayName: 'Copy files from $(System.ArtifactsDirectory) to server via SSH to target environment $(deployment_ssh_connection)'
       inputs:
@@ -115,7 +112,7 @@ jobs:
         cleanTargetFolder: true
         readyTimeout: '300000'
         overwrite: true
-        failOnEmptySource: true
+        failOnEmptySource: true      
 
 
     # - task: SSH@0
