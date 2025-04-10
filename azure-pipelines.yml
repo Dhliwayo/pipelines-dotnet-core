@@ -120,7 +120,7 @@ jobs:
       onTimeout: 'reject'
 
 - job: Deploy
-  displayName: Wait for manual approval and deploy to target environment
+  displayName: Deploy to target environment
   dependsOn: ApproveDeployment
   steps:   
   - task: SSH@0
