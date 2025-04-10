@@ -93,23 +93,23 @@ jobs:
 - job: CopyFilesUsingSSH
   steps:
     - task: CopyFilesOverSSH@0
-      displayName: 'Copy files to server via SSH to target environment $(deployment_ssh_connection)'
+      displayName: 'Copy files from $(System.ArtifactsDirectory) to server via SSH to target environment $(deployment_ssh_connection)'
       inputs:
         sshEndpoint: $(deployment_ssh_connection)
-        #sourceFolder: '$(System.ArtifactsDirectory)'
+        sourceFolder: '$(System.ArtifactsDirectory)'
         contents: '**'
         targetFolder: 'D:\PnPConfigs\${{ parameters.environment }}'
         isWindowsOnTarget: true
         cleanTargetFolder: true
         readyTimeout: '20000'
 
-    - task: SSH@0
-      displayName: 'Run deployment script via SSH on target environment $(deployment_ssh_connection)'
-      inputs:
-        sshEndpoint: $(deployment_ssh_connection)
-        runOptions: 'commands'
-        commands: 'D:\PnPConfigs\${{ parameters.environment }}\deploy_config.ps1'
-        readyTimeout: '20000'
+    # - task: SSH@0
+    #   displayName: 'Run deployment script via SSH on target environment $(deployment_ssh_connection)'
+    #   inputs:
+    #     sshEndpoint: $(deployment_ssh_connection)
+    #     runOptions: 'commands'
+    #     commands: 'D:\PnPConfigs\${{ parameters.environment }}\deploy_config.ps1'
+    #     readyTimeout: '20000'
 
 
   
