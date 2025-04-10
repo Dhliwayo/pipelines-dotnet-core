@@ -26,10 +26,12 @@ variables:
   value: $[ format('{0:yyyy}-{0:MM}-{0:dd}-{0:HHmm}', pipeline.startTime) ]
 - name: varname2
   value: value2
+- name: artifactName
+  value: PnP-Config-Drop-${{ parameters.environment }}-$(time)
 
 
 jobs:
-- job: CopyFilesForEnvironment
+- job: CopyConfigFilesToEnvironment 
   steps:
     - task: CopyFiles@2
       displayName: 'Copy ${{ parameters.environment }} config  files to: $(Build.ArtifactStagingDirectory)'
@@ -69,7 +71,7 @@ jobs:
       displayName: 'Publish artifact'
       inputs:
         pathToPublish: $(Build.ArtifactStagingDirectory)
-        artifactName: PnP-Config-Drop-${{ parameters.environment }}-$(time)
+        artifactName: $(artifactName)
 
     # Download build artifacts v1
     # Download files that were saved as artifacts of a completed build.
@@ -77,24 +79,12 @@ jobs:
       displayName: 'Download artifact'
       inputs:
         buildType: 'current' # 'current' | 'specific'. Required. Download artifacts produced by. Default: current.
-        #project: # string. Required when buildType == specific. Project. 
-        #pipeline: # string. Alias: definition. Required when buildType == specific. Build pipeline. 
-        #specificBuildWithTriggering: false # boolean. Optional. Use when buildType == specific. When appropriate, download artifacts from the triggering build. Default: false.
         buildVersionToDownload: 'latest' # 'latest' | 'latestFromBranch' | 'specific'. Required when buildType == specific. Build version to download. Default: latest.
-        #allowPartiallySucceededBuilds: false # boolean. Optional. Use when buildType == specific && buildVersionToDownload != specific. Download artifacts even from partially succeeded builds. Default: false.
-        #branchName: 'refs/heads/master' # string. Required when buildType == specific && buildVersionToDownload == latestFromBranch. Branch name. Default: refs/heads/master.
-        #buildId: # string. Required when buildType == specific && buildVersionToDownload == specific. Build. 
-        #tags: # string. Optional. Use when buildType == specific && buildVersionToDownload != specific. Build Tags. 
         downloadType: 'single' # 'single' | 'specific'. Required. Download type. Default: single.
-        artifactName: PnP-Config-Drop-${{ parameters.environment }}-$(time) # string. Required when downloadType == single. Artifact name. 
-        #itemPattern: '**' # string. Matching pattern. Default: **.
+        artifactName: $(artifactName) # string. Required when downloadType == single. Artifact name. 
         downloadPath: $(System.ArtifactsDirectory) # string. Required. Destination directory. Default: $(System.ArtifactsDirectory).
         cleanDestinationFolder: true # boolean. Clean destination folder. Default: false.
-      # Advanced
-        #parallelizationLimit: '8' # string. Parallelization limit. Default: 8.
         checkDownloadedFiles: true # boolean. Check downloaded files. Default: false.
-        #retryDownloadCount: '4' # string. Retry count. Default: 4.
-        #extractTars: # boolean. Extract all files that are stored inside tar archives.
     - task: CmdLine@2
       displayName: Display tree of sytem artifact dir from $(System.ArtifactsDirectory)
       inputs:
@@ -110,18 +100,29 @@ jobs:
         targetFolder: 'C:\PnPConfigsDeployment\'
         isWindowsOnTarget: true
         cleanTargetFolder: true
-        readyTimeout: '300000'
+        readyTimeout: '20000'
         overwrite: true
         failOnEmptySource: true      
 
-
-    # - task: SSH@0
-    #   displayName: 'Run deployment script via SSH on target environment $(deployment_ssh_connection)'
-    #   inputs:
-    #     sshEndpoint: $(deployment_ssh_connection)
-    #     runOptions: 'commands'
-    #     commands: 'D:\PnPConfigs\${{ parameters.environment }}\deploy_config.ps1'
-    #     readyTimeout: '20000'
+- job: waitForValidation
+  displayName: Wait for manual approval  
+  pool: server    
+  timeoutInMinutes: 4320 # job times out in 3 days
+  steps:   
+  - task: ManualValidation@0
+    timeoutInMinutes: 1440 # task times out in 1 day
+    inputs:
+      notifyUsers: |
+        itai.dhliwayo@gmail.com
+      instructions: 'Please validate the build drop and resume deployment'
+      onTimeout: 'resume'
+  - task: SSH@0
+    displayName: 'Run deployment script via SSH on target environment $(deployment_ssh_connection)'
+    inputs:
+      sshEndpoint: $(deployment_ssh_connection)
+      runOptions: 'commands'
+      commands: 'D:\PnPConfigsDeployment\$(artifactName)\${{ parameters.environment }}\deploy_config.ps1'
+      readyTimeout: '20000'
 
 
   
