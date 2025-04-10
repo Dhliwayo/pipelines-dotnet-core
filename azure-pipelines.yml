@@ -105,7 +105,7 @@ jobs:
         failOnEmptySource: true      
 
 - job: ApproveDeployment
-  displayName: Wait for manual approval and deploy to target environment
+  displayName: Wait for manual approval 
   dependsOn: CopyConfigFilesToEnvironment
   timeoutInMinutes: 4320 # job times out in 3 days
   pool: server 
