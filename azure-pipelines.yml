@@ -90,13 +90,19 @@ jobs:
         #retryDownloadCount: '4' # string. Retry count. Default: 4.
         #extractTars: # boolean. Extract all files that are stored inside tar archives.
 
+      
 - job: CopyFilesUsingSSH
   steps:
+    - task: CmdLine@2
+      displayName: 'List files in artifacts dir $(System.ArtifactsDirectory)'
+      inputs:
+        script: |
+          for %%f in ( "$(System.ArtifactsDirectory)\*" ) do @echo %%f
     - task: CopyFilesOverSSH@0
-      displayName: 'Copy files from $(Build.ArtifactStagingDirectory) to server via SSH to target environment $(deployment_ssh_connection)'
+      displayName: 'Copy files from $(System.ArtifactsDirectory) to server via SSH to target environment $(deployment_ssh_connection)'
       inputs:
         sshEndpoint: $(deployment_ssh_connection)
-        sourceFolder: $(Build.ArtifactStagingDirectory)
+        sourceFolder: $(System.ArtifactsDirectory)
         contents: '**'
         targetFolder: 'C:\PnPConfigs\${{ parameters.environment }}'
         isWindowsOnTarget: true
