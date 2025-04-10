@@ -90,7 +90,7 @@ jobs:
         #retryDownloadCount: '4' # string. Retry count. Default: 4.
         #extractTars: # boolean. Extract all files that are stored inside tar archives.
     - task: CmdLine@2
-      displayName: Display tree of $(Agent.WorkFolder)
+      displayName: Display tree of artifact from $(System.ArtifactsDirectory)
       inputs:
         script: |
           echo ##[debug]List of built in variables in System.ArtifactsDirectory 
@@ -98,28 +98,16 @@ jobs:
       
 - job: CopyFilesUsingSSH
   steps:
-    - task: CmdLine@2
-      displayName: Display tree of $(Agent.WorkFolder)
+    - task: CopyFilesOverSSH@0
+      displayName: 'Copy files from $(System.ArtifactsDirectory) to server via SSH to target environment $(deployment_ssh_connection)'
       inputs:
-        script: |
-          echo ##[debug]List of built in variables
-          echo Agent.WorkFolder: $(Agent.WorkFolder)
-          echo System.ArtifactsDirectory: $(System.ArtifactsDirectory)
-          echo Build.ArtifactStagingDirectory: $(Build.ArtifactStagingDirectory)
-          echo Build.BinariesDirectory: $(Build.BinariesDirectory)
-          echo Build.SourcesDirectory: $(Build.SourcesDirectory)
-          echo ##[debug]Showing Agent.WorkFolder'
-          tree $(Agent.WorkFolder)/1 /f /a
-    # - task: CopyFilesOverSSH@0
-    #   displayName: 'Copy files from $(System.ArtifactsDirectory) to server via SSH to target environment $(deployment_ssh_connection)'
-    #   inputs:
-    #     sshEndpoint: $(deployment_ssh_connection)
-    #     sourceFolder: $(System.ArtifactsDirectory)
-    #     contents: '**'
-    #     targetFolder: 'C:\PnPConfigs\${{ parameters.environment }}'
-    #     isWindowsOnTarget: true
-    #     cleanTargetFolder: true
-    #     readyTimeout: '20000'
+        sshEndpoint: $(deployment_ssh_connection)
+        sourceFolder: $(System.ArtifactsDirectory)
+        contents: '**'
+        targetFolder: 'C:\PnPConfigs\${{ parameters.environment }}'
+        isWindowsOnTarget: true
+        cleanTargetFolder: true
+        readyTimeout: '20000'
 
     # - task: SSH@0
     #   displayName: 'Run deployment script via SSH on target environment $(deployment_ssh_connection)'
