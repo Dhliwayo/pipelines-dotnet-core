@@ -104,17 +104,18 @@ jobs:
         overwrite: true
         failOnEmptySource: true      
 
-- job: waitForValidation
-  displayName: Wait for manual approval  
+- job: DeployToEnvironment
+  displayName: Wait for manual approval and deploy to target environment
   timeoutInMinutes: 4320 # job times out in 3 days
   steps:   
-  - task: ManualValidation@0
+  - task: ManualValidation@1
     timeoutInMinutes: 1440 # task times out in 1 day
     inputs:
       notifyUsers: |
         itai.dhliwayo@gmail.com
       instructions: 'Please validate the build drop and resume deployment'
-      onTimeout: 'resume'
+      allowApproversToApproveTheirOwnRuns: true
+      onTimeout: 'reject'
   - task: SSH@0
     displayName: 'Run deployment script via SSH on target environment $(deployment_ssh_connection)'
     inputs:
