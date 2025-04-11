@@ -60,17 +60,20 @@ $configs = @{
     }
 }
 
-$Logfile = "deploy_config.log"
+$scriptPath = $MyInvocation.MyCommand.Path
+$scriptDir = Split-Path $scriptPath -Parent
+$logfile = Join-Path -Path scriptDir -ChildPath "/deploy_config.log"
+
+Write-Output "Log file path : $logfile"
+
+# Functions
 
 Function LogWrite
 {
    Param ([string]$logstring)
 
-   Add-content $Logfile -value $logstring
+   Add-content $logfile -value $logstring
 }
-
-# Functions
-
 
 # Logic 
 
@@ -136,7 +139,6 @@ $configs.GetEnumerator() | ForEach-Object {
     Else {
 
         Copy-Item $_.Value.Source -Destination $_.Value.Target -force
-
     }
 
     # For testing on dev box, we create the destination path if does not exist
