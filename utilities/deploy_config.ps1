@@ -62,7 +62,7 @@ $configs = @{
 
 $scriptPath = $MyInvocation.MyCommand.Path
 $scriptDir = Split-Path $scriptPath -Parent
-$logfile = Join-Path -Path scriptDir -ChildPath "/deploy_config.log"
+$logfile = Join-Path -Path $scriptDir -ChildPath "/deploy_config.log"
 
 Write-Output "Log file path : $logfile"
 
@@ -92,18 +92,15 @@ New-Item -Path $backuppath -ItemType Directory
 # 2. Copy target file to backup 
 # Skip if target doesn't exist 
 
-LogWrite "Creating backup at" $backuppath
+LogWrite "Creating backup at $backuppath"
 
 $configs.GetEnumerator() | ForEach-Object {
 
     If ((Test-Path -Path $_.Value.Target -PathType Leaf) -eq $False) {
     
-        LogWrite $_.Value.Target "does not exist"
-    
+        LogWrite "$_.Value.Target does not exist"
     }
     Else {
-
-    
         $target_name = Split-Path $_.Value.Target -NoQualifier
         $target_path = Join-Path -Path $backuppath -ChildPath $target_name
         $target_dir = Split-Path $target_path -Parent
@@ -114,7 +111,6 @@ $configs.GetEnumerator() | ForEach-Object {
 
         Copy-Item $_.Value.Target -Destination $target_path
     }
-    
 }
 
 # 3. Overwrite target file with new source 
@@ -124,33 +120,28 @@ LogWrite "Deploying new config files"
 $configs.GetEnumerator() | ForEach-Object {
 
     # Check whether target and source exists before trying to copy 
-    LogWrite "Processing: " $_.Value.Target
+    LogWrite "Processing:  $_.Value.Target"
 
     If ((Test-Path -Path $_.Value.Source -PathType Leaf) -eq $False) {
-
-        LogWrite " > Input" $_.Value.Source "does not exist"
-
-    }
+        LogWrite " > Input $_.Value.Source does not exist"
+   }
     ElseIf ((Test-Path -Path $_.Value.Target -PathType Leaf) -eq $False) {
-    
         LogWrite " > Target" $_.Value.Target "does not exist"
-    
     }
     Else {
-
         Copy-Item $_.Value.Source -Destination $_.Value.Target -force
     }
 
     # For testing on dev box, we create the destination path if does not exist
-	# If ((Test-Path -Path $_.Value.Target -PathType Leaf) -eq $False) {
+	If ((Test-Path -Path $_.Value.Target -PathType Leaf) -eq $False) {
     
-	# 	$destinationPath = Split-Path -Path $_.Value.Target
+		$destinationPath = Split-Path -Path $_.Value.Target
 		
-	# 	LogWrite "Creating destination path: " $destinationPath
-	# 	New-Item -Path $destinationPath -ItemType Directory -Force
+		LogWrite "Creating destination path:  $destinationPath"
+		New-Item -Path $destinationPath -ItemType Directory -Force
 		
-	# 	Copy-Item $_.Value.Source -Destination $_.Value.Target -force
-    # }
+		Copy-Item $_.Value.Source -Destination $_.Value.Target -force
+    }
 }
 
 
