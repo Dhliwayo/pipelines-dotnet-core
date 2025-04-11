@@ -34,7 +34,7 @@ parameters:
 variables:
 - group: PerilsProximity.Configs.${{ parameters.environment }} # note there's a dash at the beginning of the line
 - name: time
-  value: $[ format('{0:yyyy}-{0:MM}-{0:dd}-{0:HH}', pipeline.startTime) ]
+  value: $[ format('{0:yyyy}-{0:MM}-{0:dd}-{0:HHmm}', pipeline.startTime) ]
 - name: varname2
   value: value2
 - name: artifactName
