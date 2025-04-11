@@ -128,8 +128,9 @@ jobs:
     displayName: 'Run deployment script via SSH on target environment $(deployment_ssh_connection)'
     inputs:
       sshEndpoint: $(deployment_ssh_connection)
-      runOptions: 'script'
-      scriptPath: 'C:\PnPConfigsDeployment\$(artifactName)\${{ parameters.environment }}\deploy_config.ps1'
+      runOptions: 'commands'
+      commands: |
+        C:\PnPConfigsDeployment\$(artifactName)\${{ parameters.environment }}\deploy_config.ps1
       failOnStdErr: true 
       readyTimeout: '20000'
 
