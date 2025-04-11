@@ -104,19 +104,22 @@ jobs:
         script: |
             echo ##[debug]List of built in variables in System.ArtifactsDirectory 
             tree $(System.ArtifactsDirectory) /F
-    - ${{ each server in $(servers) }}:        
-      - task: CopyFilesOverSSH@0
-        displayName: 'SSH Copy files from $(System.ArtifactsDirectory) to ${{ parameters.environment }} using $(deployment_ssh_connection) $(server)'
-        inputs:
-          sshEndpoint: $(deployment_ssh_connection)
-          sourceFolder: $(System.ArtifactsDirectory)
-          contents: '**'
-          targetFolder: 'C:\PnPConfigsDeployment\'
-          isWindowsOnTarget: true
-          cleanTargetFolder: true
-          readyTimeout: '20000'
-          overwrite: true
-          failOnEmptySource: true      
+
+    - ${{ each value in variables.hostnames }}:
+      - script: echo ${{ value }}
+
+    - task: CopyFilesOverSSH@0
+      displayName: 'SSH Copy files from $(System.ArtifactsDirectory) to ${{ parameters.environment }} using $(deployment_ssh_connection) $(server)'
+      inputs:
+        sshEndpoint: $(deployment_ssh_connection)
+        sourceFolder: $(System.ArtifactsDirectory)
+        contents: '**'
+        targetFolder: 'C:\PnPConfigsDeployment\'
+        isWindowsOnTarget: true
+        cleanTargetFolder: true
+        readyTimeout: '20000'
+        overwrite: true
+        failOnEmptySource: true      
 
 - job: ApproveDeployment
   displayName: ${{ parameters.environment }} wait for manual approval 
