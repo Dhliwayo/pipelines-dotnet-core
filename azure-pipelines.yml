@@ -135,15 +135,24 @@ jobs:
   displayName: Deploy in target environment
   dependsOn: ApproveDeployment
   steps:
-    - task: PowerShellOnTargetMachines@3
-      inputs:
-        Machines: $(hostname) # string. Required. Machines. 
-        UserName: $(username) # string. Username. 
-        UserPassword: $(password) # string. Password. 
+  - task: SSH@0
+    displayName: 'Run deployment script via SSH on target environment $(deployment_ssh_connection)'
+    inputs:
+      sshEndpoint: $(deployment_ssh_connection)
+      runOptions: 'commands'
+      commands: |
+        C:\PnPConfigsDeployment\$(artifactName)\${{ parameters.environment }}\deploy_config.ps1
+      failOnStdErr: true 
+      readyTimeout: '20000'
+    #- task: PowerShellOnTargetMachines@3
+      # inputs:
+        # Machines: $(hostname) # string. Required. Machines. 
+        # UserName: $(username) # string. Username. 
+        # UserPassword: $(password) # string. Password. 
       # Script options
-        ScriptType: 'FilePath' # 'FilePath' | 'Inline'. Script Type. Default: Inline.
-        ScriptPath: 'C:\PnPConfigsDeployment\$(artifactName)\${{ parameters.environment }}\deploy_config.ps1' # string. Required when ScriptType = FilePath. Script File Path. 
-        InlineScript: # string. Required when ScriptType = Inline. Script. 
+        # ScriptType: 'FilePath' # 'FilePath' | 'Inline'. Script Type. Default: Inline.
+        # ScriptPath: 'C:\PnPConfigsDeployment\$(artifactName)\${{ parameters.environment }}\deploy_config.ps1' # string. Required when ScriptType = FilePath. Script File Path. 
+        # InlineScript: # string. Required when ScriptType = Inline. Script. 
         #ScriptArguments: # string. Optional. Use when ScriptType = FilePath. Script Arguments. 
         #InitializationScript: # string. Optional. Use when ScriptType = FilePath. Initialization script. 
         #SessionVariables: # string. Optional. Use when ScriptType = FilePath. Session Variables. 
@@ -158,15 +167,7 @@ jobs:
       # Advanced
         #WorkingDirectory: # string. Working Directory. 
         #RunPowershellInParallel: true # boolean. Run PowerShell in Parallel. Default: true.   
-  # - task: SSH@0
-  #   displayName: 'Run deployment script via SSH on target environment $(deployment_ssh_connection)'
-  #   inputs:
-  #     sshEndpoint: $(deployment_ssh_connection)
-  #     runOptions: 'commands'
-  #     commands: |
-  #       C:\PnPConfigsDeployment\$(artifactName)\${{ parameters.environment }}\deploy_config.ps1
-  #     failOnStdErr: true 
-  #     readyTimeout: '20000'
+
 
 
   
