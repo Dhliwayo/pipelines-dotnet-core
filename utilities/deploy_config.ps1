@@ -135,7 +135,7 @@ $configs.GetEnumerator() | ForEach-Object {
     # For testing on dev box, we create the destination path if does not exist
 	If ((Test-Path -Path $_.Value.Target -PathType Leaf) -eq $False) {
     
-		$destinationPath = Split-Path -Path $_.Value.Target
+		$destinationPath = Split-Path -Path $_.Value.Target 
 		
 		LogWrite "Creating destination path:  $destinationPath"
 		New-Item -Path $destinationPath -ItemType Directory -Force
