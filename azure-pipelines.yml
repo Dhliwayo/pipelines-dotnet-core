@@ -1,5 +1,16 @@
 name: $(SourceBranchName)_$(date:yyyyMMdd)$(rev:.r)_PerilsProximity_Build_Configs
-  
+
+#Pipeline actions:
+# select environment and config files are copied to the machin destination
+# variable group is picked from selected environment
+# actual deployment is done after manual approval
+# stops, services
+# deploys
+# starts services
+# for pre-prod & prod, this is repeated for all the machines 
+
+
+
 trigger:
   - config-pipeline
   - master
@@ -21,7 +32,7 @@ parameters:
     - production
 
 variables:
-- group: PerilsProximity.Configs.Staging # note there's a dash at the beginning of the line
+- group: PerilsProximity.Configs.${{ parameters.environment }} # note there's a dash at the beginning of the line
 - name: time
   value: $[ format('{0:yyyy}-{0:MM}-{0:dd}-{0:HHmm}', pipeline.startTime) ]
 - name: varname2
@@ -123,16 +134,39 @@ jobs:
 - job: Deploy
   displayName: Deploy in target environment
   dependsOn: ApproveDeployment
-  steps:   
-  - task: SSH@0
-    displayName: 'Run deployment script via SSH on target environment $(deployment_ssh_connection)'
-    inputs:
-      sshEndpoint: $(deployment_ssh_connection)
-      runOptions: 'commands'
-      commands: |
-        C:\PnPConfigsDeployment\$(artifactName)\${{ parameters.environment }}\deploy_config.ps1
-      failOnStdErr: true 
-      readyTimeout: '20000'
+  steps:
+    - task: PowerShellOnTargetMachines@3
+      inputs:
+        Machines: $(hostname) # string. Required. Machines. 
+        UserName: $(username) # string. Username. 
+        UserPassword: $(password) # string. Password. 
+      # Script options
+        ScriptType: 'FilePath' # 'FilePath' | 'Inline'. Script Type. Default: Inline.
+        ScriptPath: 'C:\PnPConfigsDeployment\$(artifactName)\${{ parameters.environment }}\deploy_config.ps1' # string. Required when ScriptType = FilePath. Script File Path. 
+        InlineScript: # string. Required when ScriptType = Inline. Script. 
+        #ScriptArguments: # string. Optional. Use when ScriptType = FilePath. Script Arguments. 
+        #InitializationScript: # string. Optional. Use when ScriptType = FilePath. Initialization script. 
+        #SessionVariables: # string. Optional. Use when ScriptType = FilePath. Session Variables. 
+      # PSSession options
+        #CommunicationProtocol: 'Https' # 'Http' | 'Https'. Protocol. Default: Https.
+        #AuthenticationMechanism: 'Default' # 'Default' | 'Credssp'. Authentication. Default: Default.
+        #NewPsSessionOptionArguments: '-SkipCACheck -IdleTimeout 7200000 -OperationTimeout 0 -OutputBufferingMode Block' # string. Session Option parameters. Default: -SkipCACheck -IdleTimeout 7200000 -OperationTimeout 0 -OutputBufferingMode Block.
+      # Error handling options
+        #ErrorActionPreference: 'stop' # 'stop' | 'continue' | 'silentlyContinue'. ErrorActionPreference. Default: stop.
+        #failOnStderr: false # boolean. Fail on Standard Error. Default: false.
+        #ignoreLASTEXITCODE: false # boolean. Ignore $LASTEXITCODE. Default: false.
+      # Advanced
+        #WorkingDirectory: # string. Working Directory. 
+        #RunPowershellInParallel: true # boolean. Run PowerShell in Parallel. Default: true.   
+  # - task: SSH@0
+  #   displayName: 'Run deployment script via SSH on target environment $(deployment_ssh_connection)'
+  #   inputs:
+  #     sshEndpoint: $(deployment_ssh_connection)
+  #     runOptions: 'commands'
+  #     commands: |
+  #       C:\PnPConfigsDeployment\$(artifactName)\${{ parameters.environment }}\deploy_config.ps1
+  #     failOnStdErr: true 
+  #     readyTimeout: '20000'
 
 
   

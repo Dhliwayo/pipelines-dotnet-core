@@ -96,8 +96,7 @@ LogWrite "Creating backup at $backuppath"
 
 $configs.GetEnumerator() | ForEach-Object {
 
-    If ((Test-Path -Path $_.Value.Target -PathType Leaf) -eq $False) {
-    
+    If ((Test-Path -Path $_.Value.Target -PathType Leaf) -eq $False) {    
         LogWrite "$_.Value.Target does not exist"
     }
     Else {
@@ -126,7 +125,7 @@ $configs.GetEnumerator() | ForEach-Object {
         LogWrite " > Input $_.Value.Source does not exist"
    }
     ElseIf ((Test-Path -Path $_.Value.Target -PathType Leaf) -eq $False) {
-        LogWrite " > Target" $_.Value.Target "does not exist"
+        LogWrite " > Target $_.Value.Target does not exist"
     }
     Else {
         Copy-Item $_.Value.Source -Destination $_.Value.Target -force
