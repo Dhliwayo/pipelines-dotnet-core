@@ -31,7 +31,8 @@ variables:
 
 
 jobs:
-- job: CopyConfigFilesToEnvironment 
+- job: CopyConfigFilesToEnvironment
+  displayName: Copy configs to target environment 
   steps:
     - task: CopyFiles@2
       displayName: 'Copy ${{ parameters.environment }} config  files to: $(Build.ArtifactStagingDirectory)'
@@ -120,15 +121,15 @@ jobs:
       onTimeout: 'reject'
 
 - job: Deploy
-  displayName: Deploy to target environment
+  displayName: Deploy in target environment
   dependsOn: ApproveDeployment
   steps:   
   - task: SSH@0
     displayName: 'Run deployment script via SSH on target environment $(deployment_ssh_connection)'
     inputs:
       sshEndpoint: $(deployment_ssh_connection)
-      runOptions: 'commands'
-      commands: 'C:\PnPConfigsDeployment\$(artifactName)\${{ parameters.environment }}\deploy_config.ps1'
+      runOptions: 'script'
+      scriptPath: 'C:\PnPConfigsDeployment\$(artifactName)\${{ parameters.environment }}\deploy_config.ps1'
       failOnStdErr: true 
       readyTimeout: '20000'
 
