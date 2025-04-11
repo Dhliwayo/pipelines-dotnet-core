@@ -39,7 +39,8 @@ variables:
   value: value2
 - name: artifactName
   value: PnP-Config-Drop-${{ parameters.environment }}
-
+- name: servers
+  value: $(hostnames).split('|')
 
 jobs:
 - job: CopyConfigFilesToEnvironment
@@ -103,9 +104,9 @@ jobs:
         script: |
             echo ##[debug]List of built in variables in System.ArtifactsDirectory 
             tree $(System.ArtifactsDirectory) /F
-    - ${{ each machine in split($(hostnames), '|') }}:        
+    - ${{ each server in servers }}:        
       - task: CopyFilesOverSSH@0
-        displayName: 'SSH Copy files from $(System.ArtifactsDirectory) to ${{ parameters.environment }} using $(deployment_ssh_connection) $(machine)'
+        displayName: 'SSH Copy files from $(System.ArtifactsDirectory) to ${{ parameters.environment }} using $(deployment_ssh_connection) $(server)'
         inputs:
           sshEndpoint: $(deployment_ssh_connection)
           sourceFolder: $(System.ArtifactsDirectory)
