@@ -65,6 +65,8 @@ $scriptDir = Split-Path $scriptPath -Parent
 $logfile = Join-Path -Path $scriptDir -ChildPath "/deploy_config.log"
 
 Write-Output "Log file path : $logfile"
+Set-Location -path $scriptDir
+Write-Output "Working directory : $logfile"
 
 # Functions
 
