@@ -75,7 +75,7 @@ Write-Output "Working directory : $scriptDir"
 
 # Create backup folder 
 
-$datetimenow = Get-Date -Format "yyyyMMdd_hhmmss"
+$datetimenow = Get-Date -Format "yyyy-MM-dd-hhmmss"
 
 $backupfolder = "../../../backup_" + $datetimenow
 
