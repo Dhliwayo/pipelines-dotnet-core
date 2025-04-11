@@ -104,7 +104,7 @@ jobs:
         script: |
             echo ##[debug]List of built in variables in System.ArtifactsDirectory 
             tree $(System.ArtifactsDirectory) /F
-    - ${{ each server in servers }}:        
+    - ${{ each server in $(servers) }}:        
       - task: CopyFilesOverSSH@0
         displayName: 'SSH Copy files from $(System.ArtifactsDirectory) to ${{ parameters.environment }} using $(deployment_ssh_connection) $(server)'
         inputs:
