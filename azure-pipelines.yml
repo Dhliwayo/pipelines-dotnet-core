@@ -141,7 +141,7 @@ jobs:
       sshEndpoint: $(deployment_ssh_connection)
       runOptions: 'commands'
       commands: |
-        C:\PnPConfigsDeployment\$(artifactName)\${{ parameters.environment }}\deploy_config.ps1
+        PowerShell C:\PnPConfigsDeployment\$(artifactName)\${{ parameters.environment }}\deploy_config.ps1
       failOnStdErr: true 
       readyTimeout: '20000'
     #- task: PowerShellOnTargetMachines@3
