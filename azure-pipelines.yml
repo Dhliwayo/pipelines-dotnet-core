@@ -132,7 +132,7 @@ jobs:
       onTimeout: 'reject'
 
 - job: Deploy
-  displayName: Deploy in target environment
+  displayName: Deploy in ${{ parameters.environment }} environment
   dependsOn: ApproveDeployment
   steps:
   - task: SSH@0
