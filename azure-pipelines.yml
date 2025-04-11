@@ -43,7 +43,7 @@ variables:
 
 jobs:
 - job: CopyConfigFilesToEnvironment
-  displayName: Copy configs to target environment 
+  displayName: Copy configs to ${{ parameters.environment }} environment 
   steps:
     - task: CopyFiles@2
       displayName: 'Copy ${{ parameters.environment }} config  files to: $(Build.ArtifactStagingDirectory)'
@@ -104,7 +104,7 @@ jobs:
             echo ##[debug]List of built in variables in System.ArtifactsDirectory 
             tree $(System.ArtifactsDirectory) /F
     - task: CopyFilesOverSSH@0
-      displayName: 'Copy files from $(System.ArtifactsDirectory) to server via SSH to target environment $(deployment_ssh_connection)'
+      displayName: 'SSH Copy files from $(System.ArtifactsDirectory) to ${{ parameters.environment }} using $(deployment_ssh_connection)'
       inputs:
         sshEndpoint: $(deployment_ssh_connection)
         sourceFolder: $(System.ArtifactsDirectory)
@@ -117,7 +117,7 @@ jobs:
         failOnEmptySource: true      
 
 - job: ApproveDeployment
-  displayName: Wait for manual approval 
+  displayName: Wait for manual approval in ${{ parameters.environment }}
   dependsOn: CopyConfigFilesToEnvironment
   timeoutInMinutes: 4320 # job times out in 3 days
   pool: server 
@@ -127,7 +127,7 @@ jobs:
     inputs:
       notifyUsers: |
         itai.dhliwayo@gmail.com
-      instructions: 'Please validate the build drop and resume deployment'
+      instructions: 'Please validate the build drop in ${{ parameters.environment }} and resume deployment'
       allowApproversToApproveTheirOwnRuns: true
       onTimeout: 'reject'
 
@@ -136,7 +136,7 @@ jobs:
   dependsOn: ApproveDeployment
   steps:
   - task: SSH@0
-    displayName: 'Run deployment script via SSH on target environment $(deployment_ssh_connection)'
+    displayName: 'Run deployment script via SSH on ${{ parameters.environment }} environment $(deployment_ssh_connection)'
     inputs:
       sshEndpoint: $(deployment_ssh_connection)
       runOptions: 'commands'
@@ -144,29 +144,7 @@ jobs:
         PowerShell C:\PnPConfigsDeployment\$(artifactName)\${{ parameters.environment }}\deploy_config.ps1
       failOnStdErr: true 
       readyTimeout: '20000'
-    #- task: PowerShellOnTargetMachines@3
-      # inputs:
-        # Machines: $(hostname) # string. Required. Machines. 
-        # UserName: $(username) # string. Username. 
-        # UserPassword: $(password) # string. Password. 
-      # Script options
-        # ScriptType: 'FilePath' # 'FilePath' | 'Inline'. Script Type. Default: Inline.
-        # ScriptPath: 'C:\PnPConfigsDeployment\$(artifactName)\${{ parameters.environment }}\deploy_config.ps1' # string. Required when ScriptType = FilePath. Script File Path. 
-        # InlineScript: # string. Required when ScriptType = Inline. Script. 
-        #ScriptArguments: # string. Optional. Use when ScriptType = FilePath. Script Arguments. 
-        #InitializationScript: # string. Optional. Use when ScriptType = FilePath. Initialization script. 
-        #SessionVariables: # string. Optional. Use when ScriptType = FilePath. Session Variables. 
-      # PSSession options
-        #CommunicationProtocol: 'Https' # 'Http' | 'Https'. Protocol. Default: Https.
-        #AuthenticationMechanism: 'Default' # 'Default' | 'Credssp'. Authentication. Default: Default.
-        #NewPsSessionOptionArguments: '-SkipCACheck -IdleTimeout 7200000 -OperationTimeout 0 -OutputBufferingMode Block' # string. Session Option parameters. Default: -SkipCACheck -IdleTimeout 7200000 -OperationTimeout 0 -OutputBufferingMode Block.
-      # Error handling options
-        #ErrorActionPreference: 'stop' # 'stop' | 'continue' | 'silentlyContinue'. ErrorActionPreference. Default: stop.
-        #failOnStderr: false # boolean. Fail on Standard Error. Default: false.
-        #ignoreLASTEXITCODE: false # boolean. Ignore $LASTEXITCODE. Default: false.
-      # Advanced
-        #WorkingDirectory: # string. Working Directory. 
-        #RunPowershellInParallel: true # boolean. Run PowerShell in Parallel. Default: true.   
+  
 
 
 
