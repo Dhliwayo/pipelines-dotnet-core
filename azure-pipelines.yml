@@ -38,7 +38,7 @@ variables:
 - name: varname2
   value: value2
 - name: artifactName
-  value: PnP-Config-Drop-${{ parameters.environment }}-$(time)
+  value: PnP-Config-Drop-${{ parameters.environment }}
 
 
 jobs:
