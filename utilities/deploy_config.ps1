@@ -62,20 +62,12 @@ $configs = @{
 
 $scriptPath = $MyInvocation.MyCommand.Path
 $scriptDir = Split-Path $scriptPath -Parent
-$logfile = Join-Path -Path $scriptDir -ChildPath "/deploy_config.log"
 
-Write-Output "Log file path : $logfile"
 Set-Location -path $scriptDir
-Write-Output "Working directory : $logfile"
+Write-Output "Working directory : $scriptDir"
 
 # Functions
 
-Function LogWrite
-{
-   Param ([string]$logstring)
-
-   Add-content $logfile -value $logstring
-}
 
 # Logic 
 
@@ -85,7 +77,7 @@ Function LogWrite
 
 $datetimenow = Get-Date -Format "yyyyMMdd_hhmmss"
 
-$backupfolder = "../../backup_" + $datetimenow
+$backupfolder = "../../../backup_" + $datetimenow
 
 $backuppath = Join-Path -Path $pwd -ChildPath $backupfolder
 
@@ -94,12 +86,12 @@ New-Item -Path $backuppath -ItemType Directory
 # 2. Copy target file to backup 
 # Skip if target doesn't exist 
 
-LogWrite "Creating backup at $backuppath"
+Write-Output "Creating backup at $backuppath"
 
 $configs.GetEnumerator() | ForEach-Object {
 
     If ((Test-Path -Path $_.Value.Target -PathType Leaf) -eq $False) {    
-        LogWrite "$_.Value.Target does not exist"
+        Write-Output $_.Value.Target " does not exist"
     }
     Else {
         $target_name = Split-Path $_.Value.Target -NoQualifier
@@ -116,18 +108,18 @@ $configs.GetEnumerator() | ForEach-Object {
 
 # 3. Overwrite target file with new source 
 
-LogWrite "Deploying new config files"
+Write-Output "Deploying new config files"
 
 $configs.GetEnumerator() | ForEach-Object {
 
     # Check whether target and source exists before trying to copy 
-    LogWrite "Processing:  $_.Value.Target"
+    Write-Output "Processing: " $_.Value.Target
 
     If ((Test-Path -Path $_.Value.Source -PathType Leaf) -eq $False) {
-        LogWrite " > Input $_.Value.Source does not exist"
+        Write-Output " > Input " $_.Value.Source " does not exist"
    }
     ElseIf ((Test-Path -Path $_.Value.Target -PathType Leaf) -eq $False) {
-        LogWrite " > Target $_.Value.Target does not exist"
+        Write-Output " > Target " $_.Value.Target " does not exist"
     }
     Else {
         Copy-Item $_.Value.Source -Destination $_.Value.Target -force
@@ -138,7 +130,7 @@ $configs.GetEnumerator() | ForEach-Object {
     
 		$destinationPath = Split-Path -Path $_.Value.Target 
 		
-		LogWrite "Creating destination path:  $destinationPath"
+		Write-Output "Creating destination path:  " $destinationPath
 		New-Item -Path $destinationPath -ItemType Directory -Force
 		
 		Copy-Item $_.Value.Source -Destination $_.Value.Target -force

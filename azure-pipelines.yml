@@ -43,7 +43,7 @@ variables:
 
 jobs:
 - job: CopyConfigFilesToEnvironment
-  displayName: Copy configs to ${{ parameters.environment }} environment 
+  displayName: ${{ parameters.environment }} copy configs  
   steps:
     - task: CopyFiles@2
       displayName: 'Copy ${{ parameters.environment }} config  files to: $(Build.ArtifactStagingDirectory)'
@@ -117,7 +117,7 @@ jobs:
         failOnEmptySource: true      
 
 - job: ApproveDeployment
-  displayName: Wait for manual approval in ${{ parameters.environment }}
+  displayName: ${{ parameters.environment }} wait for manual approval 
   dependsOn: CopyConfigFilesToEnvironment
   timeoutInMinutes: 4320 # job times out in 3 days
   pool: server 
@@ -132,7 +132,7 @@ jobs:
       onTimeout: 'reject'
 
 - job: Deploy
-  displayName: Deploy in ${{ parameters.environment }} environment
+  displayName:  ${{ parameters.environment }}  deploy 
   dependsOn: ApproveDeployment
   steps:
   - task: SSH@0
