@@ -85,7 +85,7 @@ Function LogWrite
 
 $datetimenow = Get-Date -Format "yyyyMMdd_hhmmss"
 
-$backupfolder = "/backup_" + $datetimenow
+$backupfolder = "../../backup_" + $datetimenow
 
 $backuppath = Join-Path -Path $pwd -ChildPath $backupfolder
 
