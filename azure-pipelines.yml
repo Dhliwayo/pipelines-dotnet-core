@@ -104,7 +104,6 @@ jobs:
             tree $(System.ArtifactsDirectory) /F
 
     - ${{ each env in split(variables.servers,'|') }}:
-      - script: Copying files to server - ${{ env }} 
       - task: CopyFilesOverSSH@0
         displayName: 'SSH Copy files from $(System.ArtifactsDirectory) to ${{ parameters.environment }} using $(deployment_ssh_connection) ${{ env }} '
         inputs:
@@ -138,7 +137,6 @@ jobs:
   dependsOn: ApproveDeployment
   steps:
     - ${{ each env in split(variables.servers,'|') }}:
-      - script: Copying files to server - ${{ env }} 
       - task: SSH@0
         displayName: 'Run deployment script via SSH on ${{ parameters.environment }} environment $(deployment_ssh_connection) ${{ env }} '
         inputs:
