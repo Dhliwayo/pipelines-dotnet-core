@@ -44,7 +44,7 @@ jobs:
 - job: CopyConfigFilesToEnvironment
   displayName: ${{ parameters.environment }} copy configs  
   steps:
-    - ${{ each env in $(servers).split('|')}}:
+    - ${{ each env in servers.split('|')}}:
       - script: echo hostname ${{ env }} 
       - task: CopyFiles@2
         displayName: 'Copy ${{ parameters.environment }} config  files to: $(Build.ArtifactStagingDirectory)'
