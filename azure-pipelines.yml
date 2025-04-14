@@ -85,9 +85,9 @@ jobs:
       inputs:
         pathToPublish: $(Build.ArtifactStagingDirectory)
         artifactName: $(artifactName)
-    - ${{ each env in split($(hostnames), '|')}}:
+    - ${{ each env in split(variables.hostnames, '|')}}:
       - script: echo hostname ${{ env }} from $(hostnames)
-
+      
     # Download build artifacts v1
     # Download files that were saved as artifacts of a completed build.
     - task: DownloadBuildArtifacts@1
