@@ -37,12 +37,14 @@ variables:
   value: $[ format('{0:yyyy}-{0:MM}-{0:dd}-{0:HHmm}', pipeline.startTime) ]
 - name: artifactName
   value: PnP-Config-Drop-${{ parameters.environment }}
+- name: servers
+  value: '20.117.169.185|20.117.169.184'
 
 jobs:
 - job: CopyConfigFilesToEnvironment
   displayName: ${{ parameters.environment }} copy configs  
   steps:
-    - ${{ each env in $(hostnames).split('|')}}:
+    - ${{ each env in $(servers).split('|')}}:
       - script: echo hostname ${{ env }} 
       - task: CopyFiles@2
         displayName: 'Copy ${{ parameters.environment }} config  files to: $(Build.ArtifactStagingDirectory)'
@@ -103,7 +105,7 @@ jobs:
             echo ##[debug]List of built in variables in System.ArtifactsDirectory 
             tree $(System.ArtifactsDirectory) /F
 
-    - ${{ each env in variables.PerilsProximity.Configs.staging.hostnames }}:
+    - ${{ each env in $(servers).split('|')}}:
       - script: echo hostname ${{ env }} 
       - task: CopyFilesOverSSH@0
         displayName: 'SSH Copy files from $(System.ArtifactsDirectory) to ${{ parameters.environment }} using $(deployment_ssh_connection) $(server)'
