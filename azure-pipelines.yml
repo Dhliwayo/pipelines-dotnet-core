@@ -76,13 +76,17 @@ jobs:
         script: |
           echo ##[debug]List of built in variables in Build.ArtifactStagingDirectory 
           tree $(Build.ArtifactStagingDirectory) /F
+    - task: CmdLine@2
+      displayName: Check iterations 
+      inputs:
+        script: |
+          echo ##[debug]List of built in variables in Build.ArtifactStagingDirectory 
+          tree $(Build.ArtifactStagingDirectory) /F
     - task: PublishBuildArtifacts@1
       displayName: 'Publish artifact'
       inputs:
         pathToPublish: $(Build.ArtifactStagingDirectory)
         artifactName: $(artifactName)
-    - ${{ each env in variables.PerilsProximity.Configs.staging.hostnames }}:
-      - script: echo hostname ${{ env }} 
 
     # Download build artifacts v1
     # Download files that were saved as artifacts of a completed build.
@@ -103,18 +107,20 @@ jobs:
             echo ##[debug]List of built in variables in System.ArtifactsDirectory 
             tree $(System.ArtifactsDirectory) /F
 
-    - task: CopyFilesOverSSH@0
-      displayName: 'SSH Copy files from $(System.ArtifactsDirectory) to ${{ parameters.environment }} using $(deployment_ssh_connection) $(server)'
-      inputs:
-        sshEndpoint: $(deployment_ssh_connection)
-        sourceFolder: $(System.ArtifactsDirectory)
-        contents: '**'
-        targetFolder: 'C:\PnPConfigsDeployment\'
-        isWindowsOnTarget: true
-        cleanTargetFolder: true
-        readyTimeout: '20000'
-        overwrite: true
-        failOnEmptySource: true      
+    - ${{ each env in variables.PerilsProximity.Configs.staging.hostnames }}:
+      - script: echo hostname ${{ env }} 
+      - task: CopyFilesOverSSH@0
+        displayName: 'SSH Copy files from $(System.ArtifactsDirectory) to ${{ parameters.environment }} using $(deployment_ssh_connection) $(server)'
+        inputs:
+          sshEndpoint: $(deployment_ssh_connection)
+          sourceFolder: $(System.ArtifactsDirectory)
+          contents: '**'
+          targetFolder: 'C:\PnPConfigsDeployment\'
+          isWindowsOnTarget: true
+          cleanTargetFolder: true
+          readyTimeout: '20000'
+          overwrite: true
+          failOnEmptySource: true      
 
 - job: ApproveDeployment
   displayName: ${{ parameters.environment }} wait for manual approval 
