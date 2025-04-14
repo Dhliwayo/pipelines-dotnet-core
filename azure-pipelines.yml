@@ -44,47 +44,45 @@ jobs:
 - job: CopyConfigFilesToEnvironment
   displayName: ${{ parameters.environment }} copy configs  
   steps:
-    - ${{ each env in split(variables.servers,'|') }}:
-      - script: echo hostname ${{ env }} 
-      - task: CopyFiles@2
-        displayName: 'Copy ${{ parameters.environment }} config  files to: $(Build.ArtifactStagingDirectory)'
-        inputs:
-          contents: |
-            ${{ parameters.environment }}/config/batch.config
-            ${{ parameters.environment }}/config/BatchProcessorService.exe.config
-            ${{ parameters.environment }}/config/BatchProcessor_Log.config
-            ${{ parameters.environment }}/config/BatchSubmissionService.exe.config
-            ${{ parameters.environment }}/config/BatchSubmission_log.config
-            ${{ parameters.environment }}/config/BatchWebTestHarness.exe.config
-            ${{ parameters.environment }}/config/Create_Message.exe.config
-            ${{ parameters.environment }}/config/MQListener.exe.config
-            ${{ parameters.environment }}/config/TEst_App.exe.config
-            ${{ parameters.environment }}/config/BatchManager/Web.config
-            ${{ parameters.environment }}/config/BatchStatus/Web.config
-            ${{ parameters.environment }}/config/BestAddress/Web.config
-            ${{ parameters.environment }}/config/Geoassessment/Web.config
-            ${{ parameters.environment }}/config/GlobalExposure/Web.config
-            ${{ parameters.environment }}/config/LocatorHubWS/Web.config
-            ${{ parameters.environment }}/config/PerilsPlusWS/Web.config
-            utilities/deploy_config.ps1
-          targetFolder: $(Build.ArtifactStagingDirectory)
-      - task: PowerShell@2
-        displayName: 'Move deploy_config script'
-        inputs:
-          targetType: 'inline'
-          script: |
-            Move-Item -Path $(Build.ArtifactStagingDirectory)/utilities/deploy_config.ps1 -Destination $(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/deploy_config.ps1
-      - task: CmdLine@2
-        displayName: b4 publishing, display tree of build artifact from $(Build.ArtifactStagingDirectory) 
-        inputs:
-          script: |
-            echo ##[debug]List of built in variables in Build.ArtifactStagingDirectory 
-            tree $(Build.ArtifactStagingDirectory) /F
-      - task: PublishBuildArtifacts@1
-        displayName: 'Publish artifact'
-        inputs:
-          pathToPublish: $(Build.ArtifactStagingDirectory)
-          artifactName: $(artifactName)
+    - task: CopyFiles@2
+      displayName: 'Copy ${{ parameters.environment }} config  files to: $(Build.ArtifactStagingDirectory)'
+      inputs:
+        contents: |
+          ${{ parameters.environment }}/config/batch.config
+          ${{ parameters.environment }}/config/BatchProcessorService.exe.config
+          ${{ parameters.environment }}/config/BatchProcessor_Log.config
+          ${{ parameters.environment }}/config/BatchSubmissionService.exe.config
+          ${{ parameters.environment }}/config/BatchSubmission_log.config
+          ${{ parameters.environment }}/config/BatchWebTestHarness.exe.config
+          ${{ parameters.environment }}/config/Create_Message.exe.config
+          ${{ parameters.environment }}/config/MQListener.exe.config
+          ${{ parameters.environment }}/config/TEst_App.exe.config
+          ${{ parameters.environment }}/config/BatchManager/Web.config
+          ${{ parameters.environment }}/config/BatchStatus/Web.config
+          ${{ parameters.environment }}/config/BestAddress/Web.config
+          ${{ parameters.environment }}/config/Geoassessment/Web.config
+          ${{ parameters.environment }}/config/GlobalExposure/Web.config
+          ${{ parameters.environment }}/config/LocatorHubWS/Web.config
+          ${{ parameters.environment }}/config/PerilsPlusWS/Web.config
+          utilities/deploy_config.ps1
+        targetFolder: $(Build.ArtifactStagingDirectory)
+    - task: PowerShell@2
+      displayName: 'Move deploy_config script'
+      inputs:
+        targetType: 'inline'
+        script: |
+          Move-Item -Path $(Build.ArtifactStagingDirectory)/utilities/deploy_config.ps1 -Destination $(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/deploy_config.ps1
+    - task: CmdLine@2
+      displayName: b4 publishing, display tree of build artifact from $(Build.ArtifactStagingDirectory) 
+      inputs:
+        script: |
+          echo ##[debug]List of built in variables in Build.ArtifactStagingDirectory 
+          tree $(Build.ArtifactStagingDirectory) /F
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish artifact'
+      inputs:
+        pathToPublish: $(Build.ArtifactStagingDirectory)
+        artifactName: $(artifactName)
 
     # Download build artifacts v1
     # Download files that were saved as artifacts of a completed build.
@@ -106,9 +104,9 @@ jobs:
             tree $(System.ArtifactsDirectory) /F
 
     - ${{ each env in split(variables.servers,'|') }}:
-      - script: echo hostname ${{ env }} 
+      - script: Copying files to server - ${{ env }} 
       - task: CopyFilesOverSSH@0
-        displayName: 'SSH Copy files from $(System.ArtifactsDirectory) to ${{ parameters.environment }} using $(deployment_ssh_connection) $(server)'
+        displayName: 'SSH Copy files from $(System.ArtifactsDirectory) to ${{ parameters.environment }} using $(deployment_ssh_connection) ${{ env }} '
         inputs:
           sshEndpoint: $(deployment_ssh_connection)
           sourceFolder: $(System.ArtifactsDirectory)
@@ -139,15 +137,17 @@ jobs:
   displayName:  ${{ parameters.environment }}  deploy 
   dependsOn: ApproveDeployment
   steps:
-  - task: SSH@0
-    displayName: 'Run deployment script via SSH on ${{ parameters.environment }} environment $(deployment_ssh_connection)'
-    inputs:
-      sshEndpoint: $(deployment_ssh_connection)
-      runOptions: 'commands'
-      commands: |
-        PowerShell C:\PnPConfigsDeployment\$(artifactName)\${{ parameters.environment }}\deploy_config.ps1
-      failOnStdErr: true 
-      readyTimeout: '20000'
+    - ${{ each env in split(variables.servers,'|') }}:
+      - script: Copying files to server - ${{ env }} 
+      - task: SSH@0
+        displayName: 'Run deployment script via SSH on ${{ parameters.environment }} environment $(deployment_ssh_connection) ${{ env }} '
+        inputs:
+          sshEndpoint: $(deployment_ssh_connection)
+          runOptions: 'commands'
+          commands: |
+            PowerShell C:\PnPConfigsDeployment\$(artifactName)\${{ parameters.environment }}\deploy_config.ps1
+          failOnStdErr: true 
+          readyTimeout: '20000'
   
 
 
