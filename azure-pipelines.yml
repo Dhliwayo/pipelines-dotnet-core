@@ -38,13 +38,13 @@ variables:
 - name: artifactName
   value: PnP-Config-Drop-${{ parameters.environment }}
 - name: servers
-  value: '20.117.169.185|20.117.169.184'
+  value: 20.117.169.185|20.117.169.184
 
 jobs:
 - job: CopyConfigFilesToEnvironment
   displayName: ${{ parameters.environment }} copy configs  
   steps:
-    - ${{ each env in servers.split('|')}}:
+    - ${{ each env in split(variables.servers,'|') }}:
       - script: echo hostname ${{ env }} 
       - task: CopyFiles@2
         displayName: 'Copy ${{ parameters.environment }} config  files to: $(Build.ArtifactStagingDirectory)'
@@ -105,7 +105,7 @@ jobs:
             echo ##[debug]List of built in variables in System.ArtifactsDirectory 
             tree $(System.ArtifactsDirectory) /F
 
-    - ${{ each env in $(servers).split('|')}}:
+    - ${{ each env in split(variables.servers,'|') }}:
       - script: echo hostname ${{ env }} 
       - task: CopyFilesOverSSH@0
         displayName: 'SSH Copy files from $(System.ArtifactsDirectory) to ${{ parameters.environment }} using $(deployment_ssh_connection) $(server)'
