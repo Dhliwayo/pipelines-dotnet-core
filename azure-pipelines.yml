@@ -40,7 +40,7 @@ variables:
 - name: artifactName
   value: PnP-Config-Drop-${{ parameters.environment }}
 - name: servers
-  value: $(hostnames).split('|')
+  value: ${{ variables.hostnames }}
 
 jobs:
 - job: CopyConfigFilesToEnvironment
@@ -85,6 +85,8 @@ jobs:
       inputs:
         pathToPublish: $(Build.ArtifactStagingDirectory)
         artifactName: $(artifactName)
+    - ${{ each env in split(variables.hostnames, '|')}}:
+      - script: echo ${{ env }}
 
     # Download build artifacts v1
     # Download files that were saved as artifacts of a completed build.
@@ -104,9 +106,6 @@ jobs:
         script: |
             echo ##[debug]List of built in variables in System.ArtifactsDirectory 
             tree $(System.ArtifactsDirectory) /F
-
-    - ${{ each value in variables.hostnames }}:
-      - script: echo ${{ value }}
 
     - task: CopyFilesOverSSH@0
       displayName: 'SSH Copy files from $(System.ArtifactsDirectory) to ${{ parameters.environment }} using $(deployment_ssh_connection) $(server)'
