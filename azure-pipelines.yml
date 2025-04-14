@@ -83,8 +83,8 @@ jobs:
       inputs:
         pathToPublish: $(Build.ArtifactStagingDirectory)
         artifactName: $(artifactName)
-    - ${{ each env in servers }}:
-      - script: echo hostname ${{ env }} from $(hostnames)
+    - ${{ each env in variables.servers }}:
+      - script: echo hostname ${{ env }} 
 
     # Download build artifacts v1
     # Download files that were saved as artifacts of a completed build.
