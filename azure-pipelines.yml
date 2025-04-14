@@ -37,8 +37,6 @@ variables:
   value: $[ format('{0:yyyy}-{0:MM}-{0:dd}-{0:HHmm}', pipeline.startTime) ]
 - name: artifactName
   value: PnP-Config-Drop-${{ parameters.environment }}
-- name: servers
-  value: ${{ split(hostnames, '|')}}
 
 jobs:
 - job: CopyConfigFilesToEnvironment
@@ -83,7 +81,7 @@ jobs:
       inputs:
         pathToPublish: $(Build.ArtifactStagingDirectory)
         artifactName: $(artifactName)
-    - ${{ each env in variables.servers }}:
+    - ${{ each env in $[variables.PerilsProximity.Configs.staging.hostnames] }}:
       - script: echo hostname ${{ env }} 
 
     # Download build artifacts v1
