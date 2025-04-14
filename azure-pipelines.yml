@@ -37,7 +37,8 @@ variables:
   value: $[ format('{0:yyyy}-{0:MM}-{0:dd}-{0:HHmm}', pipeline.startTime) ]
 - name: artifactName
   value: PnP-Config-Drop-${{ parameters.environment }}
-
+- name: servers
+  value: ${{ split(hostnames, '|')}}
 
 jobs:
 - job: CopyConfigFilesToEnvironment
@@ -82,7 +83,7 @@ jobs:
       inputs:
         pathToPublish: $(Build.ArtifactStagingDirectory)
         artifactName: $(artifactName)
-    - ${{ each env in {{split(hostnames, '|')}} }}:
+    - ${{ each env in servers }}:
       - script: echo hostname ${{ env }} from $(hostnames)
 
     # Download build artifacts v1
