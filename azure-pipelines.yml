@@ -37,14 +37,12 @@ variables:
   value: $[ format('{0:yyyy}-{0:MM}-{0:dd}-{0:HHmm}', pipeline.startTime) ]
 - name: artifactName
   value: PnP-Config-Drop-${{ parameters.environment }}
-- name: servers
-  value: $[hostnames]
 
 jobs:
 - job: CopyConfigFilesToEnvironment
   displayName: ${{ parameters.environment }} copy configs  
   steps:
-    - ${{ each env in $(server).split('|')}}:
+    - ${{ each env in $(hostnames).split('|')}}:
       - script: echo hostname ${{ env }} 
       - task: CopyFiles@2
         displayName: 'Copy ${{ parameters.environment }} config  files to: $(Build.ArtifactStagingDirectory)'
