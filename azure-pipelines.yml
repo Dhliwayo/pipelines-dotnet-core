@@ -81,7 +81,7 @@ jobs:
       inputs:
         pathToPublish: $(Build.ArtifactStagingDirectory)
         artifactName: $(artifactName)
-    - ${{ each env in $[variables.PerilsProximity.Configs.staging.hostnames] }}:
+    - ${{ each env in variables.PerilsProximity.Configs.staging.hostnames }}:
       - script: echo hostname ${{ env }} 
 
     # Download build artifacts v1
