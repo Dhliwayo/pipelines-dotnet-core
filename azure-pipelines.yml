@@ -35,12 +35,9 @@ variables:
 - group: PerilsProximity.Configs.${{ parameters.environment }} # note there's a dash at the beginning of the line
 - name: time
   value: $[ format('{0:yyyy}-{0:MM}-{0:dd}-{0:HHmm}', pipeline.startTime) ]
-- name: varname2
-  value: value2
 - name: artifactName
   value: PnP-Config-Drop-${{ parameters.environment }}
-- name: servers
-  value: ${{ variables.hostnames }}
+
 
 jobs:
 - job: CopyConfigFilesToEnvironment
@@ -85,9 +82,9 @@ jobs:
       inputs:
         pathToPublish: $(Build.ArtifactStagingDirectory)
         artifactName: $(artifactName)
-    - ${{ each env in split(variables.hostnames, '|')}}:
+    - ${{ each env in split(hostnames, '|')}}:
       - script: echo hostname ${{ env }} from $(hostnames)
-      
+
     # Download build artifacts v1
     # Download files that were saved as artifacts of a completed build.
     - task: DownloadBuildArtifacts@1
