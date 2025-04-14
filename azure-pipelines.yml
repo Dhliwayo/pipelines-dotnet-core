@@ -82,7 +82,7 @@ jobs:
       inputs:
         pathToPublish: $(Build.ArtifactStagingDirectory)
         artifactName: $(artifactName)
-    - ${{ each env in split(hostnames, '|')}}:
+    - ${{ each env in {{split(hostnames, '|')}} }}:
       - script: echo hostname ${{ env }} from $(hostnames)
 
     # Download build artifacts v1
