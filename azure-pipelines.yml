@@ -41,11 +41,18 @@ variables:
   value: PnP-Config-Drop-${{ parameters.environment }}
 - name: servers
   value: 20.117.169.185|20.117.169.184
+- name: json_string
+  value:  "{\"message\": \"Hello, World!\", \"data\": [1, 2, 3]}"
 
 jobs:
 - job: ReadServerInfo
   displayName: Read target servers variables from library 
   steps:
+    - script: |
+        MY_JSON_OBJECT=$(${ json(variables.json_string) })
+        echo "${MY_JSON_OBJECT.message}"
+        echo "${MY_JSON_OBJECT.data[0]}"
+        echo "${MY_JSON_OBJECT.data[1]}"
     - task: PowerShell@2
       displayName: 'Get Json values and set output variables $(hosts)'
       name: setOutput
