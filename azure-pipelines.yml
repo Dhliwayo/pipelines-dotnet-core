@@ -42,7 +42,7 @@ variables:
 - name: servers
   value: 20.117.169.185|20.117.169.184
 - name: json_string
-  value:  "{\"message\": \"Hello, World!\", \"data\": [1, 2, 3]}"
+  value:  '{"message": "Hello, World!", "data": [1, 2, 3]}'
 
 jobs:
 - job: ReadServerInfo
