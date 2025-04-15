@@ -9,7 +9,9 @@ name: $(SourceBranchName)_$(date:yyyyMMdd)$(rev:.r)_PerilsProximity_Build_Config
 # starts services
 # for pre-prod & prod, this is repeated for all the machines 
 
-
+#TODO:
+# ssh connection for individual machines
+# read servers from variable group 
 
 trigger:
   - config-pipeline
@@ -73,11 +75,16 @@ jobs:
         script: |
           Move-Item -Path $(Build.ArtifactStagingDirectory)/utilities/deploy_config.ps1 -Destination $(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/deploy_config.ps1
     - task: CmdLine@2
-      displayName: b4 publishing, display tree of build artifact from $(Build.ArtifactStagingDirectory) 
+      displayName: Display tree of build artifact from $(Build.ArtifactStagingDirectory) 
       inputs:
         script: |
           echo ##[debug]List of built in variables in Build.ArtifactStagingDirectory 
           tree $(Build.ArtifactStagingDirectory) /F
+    - task: CmdLine@2
+    displayName: Test read varables  
+    inputs:
+      script: |
+        echo hosts from library  $(hosts)
     - task: PublishBuildArtifacts@1
       displayName: 'Publish artifact'
       inputs:
@@ -138,7 +145,7 @@ jobs:
   steps:
     - ${{ each env in split(variables.servers,'|') }}:
       - task: SSH@0
-        displayName: 'Run deployment script via SSH on ${{ parameters.environment }} environment $(deployment_ssh_connection) ${{ env }} '
+        displayName: 'Run deployment script ${{ parameters.environment }} $(deployment_ssh_connection) ${{ env }} '
         inputs:
           sshEndpoint: $(deployment_ssh_connection)
           runOptions: 'commands'
