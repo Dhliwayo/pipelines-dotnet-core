@@ -44,7 +44,7 @@ variables:
 
 jobs:
 - job: ReadServerInfo
-  displayName: Read server variables from library 
+  displayName: Read target servers variables from library 
   steps:
     - task: PowerShell@2
       displayName: 'Get Json values and set output variables $(hosts)'
@@ -55,7 +55,8 @@ jobs:
               $Input = ' $(hosts) ' | ConvertFrom-Json
               Write-Host $Input
               Write-Host 'Count servers: ' $Input.count
-
+              Write-Host "##vso[task.setvariable variable=server_connection;isOutput=true]$Input"
+              echo "server_connection:  $(server_connection)"
 # # Parse the Json file and get the values.
 #           vaule1=$(cat file.json | jq -r '.example.value1')
 #           vaule2=$(cat file.json | jq -r '.example.value2')
