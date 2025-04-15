@@ -54,6 +54,7 @@ jobs:
         script: |
               $Input = ' $(hosts) ' | ConvertFrom-Json
               Write-Host $Input
+              Write-Host 'Count servers: ' $Input.count
 
 # # Parse the Json file and get the values.
 #           vaule1=$(cat file.json | jq -r '.example.value1')
