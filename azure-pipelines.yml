@@ -52,8 +52,9 @@ jobs:
       inputs:
         targetType: inline
         script: |
-              $Input = Get-Content $(hosts)
+              $Input = Get-Content $(hosts) | Out-String | ConvertFrom-Json
               Write-Host $Input
+
 # # Parse the Json file and get the values.
 #           vaule1=$(cat file.json | jq -r '.example.value1')
 #           vaule2=$(cat file.json | jq -r '.example.value2')
