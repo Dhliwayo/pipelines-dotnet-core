@@ -52,7 +52,7 @@ jobs:
       inputs:
         targetType: inline
         script: |
-              $Input = ($(hosts)) | ConvertFrom-Json
+              $Input = ' $(hosts) ' | ConvertFrom-Json
               Write-Host $Input
 
 # # Parse the Json file and get the values.
