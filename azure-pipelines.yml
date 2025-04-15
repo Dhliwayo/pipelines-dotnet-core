@@ -63,7 +63,7 @@ jobs:
         targetType: inline
         script: |
               echo "server_connection:  $(server_connection)"
-    - ${{ each vm in $(server_connection) }}:
+    - ${{ each vm in variables.server_connection }}:
       - task: PowerShell@2
         displayName: Check ${{ vm.hostname }} Disks
         inputs:
