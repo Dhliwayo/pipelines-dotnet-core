@@ -43,14 +43,25 @@ variables:
   value: 20.117.169.185|20.117.169.184
 
 jobs:
-- job: CopyConfigFilesToEnvironment
-  displayName: ${{ parameters.environment }} copy configs  
+- job: ReadServerInfo
+  displayName: Read server variables from library 
   steps:
-    - task: CmdLine@2
-      displayName: Test read varables  
+    - task: PowerShell@2
+      displayName: 'Get Json values and set output variables $(hosts)'
+      name: setOutput
       inputs:
+        targetType: inline
         script: |
-          echo hosts from library  $(hosts)
+              $Input = Get-Content $(hosts)
+              Write-Host $Input
+# # Parse the Json file and get the values.
+#           vaule1=$(cat file.json | jq -r '.example.value1')
+#           vaule2=$(cat file.json | jq -r '.example.value2')
+# # Set the values as output variables.
+#           echo "##vso[task.setvariable variable=vaule1;isoutput=true]$vaule1"
+#           echo "##vso[task.setvariable variable=vaule2;isoutput=true]$vaule2"
+# - job: CopyConfigFilesToEnvironment
+#   displayName: ${{ parameters.environment }} copy configs  
 #     - task: CopyFiles@2
 #       displayName: 'Copy ${{ parameters.environment }} config  files to: $(Build.ArtifactStagingDirectory)'
 #       inputs:
