@@ -41,8 +41,6 @@ variables:
   value: PnP-Config-Drop-${{ parameters.environment }}
 - name: servers
   value: 20.117.169.185|20.117.169.184
-- name : server_connection
-  value: ''
 
 jobs:
 - job: ReadServerInfo
@@ -60,11 +58,12 @@ jobs:
               Write-Host "##vso[task.setvariable variable=server_connection;isOutput=true]$Input"
               echo "server_connection:  $(server_connection)"
     - task: PowerShell@2
-      displayName: 'Read server connecton variable $(server_connection)'
+      displayName: 'Read server connection variable $(server_connection)'
       inputs:
         targetType: inline
         script: |
               echo "server_connection:  $(server_connection)"
+              echo "server_connection:  $(server_connection).count "
 # # Parse the Json file and get the values.
 #           vaule1=$(cat file.json | jq -r '.example.value1')
 #           vaule2=$(cat file.json | jq -r '.example.value2')
