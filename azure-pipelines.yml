@@ -81,10 +81,10 @@ jobs:
           echo ##[debug]List of built in variables in Build.ArtifactStagingDirectory 
           tree $(Build.ArtifactStagingDirectory) /F
     - task: CmdLine@2
-    displayName: Test read varables  
-    inputs:
-      script: |
-        echo hosts from library  $(hosts)
+      displayName: Test read varables  
+      inputs:
+        script: |
+          echo hosts from library  $(hosts)
     - task: PublishBuildArtifacts@1
       displayName: 'Publish artifact'
       inputs:
