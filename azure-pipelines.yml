@@ -9,10 +9,6 @@ name: $(SourceBranchName)_$(date:yyyyMMdd)$(rev:.r)_PerilsProximity_Build_Config
 # starts services
 # for pre-prod & prod, this is repeated for all the machines 
 
-#TODO:
-# ssh connection for individual machines
-# read servers from variable group 
-
 trigger:
   - config-pipeline
   - master
@@ -105,11 +101,11 @@ jobs:
             echo ##[debug]List of built in variables in System.ArtifactsDirectory 
             tree $(System.ArtifactsDirectory) /F
 
-    - ${{ each ssh_connection in split(variables.server_service_connections,'|') }}:
+    - ${{ each ssh_connection in split($(server_service_connections),'|') }}:
       - task: CopyFilesOverSSH@0
-        displayName: 'SSH Copy files from $(System.ArtifactsDirectory) to ${{ parameters.environment }} using ${{ ssh_connection }} '
+        displayName: 'SSH Copy files from $(System.ArtifactsDirectory) to ${{ parameters.environment }} using $(server_service_connections) '
         inputs:
-          sshEndpoint: ${{ ssh_connection }} 
+          sshEndpoint: $(server_service_connections)
           sourceFolder: $(System.ArtifactsDirectory)
           contents: '**'
           targetFolder: 'C:\PnPConfigsDeployment\'
@@ -138,11 +134,11 @@ jobs:
   displayName:  ${{ parameters.environment }}  deploy 
   dependsOn: ApproveDeployment
   steps:
-    - ${{ each ssh_connection in split(variables.server_service_connections,'|') }}:
+    - ${{ each ssh_connection in split($(server_service_connections),'|') }}:
       - task: SSH@0
-        displayName: 'Run deployment script ${{ parameters.environment }} ${{ ssh_connection }} '
+        displayName: 'Run deployment script ${{ parameters.environment }} $(server_service_connections) '
         inputs:
-          sshEndpoint: ${{ ssh_connection }} 
+          sshEndpoint: $(server_service_connections)
           runOptions: 'commands'
           commands: |
             PowerShell C:\PnPConfigsDeployment\$(artifactName)\${{ parameters.environment }}\deploy_config.ps1
