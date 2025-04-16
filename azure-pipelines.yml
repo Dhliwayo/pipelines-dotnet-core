@@ -35,8 +35,8 @@ variables:
   value: $[ format('{0:yyyy}-{0:MM}-{0:dd}-{0:HHmm}', pipeline.startTime) ]
 - name: artifactName
   value: PnP-Config-Drop-${{ parameters.environment }}
-# - name: server_service_connections
-#   value:  $(hosts)
+- name: server_service_connections
+  value: pnp_staging_ssh_connection_184|pnp_staging_ssh_connection_185 # $(hosts)
 
 jobs:
 - job: CopyConfigFilesToEnvironment
@@ -103,7 +103,7 @@ jobs:
 
     - ${{ each ssh_connection in split(variables.server_service_connections,'|') }}:
       - task: CopyFilesOverSSH@0
-        displayName: 'SSH Copy files from $(System.ArtifactsDirectory) to ${{ parameters.environment }} using ${{ssh_connection}} '
+        displayName: 'SSH copy artifacts to ${{ parameters.environment }} using ${{ssh_connection}} '
         inputs:
           sshEndpoint: ${{ssh_connection}}
           sourceFolder: $(System.ArtifactsDirectory)
