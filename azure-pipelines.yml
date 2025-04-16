@@ -41,7 +41,7 @@ variables:
 - name: artifactName
   value: PnP-Config-Drop-${{ parameters.environment }}
 - name: server_service_connections
-  value: $(hosts) #pnp_staging_ssh_connection_184|pnp_staging_ssh_connection_185 # $(hosts)
+  value: pnp_staging_ssh_connection_184|pnp_staging_ssh_connection_185 # $(hosts)
 
 jobs:
 - job: CopyConfigFilesToEnvironment
