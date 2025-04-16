@@ -1,13 +1,18 @@
 name: $(SourceBranchName)_$(date:yyyyMMdd)$(rev:.r)_PerilsProximity_Build_Configs
 
 #Pipeline actions:
-# select environment and config files are copied to the machin destination
-# variable group is picked from selected environment
-# actual deployment is done after manual approval
-# stops, services
-# deploys
-# starts services
-# for pre-prod & prod, this is repeated for all the machines 
+# select environment eg staging, fint, pre-prod, prod
+# PnP config files are copied to the machine(s) for the target environment
+# SSH service connections must exist for each of the environments in a variable group for that environment
+# Variable group name PerilsProximity.Configs.TARGET_ENVIRONMENT e.g  PerilsProximity.Configs.Staging
+# Once the files are copied, the next step requires manual approval
+# Check that the files copied currently to C:\PnPConfigsDeployment\ are as expected
+# After manual approval, the copied files are deployed into relevant folders eg wwwroot, PnP services etc
+
+#TODO:
+# stop and start services
+# smoke testing?
+
 
 trigger:
   - config-pipeline
@@ -36,7 +41,7 @@ variables:
 - name: artifactName
   value: PnP-Config-Drop-${{ parameters.environment }}
 - name: server_service_connections
-  value: pnp_staging_ssh_connection_184|pnp_staging_ssh_connection_185 # $(hosts)
+  value: $(hosts) #pnp_staging_ssh_connection_184|pnp_staging_ssh_connection_185 # $(hosts)
 
 jobs:
 - job: CopyConfigFilesToEnvironment
