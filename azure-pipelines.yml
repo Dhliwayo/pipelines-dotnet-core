@@ -106,7 +106,7 @@ jobs:
             echo ##[debug]List of built in variables in System.ArtifactsDirectory 
             tree $(System.ArtifactsDirectory) /F
 
-    - ${{ each ssh_connection in split(variables.server_service_connections,'|') }}:
+    - ${{ each ssh_connection in split(variables.hosts,'|') }}:
       - task: CopyFilesOverSSH@0
         displayName: 'SSH copy artifacts to ${{ parameters.environment }} using ${{ssh_connection}} '
         inputs:
@@ -139,7 +139,7 @@ jobs:
   displayName:  ${{ parameters.environment }}  deploy 
   dependsOn: ApproveDeployment
   steps:
-    - ${{ each ssh_connection in split(variables.server_service_connections,'|') }}:
+    - ${{ each ssh_connection in split(variables.hosts,'|') }}:
       - task: SSH@0
         displayName: 'Run deployment script ${{ parameters.environment }} ${{ ssh_connection}}'
         inputs:
