@@ -48,9 +48,9 @@ jobs:
 - job: CopyConfigFilesToEnvironment
   displayName: ${{ parameters.environment }} copy configs
   steps:
-    - ${{ each ssh_connection in split(variables.server_service_connections,'|') }}:
-       - script: |
-          echo SSH copy artifacts to  using $(ssh_connection)
+    - script: echo $(hosts)
+    - ${{ each ssh_connection in split(variables.hosts,'|') }}:
+       - script:  echo ${{ ssh_connection }}
 #     - task: CopyFiles@2
 #       displayName: 'Copy ${{ parameters.environment }} config  files to: $(Build.ArtifactStagingDirectory)'
 #       inputs:
