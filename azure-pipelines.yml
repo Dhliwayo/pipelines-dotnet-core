@@ -40,17 +40,19 @@ variables:
   value: $[ format('{0:yyyy}-{0:MM}-{0:dd}-{0:HHmm}', pipeline.startTime) ]
 - name: artifactName
   value: PnP-Config-Drop-${{ parameters.environment }}
+- name: server_service_connections
+  value: $(hosts)
 
 # The SSH service connection with this names must exist in ADO
-- name: server_service_connections
-- ${{ if eq(parameters.environment, 'staging') }}:
-  value: pnp_staging_ssh_connection_184|pnp_staging_ssh_connection_185
-- ${{ if eq(parameters.environment, 'fint') }}:
-  value: pnp_fint_ssh_connection_184|pnp_fint_ssh_connection_185
-- ${{ if eq(parameters.environment, 'preprod') }}:
-  value: pnp_preprod_ssh_connection_184|pnp_preprod_ssh_connection_185
-- ${{ if eq(parameters.environment, 'production') }}:
-  value: pnp_production_ssh_connection_184|pnp_production_ssh_connection_185
+# - name: server_service_connections
+# - ${{ if eq(parameters.environment, 'staging') }}:
+#   value: pnp_staging_ssh_connection_184|pnp_staging_ssh_connection_185
+# - ${{ if eq(parameters.environment, 'fint') }}:
+#   value: pnp_fint_ssh_connection_184|pnp_fint_ssh_connection_185
+# - ${{ if eq(parameters.environment, 'preprod') }}:
+#   value: pnp_preprod_ssh_connection_184|pnp_preprod_ssh_connection_185
+# - ${{ if eq(parameters.environment, 'production') }}:
+#   value: pnp_production_ssh_connection_184|pnp_production_ssh_connection_185
 
 jobs:
 - job: CopyConfigFilesToEnvironment
