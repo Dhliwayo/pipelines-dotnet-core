@@ -40,8 +40,9 @@ variables:
   value: $[ format('{0:yyyy}-{0:MM}-{0:dd}-{0:HHmm}', pipeline.startTime) ]
 - name: artifactName
   value: PnP-Config-Drop-${{ parameters.environment }}
-# - name: server_service_connections
-#   value:  ${{ variables.hosts }}  #pnp_staging_ssh_connection_184|pnp_staging_ssh_connection_185 # $(hosts)
+- name: server_service_connections
+  value:  $[ variables.hosts]  #pnp_staging_ssh_connection_184|pnp_staging_ssh_connection_185 # $(hosts)
+
 
 jobs:
 - job: CopyConfigFilesToEnvironment
@@ -90,7 +91,7 @@ jobs:
     # Download build artifacts v1
     # Download files that were saved as artifacts of a completed build.
     - task: DownloadBuildArtifacts@1
-      displayName: 'Download artifact SSH:  $(hosts)'
+      displayName: 'Download artifact SSH:  $(server_service_connections)'
       inputs:
         buildType: 'current' # 'current' | 'specific'. Required. Download artifacts produced by. Default: current.
         buildVersionToDownload: 'latest' # 'latest' | 'latestFromBranch' | 'specific'. Required when buildType == specific. Build version to download. Default: latest.
@@ -106,7 +107,7 @@ jobs:
             echo ##[debug]List of built in variables in System.ArtifactsDirectory 
             tree $(System.ArtifactsDirectory) /F
     - script: echo ${{ variables.hosts }}
-    - ${{ each ssh_connection in split(variables.hosts,'|') }}:
+    - ${{ each ssh_connection in split(variables.server_service_connections,'|') }}:
       - task: CopyFilesOverSSH@0
         displayName: 'SSH copy artifacts to ${{ parameters.environment }}  using ${{ssh_connection}} '
         inputs:
@@ -139,7 +140,7 @@ jobs:
   displayName:  ${{ parameters.environment }}  deploy 
   dependsOn: ApproveDeployment
   steps:
-    - ${{ each ssh_connection in split(variables.hosts,'|') }}:
+    - ${{ each ssh_connection in split(variables.server_service_connections,'|') }}:
       - task: SSH@0
         displayName: 'Run deployment script ${{ parameters.environment }} ${{ ssh_connection}}'
         inputs:
