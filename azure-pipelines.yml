@@ -53,7 +53,6 @@ jobs:
     #   displayName: Dummy ${{ ssh_con }} 
     - ${{ each ssh_connection in split(variables.hosts,'|') }}:
       - script:  echo "Processing ${{ ssh_connection }} "
-        displayName: Real ${{ ssh_con }} 
       - task: SSH@0
         displayName: 'Run deployment script ${{ parameters.environment }} ${{ ssh_connection}}'
         inputs:
