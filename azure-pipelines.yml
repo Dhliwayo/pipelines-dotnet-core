@@ -45,7 +45,7 @@ variables:
 # These variables cannot be stored in library groups as the read at run time?
 - name: server_service_connections
   ${{ if eq(parameters.environment, 'staging') }}:
-    value: pnp_staging_ssh_connection_184|pnp_staging_ssh_connection_185
+    value: pnp_staging_ssh_connection_184
   ${{ if eq(parameters.environment, 'fint') }}:
     value: pnp_fint_ssh_connection_184|pnp_fint_ssh_connection_185
   ${{ if eq(parameters.environment, 'preprod') }}:
