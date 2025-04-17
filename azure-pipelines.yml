@@ -110,7 +110,7 @@ jobs:
       displayName: Debug library variables
       inputs:
         script: |
-          echo ##[debug]Host =   
+          echo ##[debug]Host  
           $(hosts)         
 
 
