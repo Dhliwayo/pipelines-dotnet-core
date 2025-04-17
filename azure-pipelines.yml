@@ -110,8 +110,8 @@ jobs:
       displayName: Debug library variables
       inputs:
         script: |
-          echo ##[debug]Host  
-          $(hosts)         
+          echo ##[debug]Host variable 
+          echo $(hosts)         
 
 
     - ${{ each ssh_connection in split(variables.hosts,'|') }}:
