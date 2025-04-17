@@ -90,7 +90,7 @@ jobs:
     # Download build artifacts v1
     # Download files that were saved as artifacts of a completed build.
     - task: DownloadBuildArtifacts@1
-      displayName: 'Download artifact'
+      displayName: 'Download artifact SSH:  ${{variables.server_service_connections}}'
       inputs:
         buildType: 'current' # 'current' | 'specific'. Required. Download artifacts produced by. Default: current.
         buildVersionToDownload: 'latest' # 'latest' | 'latestFromBranch' | 'specific'. Required when buildType == specific. Build version to download. Default: latest.
