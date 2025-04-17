@@ -40,8 +40,8 @@ variables:
   value: $[ format('{0:yyyy}-{0:MM}-{0:dd}-{0:HHmm}', pipeline.startTime) ]
 - name: artifactName
   value: PnP-Config-Drop-${{ parameters.environment }}
-- name: server_service_connections
-  value:  ${{ variables.hosts }}  #pnp_staging_ssh_connection_184|pnp_staging_ssh_connection_185 # $(hosts)
+# - name: server_service_connections
+#   value:  ${{ variables.hosts }}  #pnp_staging_ssh_connection_184|pnp_staging_ssh_connection_185 # $(hosts)
 
 jobs:
 - job: CopyConfigFilesToEnvironment
@@ -90,7 +90,7 @@ jobs:
     # Download build artifacts v1
     # Download files that were saved as artifacts of a completed build.
     - task: DownloadBuildArtifacts@1
-      displayName: 'Download artifact SSH:  $(server_service_connections)'
+      displayName: 'Download artifact SSH:  $(hosts)'
       inputs:
         buildType: 'current' # 'current' | 'specific'. Required. Download artifacts produced by. Default: current.
         buildVersionToDownload: 'latest' # 'latest' | 'latestFromBranch' | 'specific'. Required when buildType == specific. Build version to download. Default: latest.
@@ -114,9 +114,9 @@ jobs:
     #       echo ##[debug]$(hosts)         
 
 
-    - ${{ each ssh_connection in split(variables.server_service_connections,'|') }}:
+    - ${{ each ssh_connection in split(variables.hosts,'|') }}:
       - task: CopyFilesOverSSH@0
-        displayName: 'SSH copy artifacts to ${{ parameters.environment }}  ${{variables.server_service_connections}}  using ${{ssh_connection}} '
+        displayName: 'SSH copy artifacts to ${{ parameters.environment }}  using ${{ssh_connection}} '
         inputs:
           sshEndpoint: ${{ssh_connection}}
           sourceFolder: $(System.ArtifactsDirectory)
@@ -147,7 +147,7 @@ jobs:
   displayName:  ${{ parameters.environment }}  deploy 
   dependsOn: ApproveDeployment
   steps:
-    - ${{ each ssh_connection in  split(variables.server_service_connections,'|')  }}:
+    - ${{ each ssh_connection in split(variables.hosts,'|') }}:
       - task: SSH@0
         displayName: 'Run deployment script ${{ parameters.environment }} ${{ ssh_connection}}'
         inputs:
