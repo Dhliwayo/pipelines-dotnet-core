@@ -48,12 +48,12 @@ jobs:
 - job: CopyConfigFilesToEnvironment
   displayName: ${{ parameters.environment }} copy configs
   steps:
-    - script: eco library hosts value - $(hosts)  
+    - script: echo "library hosts value - $(hosts)  "
     - ${{ each host in split(variables.hosts,'|') }}:
-       - script:  echo host - ${{ host }}
+       - script:  echo "host - ${{ host }}"
     - script: echo 'Hosts from library - $(server_service_connections) '
     - ${{ each ssh_con in split(variables.server_service_connections,'|') }}:
-      - script:  echo ssh_con - ${{ ssh_con }}
+      - script:  echo "ssh_con - ${{ ssh_con }}"
 
 
     # - ${{ each ssh_con in split(variables.hosts,'|') }}:
