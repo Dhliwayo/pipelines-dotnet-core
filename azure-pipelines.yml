@@ -48,9 +48,9 @@ jobs:
 - job: CopyConfigFilesToEnvironment
   displayName: ${{ parameters.environment }} copy configs
   steps:
-    - ${{ each ssh_con in split(variables.hosts,'|') }}:
-      - script:  echo "Processing ${{ ssh_con }} "
-      displayName: Dummy ${{ ssh_con }} 
+    # - ${{ each ssh_con in split(variables.hosts,'|') }}:
+    #   - script:  echo "Processing ${{ ssh_con }} "
+    #   displayName: Dummy ${{ ssh_con }} 
     - ${{ each ssh_connection in split(variables.hosts,'|') }}:
       - script:  echo "Processing ${{ ssh_connection }} "
         displayName: Real ${{ ssh_con }} 
