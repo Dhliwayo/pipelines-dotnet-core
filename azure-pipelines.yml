@@ -40,8 +40,6 @@ variables:
   value: $[ format('{0:yyyy}-{0:MM}-{0:dd}-{0:HHmm}', pipeline.startTime) ]
 - name: artifactName
   value: PnP-Config-Drop-${{ parameters.environment }}
-# - name: server_service_connections
-#   value: $(hosts)
 
 # The SSH service connection with this names must exist in ADO
 # These variables cannot be stored in library groups as the read at run time?
@@ -59,29 +57,6 @@ jobs:
 - job: CopyConfigFilesToEnvironment
   displayName: ${{ parameters.environment }} copy configs
   steps:
-    # - script: echo "library hosts value - $(hosts)  "
-    # - ${{ each host in split(variables.hosts,'|') }}:
-    #    - script:  echo "host - ${{ host }}"
-    # - script: echo 'Hosts from library - $(server_service_connections) '
-    # - ${{ each ssh_con in split(variables.server_service_connections,'|') }}:
-    #   - script:  echo "ssh_con - ${{ ssh_con }}"
-
-
-    # - ${{ each ssh_con in split(variables.hosts,'|') }}:
-    #   - script:  echo "Processing ${{ ssh_con }} "
-    #   displayName: Dummy ${{ ssh_con }} 
-    # - ${{ each ssh_connection in split(variables.hosts,'|') }}:
-    #   - script:  echo "Processing ${{ ssh_connection }} "
-    #   - task: SSH@0
-    #     displayName: 'Run deployment script ${{ parameters.environment }} ${{ ssh_connection}}'
-    #     inputs:
-    #       sshEndpoint: ${{ssh_connection}}
-    #       runOptions: 'commands'
-    #       commands: |
-    #         PowerShell $(working_directory)\$(artifactName)\${{ parameters.environment }}\deploy_config.ps1
-    #       failOnStdErr: true 
-    #       readyTimeout: '20000'      
-
     - task: CopyFiles@2
       displayName: 'Copy ${{ parameters.environment }} config  files to: $(Build.ArtifactStagingDirectory)'
       inputs:
