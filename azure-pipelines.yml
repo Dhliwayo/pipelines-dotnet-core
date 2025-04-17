@@ -21,7 +21,7 @@ trigger:
 appendCommitMessageToRunName: false
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: windows-latest
 
 parameters:
   - name: environment
