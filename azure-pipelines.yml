@@ -106,6 +106,13 @@ jobs:
             echo ##[debug]List of built in variables in System.ArtifactsDirectory 
             tree $(System.ArtifactsDirectory) /F
 
+    - task: CmdLine@2
+      displayName: Debug library variables
+      inputs:
+        script: |
+          echo Host =   $(hosts)         
+
+
     - ${{ each ssh_connection in split(variables.hosts,'|') }}:
       - task: CopyFilesOverSSH@0
         displayName: 'SSH copy artifacts to ${{ parameters.environment }} using ${{ssh_connection}} '
