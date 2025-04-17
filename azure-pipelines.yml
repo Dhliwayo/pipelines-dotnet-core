@@ -41,14 +41,17 @@ variables:
 - name: artifactName
   value: PnP-Config-Drop-${{ parameters.environment }}
 - name: server_service_connections
-  value:  $(hosts)  #pnp_staging_ssh_connection_184|pnp_staging_ssh_connection_185 # $(hosts)
+  value: pnp_staging_ssh_connection_184|pnp_staging_ssh_connection_185
 
 
 jobs:
 - job: CopyConfigFilesToEnvironment
   displayName: ${{ parameters.environment }} copy configs
   steps:
-    - script: echo 'Hosts from library $(hosts) '
+    - script: echo 'Hosts from library - $(server_service_connections) '
+    - ${{ each ssh_connection in split(variables.server_service_connections,'|') }}:
+      - script:  echo ${{ ssh_connection }}
+    - script: echo 'Hosts from library - $(hosts) '
     - ${{ each ssh_connection in split(variables.hosts,'|') }}:
       - script:  echo ${{ ssh_connection }}
 #     - task: CopyFiles@2
