@@ -106,12 +106,12 @@ jobs:
             echo ##[debug]List of built in variables in System.ArtifactsDirectory 
             tree $(System.ArtifactsDirectory) /F
 
-    - task: CmdLine@2
-      displayName: Debug library variables
-      inputs:
-        script: |
-          echo ##[debug]Host variable 
-          echo ##[debug]$(hosts)         
+    # - task: CmdLine@2
+    #   displayName: Debug library variables
+    #   inputs:
+    #     script: |
+    #       echo ##[debug]Host variable 
+    #       echo ##[debug]$(hosts)         
 
 
     - ${{ each ssh_connection in variables.server_service_connections }}:
