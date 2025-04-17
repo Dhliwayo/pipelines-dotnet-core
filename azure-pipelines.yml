@@ -50,7 +50,7 @@ jobs:
   steps:
     - script: echo 'Hosts from library $(hosts) '
     - ${{ each ssh_connection in split(variables.hosts,'|') }}:
-      #  - script:  echo ${{ ssh_connection }}
+      - script:  echo ${{ ssh_connection }}
 #     - task: CopyFiles@2
 #       displayName: 'Copy ${{ parameters.environment }} config  files to: $(Build.ArtifactStagingDirectory)'
 #       inputs:
