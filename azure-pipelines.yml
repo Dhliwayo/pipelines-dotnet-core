@@ -116,7 +116,7 @@ jobs:
 
     - ${{ each ssh_connection in split(variables.server_service_connections,'|') }}:
       - task: CopyFilesOverSSH@0
-        displayName: 'SSH copy artifacts to ${{ parameters.environment }} using ${{ssh_connection}} '
+        displayName: 'SSH copy artifacts to ${{ parameters.environment }}  ${{variables.server_service_connections}}  using ${{ssh_connection}} '
         inputs:
           sshEndpoint: ${{ssh_connection}}
           sourceFolder: $(System.ArtifactsDirectory)
