@@ -105,7 +105,7 @@ jobs:
         script: |
             echo ##[debug]List of built in variables in System.ArtifactsDirectory 
             tree $(System.ArtifactsDirectory) /F
-    - script: echo ${{ variables['hosts'] }}
+    - script: echo ${{ variables.hosts }}
     - ${{ each ssh_connection in split(variables['hosts'],'|') }}:
       - task: CopyFilesOverSSH@0
         displayName: 'SSH copy artifacts to ${{ parameters.environment }}  using ${{ssh_connection}} '
