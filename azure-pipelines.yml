@@ -48,114 +48,115 @@ jobs:
 - job: CopyConfigFilesToEnvironment
   displayName: ${{ parameters.environment }} copy configs
   steps:
-    - script: echo 'Hosts from library - $(server_service_connections) '
-    - ${{ each ssh_con in split(variables.server_service_connections,'|') }}:
-      - script:  echo ${{ ssh_con }}
-    - script: echo 'Hosts from library - $(hosts) '
+    # - script: echo 'Hosts from library - $(server_service_connections) '
+    # - ${{ each ssh_con in split(variables.server_service_connections,'|') }}:
+    #   - script:  echo ${{ ssh_con }}
+    # - script: echo 'Hosts from library - $(hosts) '
+    # - ${{ each ssh_connection in split(variables.hosts,'|') }}:
+    #   - script:  echo ${{ ssh_connection }}
+    - task: CopyFiles@2
+      displayName: 'Copy ${{ parameters.environment }} config  files to: $(Build.ArtifactStagingDirectory)'
+      inputs:
+        contents: |
+          ${{ parameters.environment }}/config/batch.config
+          ${{ parameters.environment }}/config/BatchProcessorService.exe.config
+          ${{ parameters.environment }}/config/BatchProcessor_Log.config
+          ${{ parameters.environment }}/config/BatchSubmissionService.exe.config
+          ${{ parameters.environment }}/config/BatchSubmission_log.config
+          ${{ parameters.environment }}/config/BatchWebTestHarness.exe.config
+          ${{ parameters.environment }}/config/Create_Message.exe.config
+          ${{ parameters.environment }}/config/MQListener.exe.config
+          ${{ parameters.environment }}/config/TEst_App.exe.config
+          ${{ parameters.environment }}/config/BatchManager/Web.config
+          ${{ parameters.environment }}/config/BatchStatus/Web.config
+          ${{ parameters.environment }}/config/BestAddress/Web.config
+          ${{ parameters.environment }}/config/Geoassessment/Web.config
+          ${{ parameters.environment }}/config/GlobalExposure/Web.config
+          ${{ parameters.environment }}/config/LocatorHubWS/Web.config
+          ${{ parameters.environment }}/config/PerilsPlusWS/Web.config
+          utilities/deploy_config.ps1
+        targetFolder: $(Build.ArtifactStagingDirectory)
+    - task: PowerShell@2
+      displayName: 'Move deploy_config script'
+      inputs:
+        targetType: 'inline'
+        script: |
+          Move-Item -Path $(Build.ArtifactStagingDirectory)/utilities/deploy_config.ps1 -Destination $(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/deploy_config.ps1
+    - task: CmdLine@2
+      displayName: Display tree of build artifact from $(Build.ArtifactStagingDirectory) 
+      inputs:
+        script: |
+          echo ##[debug]List of built in variables in Build.ArtifactStagingDirectory 
+          tree $(Build.ArtifactStagingDirectory) /F
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish artifact'
+      inputs:
+        pathToPublish: $(Build.ArtifactStagingDirectory)
+        artifactName: $(artifactName)
+
+    # Download build artifacts v1
+    # Download files that were saved as artifacts of a completed build.
+    - task: DownloadBuildArtifacts@1
+      displayName: 'Download build artifact'
+      inputs:
+        buildType: 'current' # 'current' | 'specific'. Required. Download artifacts produced by. Default: current.
+        buildVersionToDownload: 'latest' # 'latest' | 'latestFromBranch' | 'specific'. Required when buildType == specific. Build version to download. Default: latest.
+        downloadType: 'single' # 'single' | 'specific'. Required. Download type. Default: single.
+        artifactName: $(artifactName) # string. Required when downloadType == single. Artifact name. 
+        downloadPath: $(System.ArtifactsDirectory) # string. Required. Destination directory. Default: $(System.ArtifactsDirectory).
+        cleanDestinationFolder: true # boolean. Clean destination folder. Default: false.
+        checkDownloadedFiles: true # boolean. Check downloaded files. Default: false.
+    - task: CmdLine@2
+      displayName: Display tree of sytem artifact dir from $(System.ArtifactsDirectory)
+      inputs:
+        script: |
+            echo ##[debug]List of built in variables in System.ArtifactsDirectory 
+            tree $(System.ArtifactsDirectory) /F
+    - script: echo Copying files to $hosts
     - ${{ each ssh_connection in split(variables.hosts,'|') }}:
-      - script:  echo ${{ ssh_connection }}
-#     - task: CopyFiles@2
-#       displayName: 'Copy ${{ parameters.environment }} config  files to: $(Build.ArtifactStagingDirectory)'
-#       inputs:
-#         contents: |
-#           ${{ parameters.environment }}/config/batch.config
-#           ${{ parameters.environment }}/config/BatchProcessorService.exe.config
-#           ${{ parameters.environment }}/config/BatchProcessor_Log.config
-#           ${{ parameters.environment }}/config/BatchSubmissionService.exe.config
-#           ${{ parameters.environment }}/config/BatchSubmission_log.config
-#           ${{ parameters.environment }}/config/BatchWebTestHarness.exe.config
-#           ${{ parameters.environment }}/config/Create_Message.exe.config
-#           ${{ parameters.environment }}/config/MQListener.exe.config
-#           ${{ parameters.environment }}/config/TEst_App.exe.config
-#           ${{ parameters.environment }}/config/BatchManager/Web.config
-#           ${{ parameters.environment }}/config/BatchStatus/Web.config
-#           ${{ parameters.environment }}/config/BestAddress/Web.config
-#           ${{ parameters.environment }}/config/Geoassessment/Web.config
-#           ${{ parameters.environment }}/config/GlobalExposure/Web.config
-#           ${{ parameters.environment }}/config/LocatorHubWS/Web.config
-#           ${{ parameters.environment }}/config/PerilsPlusWS/Web.config
-#           utilities/deploy_config.ps1
-#         targetFolder: $(Build.ArtifactStagingDirectory)
-#     - task: PowerShell@2
-#       displayName: 'Move deploy_config script'
-#       inputs:
-#         targetType: 'inline'
-#         script: |
-#           Move-Item -Path $(Build.ArtifactStagingDirectory)/utilities/deploy_config.ps1 -Destination $(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/deploy_config.ps1
-#     - task: CmdLine@2
-#       displayName: Display tree of build artifact from $(Build.ArtifactStagingDirectory) 
-#       inputs:
-#         script: |
-#           echo ##[debug]List of built in variables in Build.ArtifactStagingDirectory 
-#           tree $(Build.ArtifactStagingDirectory) /F
-#     - task: PublishBuildArtifacts@1
-#       displayName: 'Publish artifact'
-#       inputs:
-#         pathToPublish: $(Build.ArtifactStagingDirectory)
-#         artifactName: $(artifactName)
+      - task: CopyFilesOverSSH@0
+        displayName: 'SSH copy artifacts to ${{ parameters.environment }}  using ${{ ssh_connection }} '
+        inputs:
+          sshEndpoint: ${{ ssh_connection }}
+          sourceFolder: $(System.ArtifactsDirectory)
+          contents: '**' 
+          targetFolder: 'C:\PnPConfigsDeployment\'
+          isWindowsOnTarget: true
+          cleanTargetFolder: true
+          readyTimeout: '20000'
+          overwrite: true
+          failOnEmptySource: true      
 
-#     # Download build artifacts v1
-#     # Download files that were saved as artifacts of a completed build.
-#     - task: DownloadBuildArtifacts@1
-#       displayName: 'Download artifact SSH:  $(server_service_connections)'
-#       inputs:
-#         buildType: 'current' # 'current' | 'specific'. Required. Download artifacts produced by. Default: current.
-#         buildVersionToDownload: 'latest' # 'latest' | 'latestFromBranch' | 'specific'. Required when buildType == specific. Build version to download. Default: latest.
-#         downloadType: 'single' # 'single' | 'specific'. Required. Download type. Default: single.
-#         artifactName: $(artifactName) # string. Required when downloadType == single. Artifact name. 
-#         downloadPath: $(System.ArtifactsDirectory) # string. Required. Destination directory. Default: $(System.ArtifactsDirectory).
-#         cleanDestinationFolder: true # boolean. Clean destination folder. Default: false.
-#         checkDownloadedFiles: true # boolean. Check downloaded files. Default: false.
-#     - task: CmdLine@2
-#       displayName: Display tree of sytem artifact dir from $(System.ArtifactsDirectory)
-#       inputs:
-#         script: |
-#             echo ##[debug]List of built in variables in System.ArtifactsDirectory 
-#             tree $(System.ArtifactsDirectory) /F
-#     - script: echo ${{ variables.hosts }}
-#     - ${{ each ssh_connection in split(variables.server_service_connections,'|') }}:
-#       - task: CopyFilesOverSSH@0
-#         displayName: 'SSH copy artifacts to ${{ parameters.environment }}  using ${{ssh_connection}} '
-#         inputs:
-#           sshEndpoint: ${{ssh_connection}}
-#           sourceFolder: $(System.ArtifactsDirectory)
-#           contents: '**' 
-#           targetFolder: 'C:\PnPConfigsDeployment\'
-#           isWindowsOnTarget: true
-#           cleanTargetFolder: true
-#           readyTimeout: '20000'
-#           overwrite: true
-#           failOnEmptySource: true      
+- job: ApproveDeployment
+  displayName: ${{ parameters.environment }} wait for manual approval 
+  dependsOn: CopyConfigFilesToEnvironment
+  timeoutInMinutes: 4320 # job times out in 3 days
+  pool: server 
+  steps:   
+  - task: ManualValidation@1
+    timeoutInMinutes: 1440 # task times out in 1 day
+    inputs:
+      notifyUsers: |
+        itai.dhliwayo@gmail.com
+      instructions: 'Please validate the build drop in ${{ parameters.environment }} and resume deployment'
+      allowApproversToApproveTheirOwnRuns: true
+      onTimeout: 'reject'
 
-# - job: ApproveDeployment
-#   displayName: ${{ parameters.environment }} wait for manual approval 
-#   dependsOn: CopyConfigFilesToEnvironment
-#   timeoutInMinutes: 4320 # job times out in 3 days
-#   pool: server 
-#   steps:   
-#   - task: ManualValidation@1
-#     timeoutInMinutes: 1440 # task times out in 1 day
-#     inputs:
-#       notifyUsers: |
-#         itai.dhliwayo@gmail.com
-#       instructions: 'Please validate the build drop in ${{ parameters.environment }} and resume deployment'
-#       allowApproversToApproveTheirOwnRuns: true
-#       onTimeout: 'reject'
-
-# - job: Deploy
-#   displayName:  ${{ parameters.environment }}  deploy 
-#   dependsOn: ApproveDeployment
-#   steps:
-#     - ${{ each ssh_connection in split(variables.server_service_connections,'|') }}:
-#       - task: SSH@0
-#         displayName: 'Run deployment script ${{ parameters.environment }} ${{ ssh_connection}}'
-#         inputs:
-#           sshEndpoint: ${{ssh_connection}}
-#           runOptions: 'commands'
-#           commands: |
-#             PowerShell C:\PnPConfigsDeployment\$(artifactName)\${{ parameters.environment }}\deploy_config.ps1
-#           failOnStdErr: true 
-#           readyTimeout: '20000'
+- job: Deploy
+  displayName:  ${{ parameters.environment }}  deploy 
+  dependsOn: ApproveDeployment
+  steps:
+    - script: echo Deploying to $hosts
+    - ${{ each ssh_connection in split(variables.hosts,'|') }}:
+      - task: SSH@0
+        displayName: 'Run deployment script ${{ parameters.environment }} ${{ ssh_connection}}'
+        inputs:
+          sshEndpoint: ${{ssh_connection}}
+          runOptions: 'commands'
+          commands: |
+            PowerShell C:\PnPConfigsDeployment\$(artifactName)\${{ parameters.environment }}\deploy_config.ps1
+          failOnStdErr: true 
+          readyTimeout: '20000'
     
 
 
