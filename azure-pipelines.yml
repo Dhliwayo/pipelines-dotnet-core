@@ -48,6 +48,7 @@ jobs:
 - job: CopyConfigFilesToEnvironment
   displayName: ${{ parameters.environment }} copy configs
   steps:
+    - script: eco library hosts value - $(hosts)  
     - ${{ each host in split(variables.hosts,'|') }}:
        - script:  echo host - ${{ host }}
     - script: echo 'Hosts from library - $(server_service_connections) '
