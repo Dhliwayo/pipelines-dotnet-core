@@ -50,7 +50,7 @@ jobs:
   steps:
     - ${{ each ssh_connection in split(variables.server_service_connections,'|') }}:
        - script: |
-          echo 'SSH copy artifacts to  using ${{ssh_connection}} '
+          echo SSH copy artifacts to  using $(ssh_connection)
 #     - task: CopyFiles@2
 #       displayName: 'Copy ${{ parameters.environment }} config  files to: $(Build.ArtifactStagingDirectory)'
 #       inputs:
