@@ -21,7 +21,7 @@ trigger:
 appendCommitMessageToRunName: false
 
 pool:
-  vmImage: windows-latest
+  vmImage: ubuntu-latest
 
 parameters:
   - name: environment
@@ -49,8 +49,8 @@ jobs:
   displayName: ${{ parameters.environment }} copy configs
   steps:
     - script: echo 'Hosts from library - $(server_service_connections) '
-    - ${{ each ssh_connection in split(variables.server_service_connections,'|') }}:
-      - script:  echo ${{ ssh_connection }}
+    - ${{ each ssh_con in split(variables.server_service_connections,'|') }}:
+      - script:  echo ${{ ssh_con }}
     - script: echo 'Hosts from library - $(hosts) '
     - ${{ each ssh_connection in split(variables.hosts,'|') }}:
       - script:  echo ${{ ssh_connection }}
