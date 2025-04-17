@@ -111,7 +111,7 @@ jobs:
       inputs:
         script: |
           echo ##[debug]Host variable 
-          echo $(hosts)         
+          echo ##[debug]$(hosts)         
 
 
     - ${{ each ssh_connection in split(variables.hosts,'|') }}:
