@@ -36,7 +36,7 @@ parameters:
   - name: BuildArtifacts
     displayName: Build and Copy PnP configs and ArcGIS Server artifacts
     type: boolean
-    default: false
+    default: true
   - name: DeployPnPConfigs
     displayName: Deploy PnP Configs
     type: boolean
