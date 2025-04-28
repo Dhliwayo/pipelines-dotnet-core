@@ -1,60 +1,216 @@
-import logging
-import logging.handlers
-import sys
+name: $(SourceBranchName)_$(date:yyyyMMdd)$(rev:.r)_PerilsProximity_Build_Configs
+
+#Pipeline actions:
+# select environment eg staging, fint, pre-prod, prod
+# PnP config files are copied to the machine(s) for the target environment
+# SSH service connections must exist for each of the environments in a variable group for that environment
+# Variable group name PerilsProximity.Configs.TARGET_ENVIRONMENT e.g  PerilsProximity.Configs.Staging
+# Once the files are copied, the next step requires manual approval
+# Check that the files copied currently to $(pnp_config_working_directory)\ variable eg. C:\PnPConfigsDeployment\ are as expected
+# After manual approval, the copied files are deployed into relevant folders eg wwwroot, PnP services etc
+
+#TODO:
+# stop and start services
+# smoke testing?
 
 
-import arcpy
+trigger:
+  - config-pipeline
+  - master
 
+appendCommitMessageToRunName: false
 
-def get_logger(logger_name: str, log_file: str):
-    """
-    Create a logger object configure to write to console and also a supplied log file
+pool:
+  vmImage: windows-latest
+
+parameters:
+  - name: environment
+    displayName: Environment
+    type: string
+    default: staging
+    values:
+    - staging
+    - fint
+    - preprod
+    - production
+  - name: BuildArtifacts
+    displayName: Build and Copy PnP configs and ArcGIS Server artifacts
+    type: boolean
+    default: false
+  - name: DeployPnPConfigs
+    displayName: Deploy PnP Configs
+    type: boolean
+    default: true
+  - name: DeployDomain
+    displayName: Deploy domains
+    type: boolean
+    default: true
+  - name: ImportUKFloodRasters
+    displayName: Import UK flood rasters
+    type: boolean
+    default: false
+  - name: UpdateGDBVectorDatasets
+    displayName: Update geodatabase vector datasets
+    type: boolean
+    default: false
+  - name: UpdateMapDataSources
+    displayName: Update geodatabase vector datasets
+    type: boolean
+    default: false
+  - name: PublishArcGISServerServices
+    displayName: Publish ArcGIS Server Services
+    type: boolean
+    default: false
+
+variables:
+- group: PerilsProximity.Configs.${{ parameters.environment }} # note there's a dash at the beginning of the line
+- name: time
+  value: $[ format('{0:yyyy}-{0:MM}-{0:dd}-{0:HHmm}', pipeline.startTime) ]
+- name: build_artifact_name
+  value: Build-Drop-${{ parameters.environment }}
+
+# The SSH service connection with this names must exist in ADO
+# These variables cannot be stored in library groups as the read at run time?
+
+# The SSH service connection with this names must exist in ADO
+# These variables cannot be stored in library groups as the read at run time?
+- name: server_service_connections
+  ${{ if eq(parameters.environment, 'staging') }}:
+    value: pnp_staging_ssh_connection_53
+  ${{ if eq(parameters.environment, 'fint') }}:
+    value: pnp_staging_ssh_connection_53|pnp_staging_ssh_connection_53
+  ${{ if eq(parameters.environment, 'preprod') }}:
+    value: pnp_staging_ssh_connection_53|pnp_staging_ssh_connection_53
+  ${{ if eq(parameters.environment, 'production') }}:
+    value: pnp_staging_ssh_connection_53|pnp_staging_ssh_connection_53
+
+stages:
+  - stage: BuildArtifacts
+    condition: and(succeeded(), ${{ eq(parameters.BuildArtifacts,true) }})  
+    jobs:
+    - job: CopyConfigFilesToEnvironment
+      displayName: ${{ parameters.environment }} copy configs
+      steps:
+        - task: CopyFiles@2
+          displayName: 'Copy ${{ parameters.environment }} config  files to: $(Build.ArtifactStagingDirectory)'
+          inputs:
+            contents: |
+              ${{ parameters.environment }}/config/batch.config
+              ${{ parameters.environment }}/config/BatchProcessorService.exe.config
+              ${{ parameters.environment }}/config/BatchProcessor_Log.config
+              ${{ parameters.environment }}/config/BatchSubmissionService.exe.config
+              ${{ parameters.environment }}/config/BatchSubmission_log.config
+              ${{ parameters.environment }}/config/BatchWebTestHarness.exe.config
+              ${{ parameters.environment }}/config/Create_Message.exe.config
+              ${{ parameters.environment }}/config/MQListener.exe.config
+              ${{ parameters.environment }}/config/TEst_App.exe.config
+              ${{ parameters.environment }}/config/BatchManager/Web.config
+              ${{ parameters.environment }}/config/BatchStatus/Web.config
+              ${{ parameters.environment }}/config/BestAddress/Web.config
+              ${{ parameters.environment }}/config/Geoassessment/Web.config
+              ${{ parameters.environment }}/config/GlobalExposure/Web.config
+              ${{ parameters.environment }}/config/LocatorHubWS/Web.config
+              ${{ parameters.environment }}/config/PerilsPlusWS/Web.config
+              utilities/deploy_config.ps1
+              arcgis_services/**
+            targetFolder: $(Build.ArtifactStagingDirectory)
+        - task: PowerShell@2
+          displayName: 'Move deploy_config script'
+          inputs:
+            targetType: 'inline'
+            script: |
+              Move-Item -Path $(Build.ArtifactStagingDirectory)/utilities/deploy_config.ps1 -Destination $(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/deploy_config.ps1
+        - task: CmdLine@2
+          displayName: Display tree of build artifact from $(Build.ArtifactStagingDirectory) 
+          inputs:
+            script: |
+              echo ##[debug]List of built in variables in Build.ArtifactStagingDirectory 
+              tree $(Build.ArtifactStagingDirectory) /F
+        - task: PublishBuildArtifacts@1
+          displayName: 'Publish artifact'
+          inputs:
+            pathToPublish: $(Build.ArtifactStagingDirectory)
+            artifactName: $(build_artifact_name)
+
+        # Download build artifacts v1
+        # Download files that were saved as artifacts of a completed build.
+        - task: DownloadBuildArtifacts@1
+          displayName: 'Download build artifact'
+          inputs:
+            buildType: 'current' # 'current' | 'specific'. Required. Download artifacts produced by. Default: current.
+            buildVersionToDownload: 'latest' # 'latest' | 'latestFromBranch' | 'specific'. Required when buildType == specific. Build version to download. Default: latest.
+            downloadType: 'single' # 'single' | 'specific'. Required. Download type. Default: single.
+            artifactName: $(build_artifact_name) # string. Required when downloadType == single. Artifact name. 
+            downloadPath: $(System.ArtifactsDirectory) # string. Required. Destination directory. Default: $(System.ArtifactsDirectory).
+            cleanDestinationFolder: true # boolean. Clean destination folder. Default: false.
+            checkDownloadedFiles: true # boolean. Check downloaded files. Default: false.
+        - task: CmdLine@2
+          displayName: Display tree of sytem artifact dir from $(System.ArtifactsDirectory)
+          inputs:
+            script: |
+                echo ##[debug]List of built in variables in System.ArtifactsDirectory 
+                tree $(System.ArtifactsDirectory) /F
+        - script: echo Copying files to $hosts
+        - ${{ each ssh_connection in split(variables.server_service_connections,'|') }}:
+          - task: CopyFilesOverSSH@0
+            displayName: 'SSH copy artifacts to ${{ parameters.environment }}  using ${{ ssh_connection }} '
+            inputs:
+              sshEndpoint: ${{ ssh_connection }}
+              sourceFolder: $(System.ArtifactsDirectory)
+              contents: '**' 
+              targetFolder: '$(pnp_config_working_directory)\'
+              isWindowsOnTarget: true
+              cleanTargetFolder: true
+              readyTimeout: '20000'
+              overwrite: true
+              failOnEmptySource: true      
+
+    - job: ApproveDeployment
+      displayName: ${{ parameters.environment }} wait for manual approval 
+      dependsOn: CopyConfigFilesToEnvironment
+      timeoutInMinutes: 4320 # job times out in 3 days
+      pool: server 
+      steps:   
+      - task: ManualValidation@1
+        timeoutInMinutes: 4320 # task times out in 3 days
+        inputs:
+          notifyUsers: |
+            itai.dhliwayo@uk.rsagroup.com
+          instructions: 'Please validate the build drop in ${{ parameters.environment }} and resume deployment'
+          allowApproversToApproveTheirOwnRuns: true
+          onTimeout: 'reject'
+
+  - stage: DeployPnPConfigs
+    condition: and(succeeded('BuildArtifacts'), ${{ eq(parameters.BuildArtifacts,true) }})  
+    jobs:
+    - job: Deploy
+      displayName:  ${{ parameters.environment }}  deploy 
+      steps:
+        - script: echo Copying files to $hosts
+        - ${{ each ssh_connection in split(variables.server_service_connections,'|') }}:
+          - task: SSH@0
+            displayName: 'Run deployment script ${{ parameters.environment }} ${{ ssh_connection}}'
+            inputs:
+              sshEndpoint: ${{ssh_connection}}
+              runOptions: 'commands'
+              commands: |
+                PowerShell $(pnp_config_working_directory)\$(build_artifact_name)\${{ parameters.environment }}\deploy_config.ps1
+              failOnStdErr: true 
+              readyTimeout: '20000'
+  
+  - stage: DeployDomain
+    condition: and(succeeded('ArcGISBuildDeploymentPackage'), ${{ eq(parameters.DeployDomain,true) }})   
+    jobs:
+    - job: DeployDomain
+      displayName: Deploying to domains to  ${{ parameters.environment }}
+      steps:
+      - task: CmdLine@2
+        displayName: Display tree of build artifact from $(Build.ArtifactStagingDirectory) 
+        inputs:
+          script: |
+            echo ##[debug]Deploying domains using SSH 
+
     
-    :param logger_name: Name logger can be referenced by
-    :param log_file: path to log_file, will be created if doesn't exist, will be appended to if does
-    :returns: logging.Logger object
-    """
-    logger = logging.getLogger(logger_name)
-    logger.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s - {} - %(levelname)s - %(message)s'.format(logger_name))
 
-    consoleHandler = logging.StreamHandler(sys.stdout)
-    consoleHandler.setLevel(logging.DEBUG)
-    consoleHandler.setFormatter(formatter)
+      
 
-    fileHandler = logging.handlers.RotatingFileHandler(filename=log_file, maxBytes=1024000, backupCount=10, mode="a")
-    fileHandler.setLevel(logging.INFO)
-    fileHandler.setFormatter(formatter)
-
-    logger.addHandler(consoleHandler)
-    logger.addHandler(fileHandler)
-
-    return logger
-
-
-def create_sde_connection_file(username: str, password: str, directory: str, server: str, database: str):
-    """
-    Create a local .sde connection file which will be cleaned up by garbage collection at runtime end
-    
-    For a temporary directory pass in temp_dir = tempfile.TemporaryDirectory().name
-    
-    :param username: account username to form connection
-    :param password: account password to form connection
-    :param directory: directory to store the .sde in
-    :param server: eg. lwwipiv3.opd.ads.uk.rsa-ins.com
-    :param database: eg. GRA_REPOSITORY
-    :return: string path to .sde file
-    """
-    filename = server+"_"+database+".sde"
-    filepath = arcpy.CreateDatabaseConnection_management(
-        out_folder_path=directory,
-        out_name=filename,
-        database_platform="SQL_SERVER",
-        instance=server,
-        username=username,
-        password=password,
-        save_user_pass="SAVE_USERNAME",
-        database=database,
-    )
-
-    return str(filepath)
