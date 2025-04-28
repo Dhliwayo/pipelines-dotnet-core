@@ -6,7 +6,7 @@ name: $(SourceBranchName)_$(date:yyyyMMdd)$(rev:.r)_PerilsProximity_Build_Config
 # SSH service connections must exist for each of the environments in a variable group for that environment
 # Variable group name PerilsProximity.Configs.TARGET_ENVIRONMENT e.g  PerilsProximity.Configs.Staging
 # Once the files are copied, the next step requires manual approval
-# Check that the files copied currently to $(pnp_config_working_directory)\ variable eg. C:\PnPConfigsDeployment\ are as expected
+# Check that the files copied currently to $(working_directory)\ variable eg. C:\PnPConfigsDeployment\ are as expected
 # After manual approval, the copied files are deployed into relevant folders eg wwwroot, PnP services etc
 
 #TODO:
@@ -158,7 +158,7 @@ stages:
               sshEndpoint: ${{ ssh_connection }}
               sourceFolder: $(System.ArtifactsDirectory)
               contents: '**' 
-              targetFolder: '$(pnp_config_working_directory)\'
+              targetFolder: '$(working_directory)\'
               isWindowsOnTarget: true
               cleanTargetFolder: true
               readyTimeout: '20000'
@@ -194,7 +194,7 @@ stages:
               sshEndpoint: ${{ssh_connection}}
               runOptions: 'commands'
               commands: |
-                PowerShell $(pnp_config_working_directory)\$(build_artifact_name)\${{ parameters.environment }}\deploy_config.ps1
+                PowerShell $(working_directory)\$(build_artifact_name)\${{ parameters.environment }}\deploy_config.ps1
               failOnStdErr: true 
               readyTimeout: '20000'
   
