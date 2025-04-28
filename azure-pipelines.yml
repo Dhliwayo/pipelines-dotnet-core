@@ -199,7 +199,7 @@ stages:
               readyTimeout: '20000'
   
   - stage: DeployDomain
-    condition: and(succeeded('ArcGISBuildDeploymentPackage'), ${{ eq(parameters.DeployDomain,true) }})   
+    condition: ${{ eq(parameters.DeployDomain,true) }}   
     jobs:
     - job: DeployDomain
       displayName: Deploying to domains to  ${{ parameters.environment }}
