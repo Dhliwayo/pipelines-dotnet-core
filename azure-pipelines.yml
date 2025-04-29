@@ -67,7 +67,9 @@ variables:
 - name: time
   value: $[ format('{0:yyyy}-{0:MM}-{0:dd}-{0:HHmm}', pipeline.startTime) ]
 - name: build_artifact_name
-  value: Build-Drop-${{ parameters.environment }}
+  value: Build-drop-${{ parameters.environment }}
+- name: staging_ssh_connection
+  value: pnp_staging_ssh_connection_53
 
 # The SSH service connection with this names must exist in ADO
 # These variables cannot be stored in library groups as the read at run time?
@@ -83,6 +85,7 @@ variables:
     value: pnp_staging_ssh_connection_53|pnp_staging_ssh_connection_53
   ${{ if eq(parameters.environment, 'production') }}:
     value: pnp_staging_ssh_connection_53|pnp_staging_ssh_connection_53
+
 
 stages:
   - stage: BuildArtifacts
@@ -204,11 +207,15 @@ stages:
     - job: DeployDomain
       displayName: Deploying to domains to  ${{ parameters.environment }}
       steps:
-      - task: CmdLine@2
-        displayName: Display tree of build artifact from $(Build.ArtifactStagingDirectory) 
+      - task: SSH@0
+        displayName: 'Run deploy domains script ${{ parameters.environment }} ${{ variables.staging_ssh_connection}}'
         inputs:
-          script: |
-            echo ##[debug]Deploying domains using SSH 
+          sshEndpoint: ${{variables.staging_ssh_connection}}
+          runOptions: 'commands'
+          commands: |
+            python $(working_directory)\$(build_artifact_name)\arcgis_services\deploy\scripts\4_deploy_domains\add_domains.py
+          failOnStdErr: true 
+          readyTimeout: '20000'
 
     
 
