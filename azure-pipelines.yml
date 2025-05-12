@@ -168,6 +168,8 @@ stages:
                 $sourceDirectory=$(System.ArtifactsDirectory)
                 $destinationFolder=$(working_directory)
 
+                Write-Host "Copying files source directory:  $sourceDirectory, destination directory:  $destinationFolder"
+                
                 $session = New-PSSession -ComputerName $computername -Port $computerport -Credential $cred -UseSSL -SessionOption $soptions
 
                 Copy-Item $sourceDirectory\* -Destination $destinationFolder -ToSession $session  -Recurse  -Force
