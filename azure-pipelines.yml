@@ -154,19 +154,23 @@ stages:
                 echo ##[debug]List of built in variables in System.ArtifactsDirectory 
                 tree $(System.ArtifactsDirectory) /F
         - script: echo Copying files to $hosts
-        - ${{ each ssh_connection in split(variables.server_service_connections,'|') }}:
-          - task: CopyFilesOverSSH@0
-            displayName: 'SSH copy artifacts to ${{ parameters.environment }}  using ${{ ssh_connection }} '
-            inputs:
-              sshEndpoint: ${{ ssh_connection }}
-              sourceFolder: $(System.ArtifactsDirectory)
-              contents: '**' 
-              targetFolder: '$(working_directory)\'
-              isWindowsOnTarget: true
-              cleanTargetFolder: true
-              readyTimeout: '20000'
-              overwrite: true
-              failOnEmptySource: true      
+        - ${{ each server in split(variables.server_service_connections,'|') }}:
+          - task: PowerShell@2
+          displayName: 'Move deploy_config script'
+          inputs:
+            targetType: 'inline'
+            script: |
+              $soptions = New-PSSessionOption -SkipCACheck -SkipCNCheck
+              $secpasswd = ConvertTo-SecureString "TendayiMutsa01" -AsPlainText -Force
+              $cred = New-Object System.Management.Automation.PSCredential ("Dhliwayo", $secpasswd) 
+              $computername = "20.117.169.184"
+              $computerport = 5986
+              $sourceDirectory=$(System.ArtifactsDirectory)
+              $destinationFolder=$(working_directory)
+
+              $session = New-PSSession -ComputerName $computername -Port $computerport -Credential $cred -UseSSL -SessionOption $soptions
+
+              Copy-Item $sourceDirectory\* -Destination $destinationFolder -ToSession $session  -Recurse  -Force
 
     - job: ApproveDeployment
       displayName: ${{ parameters.environment }} wait for manual approval 
@@ -189,18 +193,28 @@ stages:
     - job: Deploy
       displayName:  ${{ parameters.environment }}  deploy 
       steps:
-        - script: echo Copying files to $hosts
-        - ${{ each ssh_connection in split(variables.server_service_connections,'|') }}:
-          - task: SSH@0
-            displayName: 'Run deployment script ${{ parameters.environment }} ${{ ssh_connection}}'
-            inputs:
-              sshEndpoint: ${{ssh_connection}}
-              runOptions: 'commands'
-              commands: |
-                PowerShell $(working_directory)\$(build_artifact_name)\${{ parameters.environment }}\deploy_config.ps1
-              failOnStdErr: true 
-              readyTimeout: '20000'
-  
+        - task: PowerShellOnTargetMachines@3
+          displayName: 'Deploying to  targets using WinRm '
+          inputs:
+            Machines: $(server_service_connections)
+            UserName: 'Dhliwayo' 
+            UserPassword: 'TendayiMutsa01'
+            # Script options
+            ScriptType: 'FilePath' # 'FilePath' | 'Inline'. Script Type. Default: Inline.
+            ScriptPath: $(working_directory)\$(build_artifact_name)\${{ parameters.environment }}\deploy_config.ps1
+            # PSSession options
+            #CommunicationProtocol: 'Https' # 'Http' | 'Https'. Protocol. Default: Https.
+            #AuthenticationMechanism: 'Default' # 'Default' | 'Credssp'. Authentication. Default: Default.
+            #NewPsSessionOptionArguments: '-SkipCACheck -IdleTimeout 7200000 -OperationTimeout 0 -OutputBufferingMode Block' # string. Session Option parameters. Default: -SkipCACheck -IdleTimeout 7200000 -OperationTimeout 0 -OutputBufferingMode Block.
+            # Error handling options
+            #ErrorActionPreference: 'stop' # 'stop' | 'continue' | 'silentlyContinue'. ErrorActionPreference. Default: stop.
+            #failOnStderr: false # boolean. Fail on Standard Error. Default: false.
+            #ignoreLASTEXITCODE: false # boolean. Ignore $LASTEXITCODE. Default: false.
+            # Advanced
+            #WorkingDirectory: # string. Working Directory. 
+            #RunPowershellInParallel: true # boolean. Run PowerShell in Parallel. Default: true.
+
+ 
   - stage: DeployDomain
     condition: ${{ eq(parameters.DeployDomain,true) }}   
     jobs:
