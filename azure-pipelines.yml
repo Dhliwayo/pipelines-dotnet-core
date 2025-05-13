@@ -232,7 +232,7 @@ stages:
             UserName: $(pnp_service_account_name)
             UserPassword: $(pnp_service_account_password)
             ScriptType: 'FilePath' # 'FilePath' | 'Inline'. Script Type. Default: Inline.
-            ScriptPath: $(working_directory)\$(build_artifact_name)\arcgis_services\deploy\scripts\4_deploy_domains\deploy_config.ps1
+            ScriptPath: $(working_directory)\$(build_artifact_name)\arcgis_services\deploy\scripts\4_deploy_domains\add_domains.ps1
             CommunicationProtocol: 'Https' # 'Http' | 'Https'. Protocol. Default: Https.
             AuthenticationMechanism: 'Default' # 'Default' | 'Credssp'. Authentication. Default: Default.
             NewPsSessionOptionArguments: '-SkipCACheck -IdleTimeout 7200000 -OperationTimeout 0 -OutputBufferingMode Block' # string. Session Option parameters. Default: -SkipCACheck -IdleTimeout 7200000 -OperationTimeout 0 -OutputBufferingMode Block.
