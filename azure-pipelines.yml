@@ -200,12 +200,12 @@ stages:
         - task: PowerShellOnTargetMachines@3
           displayName: 'Deploying to  targets using WinRm '
           inputs:
-            Machines: $(server_service_connections)
-            UserName: $(pnp_service_account_name)
-            UserPassword: $(pnp_service_account_password)
+            Machines: '$(server_service_connections)'
+            UserName: '$(pnp_service_account_name)'
+            UserPassword: '$(pnp_service_account_password)'
             # Script options
             ScriptType: 'FilePath' # 'FilePath' | 'Inline'. Script Type. Default: Inline.
-            ScriptPath: $(working_directory)\$(build_artifact_name)\${{ parameters.environment }}\deploy_config.ps1
+            ScriptPath: $(working_directory)\$(build_artifact_name)\deploy_config.ps1
             # PSSession options
             CommunicationProtocol: 'Https' # 'Http' | 'Https'. Protocol. Default: Https.
             AuthenticationMechanism: 'Default' # 'Default' | 'Credssp'. Authentication. Default: Default.
@@ -223,18 +223,19 @@ stages:
     condition: ${{ eq(parameters.DeployDomain,true) }}   
     jobs:
     - job: DeployDomain
-      displayName: Deploying to domains to  ${{ parameters.environment }}
+      displayName: Deploying to domains to  ${{ parameters.environment }}, hosts- $(server_service_connections)
       steps:
-      - task: SSH@0
-        displayName: 'Run deploy domains script ${{ parameters.environment }} ${{ variables.staging_ssh_connection}}'
-        inputs:
-          sshEndpoint: ${{variables.staging_ssh_connection}}
-          runOptions: 'commands'
-          commands: |
-            python $(working_directory)\$(build_artifact_name)\arcgis_services\deploy\scripts\4_deploy_domains\add_domains.py
-          failOnStdErr: true 
-          readyTimeout: '20000'
-
+        - task: PowerShellOnTargetMachines@3
+          displayName: 'Deploying to domains using WinRm '
+          inputs:
+            Machines: '$(server_service_connections)'
+            UserName: '$(pnp_service_account_name)'
+            UserPassword: $(pnp_service_account_password)
+            ScriptType: 'FilePath' # 'FilePath' | 'Inline'. Script Type. Default: Inline.
+            ScriptPath: $(working_directory)\$(build_artifact_name)\arcgis_services\deploy\scripts\4_deploy_domains\deploy_config.ps1
+            CommunicationProtocol: 'Https' # 'Http' | 'Https'. Protocol. Default: Https.
+            AuthenticationMechanism: 'Default' # 'Default' | 'Credssp'. Authentication. Default: Default.
+            NewPsSessionOptionArguments: '-SkipCACheck -IdleTimeout 7200000 -OperationTimeout 0 -OutputBufferingMode Block' # string. Session Option parameters. Default: -SkipCACheck -IdleTimeout 7200000 -OperationTimeout 0 -OutputBufferingMode Block.
     
 
       
