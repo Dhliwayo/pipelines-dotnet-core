@@ -157,7 +157,7 @@ stages:
           inputs:
             targetType: 'inline'
             script: |
-              $serverConns = $(server_service_connections)
+              $serverConns = "$(server_service_connections)"
 
               ForEach ($server in $serverConns.split(",")) {
 
