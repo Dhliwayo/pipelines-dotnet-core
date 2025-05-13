@@ -69,23 +69,6 @@ variables:
 - name: build_artifact_name
   value: Build-drop-${{ parameters.environment }}
 
-
-# The SSH service connection with this names must exist in ADO
-# These variables cannot be stored in library groups as the read at run time?
-
-# The SSH service connection with this names must exist in ADO
-# These variables cannot be stored in library groups as the read at run time?
-# - name: server_service_connections
-#   ${{ if eq(parameters.environment, 'staging') }}:
-#     value: pnp_staging_ssh_connection_53
-#   ${{ if eq(parameters.environment, 'fint') }}:
-#     value: pnp_staging_ssh_connection_53|pnp_staging_ssh_connection_53
-#   ${{ if eq(parameters.environment, 'preprod') }}:
-#     value: pnp_staging_ssh_connection_53|pnp_staging_ssh_connection_53
-#   ${{ if eq(parameters.environment, 'production') }}:
-#     value: pnp_staging_ssh_connection_53|pnp_staging_ssh_connection_53
-
-
 stages:
   - stage: BuildArtifacts
     condition: and(succeeded(), ${{ eq(parameters.BuildArtifacts,true) }})  
@@ -220,7 +203,7 @@ stages:
 
  
   - stage: DeployDomain
-    condition: ${{ eq(parameters.DeployDomain,true) }}   
+    condition: and(succeeded('BuildArtifacts'), ${{ eq(parameters.DeployDomain,true) }})   
     jobs:
     - job: DeployDomain
       displayName: Deploying to domains to  ${{ parameters.environment }}, hosts- $(server_service_connections)

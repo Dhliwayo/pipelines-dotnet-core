@@ -14,5 +14,5 @@ $proc.WaitForExit();
 
 if ($proc.ExitCode -ne 0) {
     Write-Warning "$_ exited with status code $($proc.ExitCode)"
-    throw [System.Exception] "There was an error executing the python script"
+    throw [System.Exception] "Error executing the python script"
 }
