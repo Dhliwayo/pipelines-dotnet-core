@@ -90,7 +90,7 @@ stages:
   - stage: BuildArtifacts
     condition: and(succeeded(), ${{ eq(parameters.BuildArtifacts,true) }})  
     jobs:
-    - job: CopyConfigFilesToEnvironment
+    - job: CopyFilesToEnvironment
       displayName: ${{ parameters.environment }} copy configs
       steps:
         - task: CopyFiles@2
@@ -114,6 +114,7 @@ stages:
               ${{ parameters.environment }}/config/LocatorHubWS/Web.config
               ${{ parameters.environment }}/config/PerilsPlusWS/Web.config
               utilities/deploy_config.ps1
+              arcgis_services/**
             targetFolder: $(Build.ArtifactStagingDirectory)
         - task: PowerShell@2
           displayName: 'Move deploy_config script'
@@ -177,7 +178,7 @@ stages:
 
     - job: ApproveDeployment
       displayName: ${{ parameters.environment }} wait for manual approval 
-      dependsOn: CopyConfigFilesToEnvironment
+      dependsOn: CopyFilesToEnvironment
       timeoutInMinutes: 4320 # job times out in 3 days
       pool: server 
       steps:   
@@ -199,9 +200,9 @@ stages:
         - task: PowerShellOnTargetMachines@3
           displayName: 'Deploying to  targets using WinRm '
           inputs:
-            Machines: "20.117.169.184"
-            UserName: 'Dhliwayo' 
-            UserPassword: 'TendayiMutsa01'
+            Machines: $(server_service_connections)
+            UserName: $(pnp_service_account_name)
+            UserPassword: $(pnp_service_account_password)
             # Script options
             ScriptType: 'FilePath' # 'FilePath' | 'Inline'. Script Type. Default: Inline.
             ScriptPath: $(working_directory)\$(build_artifact_name)\${{ parameters.environment }}\deploy_config.ps1
