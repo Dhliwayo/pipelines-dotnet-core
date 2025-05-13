@@ -160,7 +160,9 @@ stages:
             inputs:
               targetType: 'inline'
               script: |
-                ForEach ($server in $(server_service_connections).split("|") {
+                $serverConns = $(server_service_connections)
+
+                ForEach ($server in $serverConns.split("|") {
 
                   $soptions = New-PSSessionOption -SkipCACheck -SkipCNCheck
                   $secpasswd = ConvertTo-SecureString "TendayiMutsa01" -AsPlainText -Force
