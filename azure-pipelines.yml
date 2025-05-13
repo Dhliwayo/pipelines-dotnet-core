@@ -163,7 +163,7 @@ stages:
                 $soptions = New-PSSessionOption -SkipCACheck -SkipCNCheck
                 $secpasswd = ConvertTo-SecureString "TendayiMutsa01" -AsPlainText -Force
                 $cred = New-Object System.Management.Automation.PSCredential ("Dhliwayo", $secpasswd) 
-                $computername = {{server}}
+                $computername = $(server)
                 $computerport = 5986
                 $sourceDirectory="$(System.ArtifactsDirectory)"
                 $destinationFolder="$(working_directory)"
