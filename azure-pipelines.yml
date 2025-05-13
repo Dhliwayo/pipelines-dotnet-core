@@ -200,9 +200,9 @@ stages:
         - task: PowerShellOnTargetMachines@3
           displayName: 'Deploying to  targets using WinRm '
           inputs:
-            Machines: '$(server_service_connections)'
-            UserName: '$(pnp_service_account_name)'
-            UserPassword: '$(pnp_service_account_password)'
+            Machines: "20.117.169.184"
+            UserName: $(pnp_service_account_name)
+            UserPassword: $(pnp_service_account_password)
             # Script options
             ScriptType: 'FilePath' # 'FilePath' | 'Inline'. Script Type. Default: Inline.
             ScriptPath: $(working_directory)\$(build_artifact_name)\deploy_config.ps1
@@ -228,8 +228,8 @@ stages:
         - task: PowerShellOnTargetMachines@3
           displayName: 'Deploying to domains using WinRm '
           inputs:
-            Machines: '$(server_service_connections)'
-            UserName: '$(pnp_service_account_name)'
+            Machines: "20.117.169.184"
+            UserName: $(pnp_service_account_name)
             UserPassword: $(pnp_service_account_password)
             ScriptType: 'FilePath' # 'FilePath' | 'Inline'. Script Type. Default: Inline.
             ScriptPath: $(working_directory)\$(build_artifact_name)\arcgis_services\deploy\scripts\4_deploy_domains\deploy_config.ps1
