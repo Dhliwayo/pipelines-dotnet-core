@@ -162,7 +162,7 @@ stages:
               script: |
                 $serverConns = $(server_service_connections)
 
-                ForEach ($server in $serverConns.split("|") {
+                ForEach ($server in $serverConns.split("|")) {
 
                   $soptions = New-PSSessionOption -SkipCACheck -SkipCNCheck
                   $secpasswd = ConvertTo-SecureString "TendayiMutsa01" -AsPlainText -Force
