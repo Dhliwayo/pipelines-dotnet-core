@@ -207,7 +207,7 @@ stages:
             ScriptPath: $(working_directory)\$(build_artifact_name)\${{ parameters.environment }}\deploy_config.ps1
             # PSSession options
             CommunicationProtocol: 'Https' # 'Http' | 'Https'. Protocol. Default: Https.
-            AuthenticationMechanism: 'Credssp' # 'Default' | 'Credssp'. Authentication. Default: Default.
+            AuthenticationMechanism: 'Default' # 'Default' | 'Credssp'. Authentication. Default: Default.
             NewPsSessionOptionArguments: '-SkipCACheck -IdleTimeout 7200000 -OperationTimeout 0 -OutputBufferingMode Block' # string. Session Option parameters. Default: -SkipCACheck -IdleTimeout 7200000 -OperationTimeout 0 -OutputBufferingMode Block.
             # Error handling options
             #ErrorActionPreference: 'stop' # 'stop' | 'continue' | 'silentlyContinue'. ErrorActionPreference. Default: stop.
