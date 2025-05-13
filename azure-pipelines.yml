@@ -160,19 +160,22 @@ stages:
             inputs:
               targetType: 'inline'
               script: |
-                $soptions = New-PSSessionOption -SkipCACheck -SkipCNCheck
-                $secpasswd = ConvertTo-SecureString "TendayiMutsa01" -AsPlainText -Force
-                $cred = New-Object System.Management.Automation.PSCredential ("Dhliwayo", $secpasswd) 
-                $computername = $(server)
-                $computerport = 5986
-                $sourceDirectory="$(System.ArtifactsDirectory)"
-                $destinationFolder="$(working_directory)"
+                ForEach ($server in $(server_service_connections).split("|") {
 
-                Write-Host "Copying files source directory:  $sourceDirectory, destination directory:  $destinationFolder"
+                  $soptions = New-PSSessionOption -SkipCACheck -SkipCNCheck
+                  $secpasswd = ConvertTo-SecureString "TendayiMutsa01" -AsPlainText -Force
+                  $cred = New-Object System.Management.Automation.PSCredential ("Dhliwayo", $secpasswd) 
+                  $computername = $server
+                  $computerport = 5986
+                  $sourceDirectory="$(System.ArtifactsDirectory)"
+                  $destinationFolder="$(working_directory)"
 
-                $session = New-PSSession -ComputerName $computername -Port $computerport -Credential $cred -UseSSL -SessionOption $soptions
+                  Write-Host "Copying files source directory:  $sourceDirectory, destination directory:  $destinationFolder"
 
-                Copy-Item $sourceDirectory\* -Destination $destinationFolder -ToSession $session  -Recurse  -Force
+                  $session = New-PSSession -ComputerName $computername -Port $computerport -Credential $cred -UseSSL -SessionOption $soptions
+
+                  Copy-Item $sourceDirectory\* -Destination $destinationFolder -ToSession $session  -Recurse  -Force
+                }
 
     - job: ApproveDeployment
       displayName: ${{ parameters.environment }} wait for manual approval 
