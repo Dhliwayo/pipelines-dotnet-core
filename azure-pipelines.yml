@@ -114,7 +114,6 @@ stages:
               ${{ parameters.environment }}/config/LocatorHubWS/Web.config
               ${{ parameters.environment }}/config/PerilsPlusWS/Web.config
               utilities/deploy_config.ps1
-              arcgis_services/**
             targetFolder: $(Build.ArtifactStagingDirectory)
         - task: PowerShell@2
           displayName: 'Move deploy_config script'
@@ -195,7 +194,7 @@ stages:
     condition: and(succeeded('BuildArtifacts'), ${{ eq(parameters.BuildArtifacts,true) }})  
     jobs:
     - job: Deploy
-      displayName:  ${{ parameters.environment }}  deploy 
+      displayName:  ${{ parameters.environment }}  PnP config deploy 
       steps:
         - task: PowerShellOnTargetMachines@3
           displayName: 'Deploying to  targets using WinRm '
