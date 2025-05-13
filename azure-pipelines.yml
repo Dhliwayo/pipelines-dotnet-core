@@ -152,31 +152,29 @@ stages:
             script: |
                 echo ##[debug]List of built in variables in System.ArtifactsDirectory 
                 tree $(System.ArtifactsDirectory) /F
-        - script: echo Copying files to $hosts
-        - ${{ each server in split(variables.server_service_connections,'|') }}:
-          - task: PowerShell@2
-            displayName: 'Move deploy_config script'
-            inputs:
-              targetType: 'inline'
-              script: |
-                $serverConns = $(server_service_connections)
+        - task: PowerShell@2
+          displayName: 'Copying files to $(server_service_connections)'
+          inputs:
+            targetType: 'inline'
+            script: |
+              $serverConns = $(server_service_connections)
 
-                ForEach ($server in $serverConns.split("|")) {
+              ForEach ($server in $serverConns.split(",")) {
 
-                  $soptions = New-PSSessionOption -SkipCACheck -SkipCNCheck
-                  $secpasswd = ConvertTo-SecureString "TendayiMutsa01" -AsPlainText -Force
-                  $cred = New-Object System.Management.Automation.PSCredential ("Dhliwayo", $secpasswd) 
-                  $computername = "$server"
-                  $computerport = 5986
-                  $sourceDirectory="$(System.ArtifactsDirectory)"
-                  $destinationFolder="$(working_directory)"
+                $soptions = New-PSSessionOption -SkipCACheck -SkipCNCheck
+                $secpasswd = ConvertTo-SecureString "TendayiMutsa01" -AsPlainText -Force
+                $cred = New-Object System.Management.Automation.PSCredential ("Dhliwayo", $secpasswd) 
+                $computername = "$server"
+                $computerport = 5986
+                $sourceDirectory="$(System.ArtifactsDirectory)"
+                $destinationFolder="$(working_directory)"
 
-                  Write-Host "Copying files source directory:  $sourceDirectory, destination directory:  $destinationFolder"
+                Write-Host "Copying files source directory:  $sourceDirectory, destination directory:  $destinationFolder"
 
-                  $session = New-PSSession -ComputerName $computername -Port $computerport -Credential $cred -UseSSL -SessionOption $soptions
+                $session = New-PSSession -ComputerName $computername -Port $computerport -Credential $cred -UseSSL -SessionOption $soptions
 
-                  Copy-Item $sourceDirectory\* -Destination $destinationFolder -ToSession $session  -Recurse  -Force
-                }
+                Copy-Item $sourceDirectory\* -Destination $destinationFolder -ToSession $session  -Recurse  -Force
+              }
 
     - job: ApproveDeployment
       displayName: ${{ parameters.environment }} wait for manual approval 
