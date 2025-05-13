@@ -199,7 +199,7 @@ stages:
         - task: PowerShellOnTargetMachines@3
           displayName: 'Deploying to  targets using WinRm '
           inputs:
-            Machines: '$(server_service_connections)'
+            Machines: "20.117.169.184"
             UserName: 'Dhliwayo' 
             UserPassword: 'TendayiMutsa01'
             # Script options
