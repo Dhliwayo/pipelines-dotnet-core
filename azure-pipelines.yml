@@ -205,7 +205,7 @@ stages:
             UserPassword: $(pnp_service_account_password)
             # Script options
             ScriptType: 'FilePath' # 'FilePath' | 'Inline'. Script Type. Default: Inline.
-            ScriptPath: $(working_directory)\$(build_artifact_name)\config\deploy_config.ps1
+            ScriptPath: $(working_directory)\$(build_artifact_name)\${{ parameters.environment }}\deploy_config.ps1
             # PSSession options
             CommunicationProtocol: 'Https' # 'Http' | 'Https'. Protocol. Default: Https.
             AuthenticationMechanism: 'Default' # 'Default' | 'Credssp'. Authentication. Default: Default.
@@ -228,7 +228,7 @@ stages:
         - task: PowerShellOnTargetMachines@3
           displayName: 'Deploying to domains using WinRm '
           inputs:
-            Machines: "20.117.169.184"
+            Machines: $(server_service_connections)
             UserName: $(pnp_service_account_name)
             UserPassword: $(pnp_service_account_password)
             ScriptType: 'FilePath' # 'FilePath' | 'Inline'. Script Type. Default: Inline.
