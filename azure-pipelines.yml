@@ -68,23 +68,22 @@ variables:
   value: $[ format('{0:yyyy}-{0:MM}-{0:dd}-{0:HHmm}', pipeline.startTime) ]
 - name: build_artifact_name
   value: Build-drop-${{ parameters.environment }}
-- name: staging_ssh_connection
-  value: pnp_staging_ssh_connection_53
+
 
 # The SSH service connection with this names must exist in ADO
 # These variables cannot be stored in library groups as the read at run time?
 
 # The SSH service connection with this names must exist in ADO
 # These variables cannot be stored in library groups as the read at run time?
-- name: server_service_connections
-  ${{ if eq(parameters.environment, 'staging') }}:
-    value: pnp_staging_ssh_connection_53
-  ${{ if eq(parameters.environment, 'fint') }}:
-    value: pnp_staging_ssh_connection_53|pnp_staging_ssh_connection_53
-  ${{ if eq(parameters.environment, 'preprod') }}:
-    value: pnp_staging_ssh_connection_53|pnp_staging_ssh_connection_53
-  ${{ if eq(parameters.environment, 'production') }}:
-    value: pnp_staging_ssh_connection_53|pnp_staging_ssh_connection_53
+# - name: server_service_connections
+#   ${{ if eq(parameters.environment, 'staging') }}:
+#     value: pnp_staging_ssh_connection_53
+#   ${{ if eq(parameters.environment, 'fint') }}:
+#     value: pnp_staging_ssh_connection_53|pnp_staging_ssh_connection_53
+#   ${{ if eq(parameters.environment, 'preprod') }}:
+#     value: pnp_staging_ssh_connection_53|pnp_staging_ssh_connection_53
+#   ${{ if eq(parameters.environment, 'production') }}:
+#     value: pnp_staging_ssh_connection_53|pnp_staging_ssh_connection_53
 
 
 stages:
