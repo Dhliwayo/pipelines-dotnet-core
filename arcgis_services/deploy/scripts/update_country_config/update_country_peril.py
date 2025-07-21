@@ -71,8 +71,7 @@ class UpdateCountryPeril:
                 with arcpy.da.UpdateCursor(in_table=target_path, field_names=fields, where_clause="ISO2 = '{0}'".format(country)) as cursor: 
                     for row in cursor:
                         current_perils_array = row[1].split(",")
-                        new_perils_array = list(set(incoming_perils_array + current_perils_array))
-                        new_perils_string = ','.join(new_perils_array)
+                        new_perils_string = self.combine_perils(incoming_perils_array, current_perils_array)
                         self.__logger.info(f"Updating {country} perils to add {new_perils_string}")  
                         row[1] = new_perils_string
                         cursor.updateRow(row)    
@@ -80,6 +79,11 @@ class UpdateCountryPeril:
      
         except Exception as e:
             self.__logger.error(f"AddPerils error - {e}")
+
+    def combine_perils(self, incoming_perils_array, current_perils_array):
+        new_perils_array = list(set(incoming_perils_array + current_perils_array))
+        new_perils_string = ','.join(new_perils_array)
+        return new_perils_string
 
     def RemovePerils(self, target_path, perils, countries_iso2_codes):
         try:
@@ -91,8 +95,7 @@ class UpdateCountryPeril:
                 with arcpy.da.UpdateCursor(in_table=target_path, field_names=fields, where_clause="ISO2 = '{0}'".format(country)) as cursor: 
                     for row in cursor:
                         current_perils_array = row[1].split(",")
-                        new_perils_array = list(set(current_perils_array) - set(perils_to_remove_array))
-                        new_perils_string = ','.join(new_perils_array)
+                        new_perils_string = self.remove_perils(perils_to_remove_array, current_perils_array)
                         self.__logger.info(f"Updating {country} perils to  {new_perils_string}")    
                         row[1] = new_perils_string
                         cursor.updateRow(row)      
@@ -100,6 +103,11 @@ class UpdateCountryPeril:
                                     
         except Exception as e:
             self.__logger.error(f"Remove error - {e}")
+
+    def remove_perils(self, perils_to_remove_array, current_perils_array):
+        new_perils_array = list(set(current_perils_array) - set(perils_to_remove_array))
+        new_perils_string = ','.join(new_perils_array)
+        return new_perils_string
 
     def read_config_ini(self):
         path = os.path.dirname(os.path.realpath(__file__))
