@@ -215,7 +215,7 @@ class ArcGISPatchDownloader:
             with open(metadata_file, 'w', encoding='utf-8') as f:
                 json.dump(patch, f, indent=2, ensure_ascii=False)
             
-            # Download each patch file
+            # Download each patch file (Windows only)
             for url in patch_files:
                 filename = os.path.basename(urlparse(url).path)
                 if not filename:
@@ -223,14 +223,13 @@ class ArcGISPatchDownloader:
                 
                 # Determine platform and set output path
                 file_platform = self.get_platform_from_url(url)
-                if file_platform == "linux":
-                    output_path = patch_dir / "linux" / filename
-                    (patch_dir / "linux").mkdir(exist_ok=True)
-                elif file_platform == "windows":
-                    output_path = patch_dir / "windows" / filename
-                    (patch_dir / "windows").mkdir(exist_ok=True)
-                else:
-                    output_path = patch_dir / filename
+                
+                # Only download Windows files
+                if file_platform != "windows":
+                    print(f"Skipping non-Windows file: {filename}")
+                    continue
+                
+                output_path = patch_dir / filename
                 
                 # Get expected MD5 if available
                 expected_md5 = self.extract_md5_from_patch(patch, filename)
@@ -265,9 +264,10 @@ class ArcGISPatchDownloader:
         report_file = self.output_dir / "logs" / "download_summary.txt"
         
         with open(report_file, 'w', encoding='utf-8') as f:
-            f.write("ArcGIS Server 11.1 Patch Download Summary\n")
+            f.write("ArcGIS Server 11.1 Windows Patch Download Summary\n")
             f.write("=" * 50 + "\n\n")
             f.write(f"Download Date: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+            f.write(f"Platform: Windows Only\n")
             f.write(f"Total Files Downloaded: {len(self.downloaded_files)}\n")
             f.write(f"Failed Downloads: {len(self.failed_downloads)}\n\n")
             

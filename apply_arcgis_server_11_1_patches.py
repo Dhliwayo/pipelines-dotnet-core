@@ -143,25 +143,22 @@ class ArcGISPatchApplicator:
                 with open(patch_info_file, 'r', encoding='utf-8') as f:
                     patch_info = json.load(f)
                     
-                # Check if this is a Windows patch
-                windows_dir = patch_dir / "windows"
-                if windows_dir.exists():
-                    # Find .msp files
-                    msp_files = list(windows_dir.glob("*.msp"))
-                    exe_files = list(windows_dir.glob("*.exe"))
+                # Find Windows patch files directly in patch directory
+                msp_files = list(patch_dir.glob("*.msp"))
+                exe_files = list(patch_dir.glob("*.exe"))
+                
+                if msp_files or exe_files:
+                    patches.append({
+                        'name': patch_info.get('Name', patch_dir.name),
+                        'qfe_id': patch_info.get('QFE_ID', 'Unknown'),
+                        'critical': patch_info.get('Critical', 'false'),
+                        'release_date': patch_info.get('ReleaseDate', 'Unknown'),
+                        'patch_dir': patch_dir,
+                        'msp_files': msp_files,
+                        'exe_files': exe_files,
+                        'patch_info': patch_info
+                    })
                     
-                    if msp_files or exe_files:
-                        patches.append({
-                            'name': patch_info.get('Name', patch_dir.name),
-                            'qfe_id': patch_info.get('QFE_ID', 'Unknown'),
-                            'critical': patch_info.get('Critical', 'false'),
-                            'release_date': patch_info.get('ReleaseDate', 'Unknown'),
-                            'patch_dir': patch_dir,
-                            'msp_files': msp_files,
-                            'exe_files': exe_files,
-                            'patch_info': patch_info
-                        })
-                        
             except (json.JSONDecodeError, IOError) as e:
                 self.logger.warning(f"Error reading patch info from {patch_dir}: {e}")
                 

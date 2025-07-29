@@ -63,14 +63,11 @@ def find_windows_patches(patches_dir: str = "./arcgis_server_11_1_patches") -> l
             with open(patch_info_file, 'r', encoding='utf-8') as f:
                 patch_info = json.load(f)
                 
-            # Check if this is a Windows patch
-            windows_dir = patch_dir / "windows"
-            if windows_dir.exists():
-                # Find .msp files
-                msp_files = list(windows_dir.glob("*.msp"))
-                exe_files = list(windows_dir.glob("*.exe"))
-                
-                if msp_files or exe_files:
+            # Find Windows patch files directly in patch directory
+            msp_files = list(patch_dir.glob("*.msp"))
+            exe_files = list(patch_dir.glob("*.exe"))
+            
+            if msp_files or exe_files:
                     patches.append({
                         'name': patch_info.get('Name', patch_dir.name),
                         'qfe_id': patch_info.get('QFE_ID', 'Unknown'),

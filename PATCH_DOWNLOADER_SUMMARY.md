@@ -16,7 +16,7 @@ I've created a comprehensive Python script and supporting files to download all 
 ## Key Features
 
 ✅ **Automatic Filtering**: Only downloads ArcGIS Server 11.1 patches  
-✅ **Platform Support**: Windows, Linux, or both  
+✅ **Windows-Only**: Downloads only Windows patches (MSP and EXE files)  
 ✅ **MD5 Verification**: Ensures file integrity  
 ✅ **Organized Structure**: Creates clean directory hierarchy  
 ✅ **Progress Tracking**: Real-time download progress  

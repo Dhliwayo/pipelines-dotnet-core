@@ -5,7 +5,8 @@ This script downloads all available patches for ArcGIS Server 11.1 from the `pat
 ## Features
 
 - **Automatic Filtering**: Only downloads patches for ArcGIS Server 11.1
-- **Platform Support**: Downloads patches for Windows, Linux, or both platforms
+- **Windows-Only**: Downloads only Windows patches (MSP and EXE files)
+- **Linux File Skipping**: Automatically skips Linux files even in mixed patches
 - **MD5 Verification**: Verifies downloaded files against provided MD5 checksums
 - **Organized Structure**: Creates organized directory structure for downloaded patches
 - **Progress Tracking**: Shows download progress and provides detailed logging
@@ -74,13 +75,10 @@ The script creates the following directory structure:
 arcgis_server_11_1_patches/
 ├── Patch_Name_1/
 │   ├── patch_info.json
-│   ├── windows/
-│   │   └── patch_file.msp
-│   └── linux/
-│       └── patch_file.tar
+│   └── patch_file.msp
 ├── Patch_Name_2/
 │   ├── patch_info.json
-│   └── ...
+│   └── patch_file.exe
 └── logs/
     └── download_summary.txt
 ```
@@ -89,8 +87,7 @@ arcgis_server_11_1_patches/
 
 - **Patch directories**: Each patch gets its own directory named after the patch
 - **patch_info.json**: Contains metadata about the patch (name, QFE ID, criticality, etc.)
-- **windows/**: Contains Windows-specific patch files (.msp, .exe)
-- **linux/**: Contains Linux-specific patch files (.tar)
+- **Windows patch files**: Directly in patch directory (.msp, .exe files)
 - **logs/download_summary.txt**: Summary report of the download operation
 
 ## Patch Information

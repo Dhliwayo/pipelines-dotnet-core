@@ -123,14 +123,10 @@ python apply_arcgis_server_11_1_patches.py --arcgis-install-path "D:\ArcGIS\Serv
 arcgis_server_11_1_patches/
 ├── Portal_for_ArcGIS_Security_2025_Update_1_Patch/
 │   ├── patch_info.json
-│   ├── windows/
-│   │   └── ArcGIS-111-PFA-SEC2025U1-Patch.msp
-│   └── linux/
-│       └── ArcGIS-111-PFA-SEC2025U1-Patch-linux.tar
+│   └── ArcGIS-111-PFA-SEC2025U1-Patch.msp
 ├── ArcGIS_Server_Security_2025_Update_1/
 │   ├── patch_info.json
-│   ├── windows/
-│   └── linux/
+│   └── ArcGIS-111-S-SEC2025U1-Patch.msp
 └── logs/
     └── download_summary.txt
 ```
