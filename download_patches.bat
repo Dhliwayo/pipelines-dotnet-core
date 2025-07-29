@@ -28,10 +28,10 @@ REM Install dependencies if needed
 echo Installing Python dependencies...
 pip install -r requirements.txt
 
-REM Run the patch downloader
+REM Run the patch downloader for Windows patches only
 echo.
-echo Starting patch download...
-python download_arcgis_server_11_1_patches.py %*
+echo Starting Windows patch download...
+python download_arcgis_server_11_1_patches.py --platform windows %*
 
 echo.
 echo Download completed!

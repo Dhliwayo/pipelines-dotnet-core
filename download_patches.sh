@@ -36,10 +36,10 @@ fi
 echo "Installing Python dependencies..."
 pip3 install -r requirements.txt
 
-# Run the patch downloader
+# Run the patch downloader for Windows patches only
 echo
-echo "Starting patch download..."
-python3 download_arcgis_server_11_1_patches.py "$@"
+echo "Starting Windows patch download..."
+python3 download_arcgis_server_11_1_patches.py --platform windows "$@"
 
 echo
 echo "Download completed!"

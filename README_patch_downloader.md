@@ -41,15 +41,7 @@ python download_arcgis_server_11_1_patches.py
 
 ### Advanced Usage
 
-**Download only Linux patches**:
-```bash
-python download_arcgis_server_11_1_patches.py --platform linux
-```
 
-**Download both Windows and Linux patches**:
-```bash
-python download_arcgis_server_11_1_patches.py --platform both
-```
 
 **Specify custom output directory**:
 ```bash
@@ -70,7 +62,7 @@ python download_arcgis_server_11_1_patches.py --platform windows --output-dir ./
 
 | Argument | Description | Default |
 |----------|-------------|---------|
-| `--platform` | Platform to download patches for (`windows`, `linux`, `both`) | `windows` |
+| `--platform` | Platform to download patches for (`windows`) | `windows` |
 | `--output-dir` | Output directory for downloaded patches | `./arcgis_server_11_1_patches` |
 | `--patches-file` | Path to patches.json file | `Patches/patches.json` |
 

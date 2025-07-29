@@ -25,7 +25,7 @@ def load_patches_data(patches_file: str = "Patches/patches.json") -> dict:
         return None
 
 def filter_server_patches(data: dict, platform: str = "windows") -> list:
-    """Filter patches for ArcGIS Server 11.1"""
+    """Filter patches for ArcGIS Server 11.1 Windows"""
     server_patches = []
     
     for product in data.get("Product", []):
@@ -34,9 +34,9 @@ def filter_server_patches(data: dict, platform: str = "windows") -> list:
                 # Check if this patch affects ArcGIS Server
                 products = patch.get("Products", "")
                 if "ArcGIS Server" in products or "ArcGIS Enterprise" in products:
-                    # Filter by platform if specified
+                    # Filter for Windows platform only
                     patch_platform = patch.get("Platform", "").lower()
-                    if platform == "both" or platform in patch_platform:
+                    if "windows" in patch_platform:
                         server_patches.append(patch)
     
     return server_patches
@@ -104,14 +104,12 @@ def main():
             print(f"    {j}. {filename}")
             print(f"       URL: {url}")
     
-    # Test 4: Platform-specific filtering
-    print("\n4. Testing platform filtering...")
+    # Test 4: Windows platform filtering
+    print("\n4. Testing Windows platform filtering...")
     
     windows_patches = filter_server_patches(data, "windows")
-    linux_patches = filter_server_patches(data, "linux")
     
     print(f"  Windows patches: {len(windows_patches)}")
-    print(f"  Linux patches: {len(linux_patches)}")
     
     # Test 5: Summary
     print("\n" + "=" * 60)
@@ -124,12 +122,10 @@ def main():
     print("=" * 60)
     
     if server_patches:
-            print("\nTo download Windows patches (default), run:")
+            print("\nTo download Windows patches, run:")
     print("  python download_arcgis_server_11_1_patches.py")
-    print("\nTo download only Linux patches:")
-    print("  python download_arcgis_server_11_1_patches.py --platform linux")
-    print("\nTo download both Windows and Linux patches:")
-    print("  python download_arcgis_server_11_1_patches.py --platform both")
+    print("\nOr use the batch script:")
+    print("  download_patches.bat")
 
 if __name__ == "__main__":
     main() 

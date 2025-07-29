@@ -66,7 +66,7 @@ class ArcGISPatchDownloader:
             sys.exit(1)
     
     def filter_server_patches(self, data: Dict, platform: str = "windows") -> List[Dict]:
-        """Filter patches for ArcGIS Server 11.1"""
+        """Filter patches for ArcGIS Server 11.1 Windows"""
         server_patches = []
         
         for product in data.get("Product", []):
@@ -75,9 +75,9 @@ class ArcGISPatchDownloader:
                     # Check if this patch affects ArcGIS Server
                     products = patch.get("Products", "")
                     if "ArcGIS Server" in products or "ArcGIS Enterprise" in products:
-                        # Filter by platform if specified
+                        # Filter for Windows platform only
                         patch_platform = patch.get("Platform", "").lower()
-                        if platform == "both" or platform in patch_platform:
+                        if "windows" in patch_platform:
                             server_patches.append(patch)
         
         return server_patches
@@ -313,7 +313,7 @@ Examples:
     
     parser.add_argument(
         "--platform",
-        choices=["windows", "linux", "both"],
+        choices=["windows"],
         default="windows",
         help="Platform to download patches for (default: windows)"
     )
