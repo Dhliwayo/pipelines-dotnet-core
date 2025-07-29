@@ -103,6 +103,7 @@ arcgis_server_11_1_patches/
 
 - **MD5 Verification**: All downloads verified against checksums
 - **HTTPS Downloads**: Secure connections used
+- **SSL Certificate Verification**: Disabled to handle ESRI server certificate issues
 - **Critical Patches**: Security patches clearly identified
 - **File Integrity**: Automatic corruption detection
 

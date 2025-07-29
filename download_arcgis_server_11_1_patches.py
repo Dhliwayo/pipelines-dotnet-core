@@ -23,10 +23,14 @@ import sys
 import hashlib
 import argparse
 import requests
+import urllib3
 from urllib.parse import urlparse
 from pathlib import Path
 import time
 from typing import List, Dict, Optional
+
+# Disable SSL warnings since we're disabling certificate verification
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class ArcGISPatchDownloader:
     def __init__(self, patches_file: str = "Patches/patches.json", output_dir: str = "./arcgis_server_11_1_patches"):
@@ -36,6 +40,8 @@ class ArcGISPatchDownloader:
         self.session.headers.update({
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         })
+        # Disable SSL certificate verification to handle ESRI server certificate issues
+        self.session.verify = False
         
         # Create output directory structure
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -107,6 +113,7 @@ class ArcGISPatchDownloader:
         try:
             print(f"Downloading: {url}")
             print(f"To: {output_path}")
+            print("Note: SSL certificate verification disabled for ESRI servers")
             
             # Check if file already exists
             if output_path.exists():

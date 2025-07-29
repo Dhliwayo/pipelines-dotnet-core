@@ -135,6 +135,7 @@ The script provides detailed logging:
 
 - **MD5 Verification**: All downloaded files are verified against provided MD5 checksums
 - **HTTPS Downloads**: Uses secure connections when available
+- **SSL Certificate Verification**: Disabled to handle ESRI server certificate issues
 - **User Agent**: Uses a standard browser user agent for downloads
 
 ## Troubleshooting
@@ -158,6 +159,11 @@ The script provides detailed logging:
    - The downloaded file may be corrupted
    - The script will automatically re-download the file
    - Check your network connection for stability
+
+5. **"SSLError" or "Certificate verification failed"**
+   - The script automatically disables SSL certificate verification
+   - This is normal for ESRI servers with certificate issues
+   - SSL warnings are suppressed to reduce console noise
 
 ### Performance Tips
 
