@@ -27,7 +27,7 @@ I've created a comprehensive Python script and supporting files to download all 
 
 The test script confirmed:
 - ✅ **29 ArcGIS Server 11.1 patches** found in your patches.json file
-- ✅ **22 Linux patches** and **29 Windows patches** available
+- ✅ **29 Windows patches** (default) and **22 Linux patches** available
 - ✅ **Security patches** included (critical for production)
 - ✅ **All patch types** covered (Server, Portal, Data Store, etc.)
 
@@ -95,7 +95,7 @@ arcgis_server_11_1_patches/
 
 | Option | Description | Example |
 |--------|-------------|---------|
-| `--platform` | Platform filter | `--platform windows` |
+| `--platform` | Platform filter | `--platform linux` |
 | `--output-dir` | Custom output directory | `--output-dir ./my_patches` |
 | `--patches-file` | Custom patches.json path | `--patches-file /path/to/patches.json` |
 
@@ -108,19 +108,19 @@ arcgis_server_11_1_patches/
 
 ## Usage Examples
 
-### Download All Patches
+### Download Windows Patches (Default)
 ```bash
 python download_arcgis_server_11_1_patches.py
-```
-
-### Download Only Windows Patches
-```bash
-python download_arcgis_server_11_1_patches.py --platform windows
 ```
 
 ### Download Only Linux Patches
 ```bash
 python download_arcgis_server_11_1_patches.py --platform linux
+```
+
+### Download Both Windows and Linux Patches
+```bash
+python download_arcgis_server_11_1_patches.py --platform both
 ```
 
 ### Custom Output Directory

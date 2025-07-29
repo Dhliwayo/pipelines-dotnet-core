@@ -33,7 +33,7 @@ This script downloads all available patches for ArcGIS Server 11.1 from the `pat
 
 ### Basic Usage
 
-Download all ArcGIS Server 11.1 patches for both Windows and Linux:
+Download ArcGIS Server 11.1 patches for Windows (default):
 
 ```bash
 python download_arcgis_server_11_1_patches.py
@@ -41,14 +41,14 @@ python download_arcgis_server_11_1_patches.py
 
 ### Advanced Usage
 
-**Download only Windows patches**:
-```bash
-python download_arcgis_server_11_1_patches.py --platform windows
-```
-
 **Download only Linux patches**:
 ```bash
 python download_arcgis_server_11_1_patches.py --platform linux
+```
+
+**Download both Windows and Linux patches**:
+```bash
+python download_arcgis_server_11_1_patches.py --platform both
 ```
 
 **Specify custom output directory**:
@@ -70,7 +70,7 @@ python download_arcgis_server_11_1_patches.py --platform windows --output-dir ./
 
 | Argument | Description | Default |
 |----------|-------------|---------|
-| `--platform` | Platform to download patches for (`windows`, `linux`, `both`) | `both` |
+| `--platform` | Platform to download patches for (`windows`, `linux`, `both`) | `windows` |
 | `--output-dir` | Output directory for downloaded patches | `./arcgis_server_11_1_patches` |
 | `--patches-file` | Path to patches.json file | `Patches/patches.json` |
 

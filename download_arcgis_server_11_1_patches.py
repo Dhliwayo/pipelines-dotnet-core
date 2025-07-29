@@ -59,7 +59,7 @@ class ArcGISPatchDownloader:
             print(f"Error: Invalid JSON in patches file: {e}")
             sys.exit(1)
     
-    def filter_server_patches(self, data: Dict, platform: str = "both") -> List[Dict]:
+    def filter_server_patches(self, data: Dict, platform: str = "windows") -> List[Dict]:
         """Filter patches for ArcGIS Server 11.1"""
         server_patches = []
         
@@ -164,7 +164,7 @@ class ArcGISPatchDownloader:
                 return md5_entry.split(":")[1]
         return None
     
-    def download_patches(self, platform: str = "both") -> None:
+    def download_patches(self, platform: str = "windows") -> None:
         """Main method to download all ArcGIS Server 11.1 patches"""
         print("=" * 60)
         print("ArcGIS Server 11.1 Patch Downloader")
@@ -307,8 +307,8 @@ Examples:
     parser.add_argument(
         "--platform",
         choices=["windows", "linux", "both"],
-        default="both",
-        help="Platform to download patches for (default: both)"
+        default="windows",
+        help="Platform to download patches for (default: windows)"
     )
     
     parser.add_argument(

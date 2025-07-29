@@ -24,7 +24,7 @@ def load_patches_data(patches_file: str = "Patches/patches.json") -> dict:
         print(f"Error: Invalid JSON in patches file: {e}")
         return None
 
-def filter_server_patches(data: dict, platform: str = "both") -> list:
+def filter_server_patches(data: dict, platform: str = "windows") -> list:
     """Filter patches for ArcGIS Server 11.1"""
     server_patches = []
     
@@ -124,12 +124,12 @@ def main():
     print("=" * 60)
     
     if server_patches:
-        print("\nTo download all patches, run:")
-        print("  python download_arcgis_server_11_1_patches.py")
-        print("\nTo download only Windows patches:")
-        print("  python download_arcgis_server_11_1_patches.py --platform windows")
-        print("\nTo download only Linux patches:")
-        print("  python download_arcgis_server_11_1_patches.py --platform linux")
+            print("\nTo download Windows patches (default), run:")
+    print("  python download_arcgis_server_11_1_patches.py")
+    print("\nTo download only Linux patches:")
+    print("  python download_arcgis_server_11_1_patches.py --platform linux")
+    print("\nTo download both Windows and Linux patches:")
+    print("  python download_arcgis_server_11_1_patches.py --platform both")
 
 if __name__ == "__main__":
     main() 
