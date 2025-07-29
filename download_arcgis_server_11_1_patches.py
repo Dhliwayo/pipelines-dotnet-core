@@ -211,18 +211,15 @@ class ArcGISPatchDownloader:
             with open(metadata_file, 'w', encoding='utf-8') as f:
                 json.dump(patch, f, indent=2, ensure_ascii=False)
             
-            # Download each patch file (Windows only)
+            # Download each patch file (Windows 11.1 only)
             for url in patch_files:
                 filename = os.path.basename(urlparse(url).path)
                 if not filename:
                     continue
                 
-                # Determine platform and set output path
-                file_platform = self.get_platform_from_url(url)
-                
-                # Only download Windows files
-                if file_platform != "windows":
-                    print(f"Skipping non-Windows file: {filename}")
+                # Only download Windows 11.1 files (.msp or .exe with '111' in name)
+                if not (('111' in filename) and (filename.endswith('.msp') or filename.endswith('.exe'))):
+                    print(f"Skipping non-11.1 or non-Windows file: {filename}")
                     continue
                 
                 output_path = patch_dir / filename
@@ -239,7 +236,7 @@ class ArcGISPatchDownloader:
                         'filename': filename,
                         'url': url,
                         'path': str(output_path),
-                        'platform': file_platform
+                        'platform': 'windows'
                     })
                 else:
                     self.failed_downloads.append({
