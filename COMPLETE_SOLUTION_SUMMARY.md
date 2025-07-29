@@ -10,7 +10,7 @@ This is a comprehensive solution for downloading and applying ArcGIS Server 11.1
 - **`download_arcgis_server_11_1_patches.py`** - Main download script
 - **`test_downloader.py`** - Test script for downloader
 - **`download_patches.bat`** - Windows batch script
-- **`download_patches.sh`** - Linux/macOS shell script
+- **`download_patches.sh`** - Shell script (for cross-platform use)
 - **`requirements.txt`** - Python dependencies
 
 #### **2. Patch Applicator**

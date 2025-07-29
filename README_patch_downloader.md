@@ -6,7 +6,6 @@ This script downloads all available patches for ArcGIS Server 11.1 from the `pat
 
 - **Automatic Filtering**: Only downloads patches for ArcGIS Server 11.1
 - **Windows-Only**: Downloads only Windows patches (MSP and EXE files)
-- **Linux File Skipping**: Automatically skips Linux files even in mixed patches
 - **MD5 Verification**: Verifies downloaded files against provided MD5 checksums
 - **Organized Structure**: Creates organized directory structure for downloaded patches
 - **Progress Tracking**: Shows download progress and provides detailed logging
@@ -174,7 +173,7 @@ Found 3 patches for ArcGIS Server 11.1
 QFE ID: S-111-P-123
 Critical: security
 Release Date: 2023-01-15
-Platform: Linux,Windows
+Platform: Windows
 Downloading: https://gisupdates.esri.com/QFE/S-111-P-123/ArcGIS-111-S-SEC-Patch.msp
 To: ./arcgis_server_11_1_patches/ArcGIS_Server_11_1_Security_Patch/windows/ArcGIS-111-S-SEC-Patch.msp
 Progress: 100.0% (52428800/52428800 bytes)

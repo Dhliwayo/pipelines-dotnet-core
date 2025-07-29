@@ -6,15 +6,15 @@ This script downloads all available patches for ArcGIS Server 11.1 from the patc
 It filters patches that are specifically for ArcGIS Server and downloads them to a local directory.
 
 Features:
-- Downloads patches for ArcGIS Server 11.1 only
-- Supports both Windows and Linux platforms
+- Downloads patches for ArcGIS Server 11.1 only (Windows)
+- Downloads only Windows patches (MSP and EXE files)
 - Verifies MD5 checksums when available
 - Creates organized directory structure
 - Provides download progress and logging
 - Handles download errors gracefully
 
 Usage:
-    python download_arcgis_server_11_1_patches.py [--platform windows|linux|both] [--output-dir ./patches]
+    python download_arcgis_server_11_1_patches.py [--output-dir ./patches]
 """
 
 import json
@@ -45,8 +45,6 @@ class ArcGISPatchDownloader:
         
         # Create output directory structure
         self.output_dir.mkdir(parents=True, exist_ok=True)
-        (self.output_dir / "windows").mkdir(exist_ok=True)
-        (self.output_dir / "linux").mkdir(exist_ok=True)
         (self.output_dir / "logs").mkdir(exist_ok=True)
         
         self.downloaded_files = []
@@ -83,14 +81,12 @@ class ArcGISPatchDownloader:
         return server_patches
     
     def get_platform_from_url(self, url: str) -> str:
-        """Determine platform from download URL"""
+        """Determine if URL is for Windows patch file"""
         url_lower = url.lower()
-        if "linux" in url_lower or ".tar" in url_lower:
-            return "linux"
-        elif ".msp" in url_lower or ".exe" in url_lower:
+        if ".msp" in url_lower or ".exe" in url_lower:
             return "windows"
         else:
-            return "unknown"
+            return "other"
     
     def calculate_md5(self, file_path: Path) -> str:
         """Calculate MD5 hash of a file"""
@@ -306,8 +302,7 @@ def main():
         epilog="""
 Examples:
   python download_arcgis_server_11_1_patches.py
-  python download_arcgis_server_11_1_patches.py --platform windows
-  python download_arcgis_server_11_1_patches.py --platform linux --output-dir ./my_patches
+  python download_arcgis_server_11_1_patches.py --output-dir ./my_patches
         """
     )
     

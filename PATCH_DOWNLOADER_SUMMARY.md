@@ -11,7 +11,7 @@ I've created a comprehensive Python script and supporting files to download all 
 3. **`requirements.txt`** - Python dependencies
 4. **`README_patch_downloader.md`** - Detailed documentation
 5. **`download_patches.bat`** - Windows batch script
-6. **`download_patches.sh`** - Linux/macOS shell script
+6. **`download_patches.sh`** - Shell script (for cross-platform use)
 
 ## Key Features
 
@@ -38,7 +38,7 @@ The test script confirmed:
 download_patches.bat
 ```
 
-### Linux/macOS Users
+### Cross-Platform Users
 ```bash
 chmod +x download_patches.sh
 ./download_patches.sh
@@ -81,12 +81,11 @@ arcgis_server_11_1_patches/
 │   ├── patch_info.json
 │   ├── windows/
 │   │   └── ArcGIS-111-PFA-SEC2025U1-Patch.msp
-│   └── linux/
-│       └── ArcGIS-111-PFA-SEC2025U1-Patch-linux.tar
+
 ├── ArcGIS_Server_Security_2025_Update_1/
 │   ├── patch_info.json
 │   ├── windows/
-│   └── linux/
+
 └── logs/
     └── download_summary.txt
 ```
