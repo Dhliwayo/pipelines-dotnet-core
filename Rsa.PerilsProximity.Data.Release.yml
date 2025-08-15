@@ -54,11 +54,11 @@ variables:
 - name: manageDomainsWorkingDir
   value: $(pnp_config_working_directory)\$(build_artifact_name)\arcgis_services\deploy\scripts\data_release\domains_add
 - name: manageDomainsScriptPath
-  value: $(manageDomainsWorkingDir)\add_domains.ps1
+  value: $(pnp_config_working_directory)\$(build_artifact_name)\utilities\execute_python_module.ps1
 - name: CopyGeoDatabasesWorkingDir
   value: $(pnp_config_working_directory)\$(build_artifact_name)\arcgis_services\deploy\scripts\data_release\copy_geodatabases
 - name: CopyGeoDatabasesScriptPath
-  value: $(CopyGeoDatabasesWorkingDir)\copy_geodatabases.ps1
+  value: $(pnp_config_working_directory)\$(build_artifact_name)\utilities\execute_python_module.ps1
 
 stages:
   - stage: BuildArtifacts
@@ -72,6 +72,12 @@ stages:
           inputs:
             contents: |
               arcgis_services/deploy/scripts/data_release/**
+            targetFolder: $(Build.ArtifactStagingDirectory)
+        - task: CopyFiles@2
+          displayName: 'Copy utilities folder to: $(Build.ArtifactStagingDirectory)'
+          inputs:
+            contents: |
+              utilities/**
             targetFolder: $(Build.ArtifactStagingDirectory)
         - task: CmdLine@2
           displayName: Display tree of build artifact from $(Build.ArtifactStagingDirectory) 
@@ -164,6 +170,7 @@ stages:
             UserPassword: $(pnp_service_account_password)
             ScriptType: 'FilePath' # 'FilePath' | 'Inline'. Script Type. Default: Inline.
             ScriptPath: $(manageDomainsScriptPath)
+            ScriptArguments: '-ModulePath "domains_add.add_domains" -WorkingDirectory "$(manageDomainsWorkingDir)"'
             WorkingDirectory: $(manageDomainsWorkingDir)
             CommunicationProtocol: 'Http' # 'Http' | 'Https'. Protocol. Default: Https.
             AuthenticationMechanism: 'Default' # 'Default' | 'Credssp'. Authentication. Default: Default.
@@ -183,6 +190,7 @@ stages:
             UserPassword: $(pnp_service_account_password)
             ScriptType: 'FilePath' # 'FilePath' | 'Inline'. Script Type. Default: Inline.
             ScriptPath: $(CopyGeoDatabasesScriptPath)
+            ScriptArguments: '-ModulePath "copy_geodatabases.copy_geodatabases" -WorkingDirectory "$(CopyGeoDatabasesWorkingDir)"'
             WorkingDirectory: $(CopyGeoDatabasesWorkingDir)            
             CommunicationProtocol: 'Http' # 'Http' | 'Https'. Protocol. Default: Https.
             AuthenticationMechanism: 'Default' # 'Default' | 'Credssp'. Authentication. Default: Default.

@@ -97,6 +97,7 @@ stages:
               ${{ parameters.environment }}/config/LocatorHubWS/Web.config
               ${{ parameters.environment }}/config/PerilsPlusWS/Web.config
               utilities/deploy_config.ps1
+              utilities/execute_python_module.ps1
               arcgis_services/**
             targetFolder: $(Build.ArtifactStagingDirectory)
         - task: PowerShell@2
@@ -215,7 +216,8 @@ stages:
             UserName: $(pnp_service_account_name)
             UserPassword: $(pnp_service_account_password)
             ScriptType: 'FilePath' # 'FilePath' | 'Inline'. Script Type. Default: Inline.
-            ScriptPath: $(working_directory)\$(build_artifact_name)\arcgis_services\deploy\scripts\4_deploy_domains\add_domains.ps1
+            ScriptPath: $(working_directory)\$(build_artifact_name)\utilities\execute_python_module.ps1
+            ScriptArguments: '-ModulePath "domains_add.add_domains" -WorkingDirectory "$(working_directory)\$(build_artifact_name)\arcgis_services\deploy\scripts\4_deploy_domains"'
             CommunicationProtocol: 'Https' # 'Http' | 'Https'. Protocol. Default: Https.
             AuthenticationMechanism: 'Default' # 'Default' | 'Credssp'. Authentication. Default: Default.
             NewPsSessionOptionArguments: '-SkipCACheck -IdleTimeout 7200000 -OperationTimeout 0 -OutputBufferingMode Block' # string. Session Option parameters. Default: -SkipCACheck -IdleTimeout 7200000 -OperationTimeout 0 -OutputBufferingMode Block.

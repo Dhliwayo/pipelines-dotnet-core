@@ -44,7 +44,7 @@ variables:
 - name: updateGdbFeatureClassesWorkingDir
   value: $(pnp_config_working_directory)\$(build_artifact_name)\arcgis_services\deploy\scripts\data_preparation\update_gdb_feature_classes
 - name: updateGdbFeatureClassesScriptPath
-  value: $(updateGdbFeatureClassesWorkingDir)\update_feature_class.ps1
+  value: $(pnp_config_working_directory)\$(build_artifact_name)\utilities\execute_python_module.ps1
 
 stages:
   - stage: BuildArtifacts
@@ -76,6 +76,13 @@ stages:
           inputs:
             contents: |
               arcgis_services/deploy/scripts/data_preparation/import_rasters/**
+            targetFolder: $(Build.ArtifactStagingDirectory)
+
+        - task: CopyFiles@2
+          displayName: 'Copy utilities folder to: $(Build.ArtifactStagingDirectory)'
+          inputs:
+            contents: |
+              utilities/**
             targetFolder: $(Build.ArtifactStagingDirectory)
 
 
@@ -156,6 +163,7 @@ stages:
             UserPassword: $(pnp_service_account_password)
             ScriptType: 'FilePath' # 'FilePath' | 'Inline'. Script Type. Default: Inline.
             ScriptPath: $(updateGdbFeatureClassesScriptPath)
+            ScriptArguments: '-ModulePath "update_gdb_feature_classes.update_feature_class" -WorkingDirectory "$(updateGdbFeatureClassesWorkingDir)"'
             WorkingDirectory: $(updateGdbFeatureClassesWorkingDir)
             CommunicationProtocol: 'Http' # 'Http' | 'Https'. Protocol. Default: Https.
             AuthenticationMechanism: 'Default' # 'Default' | 'Credssp'. Authentication. Default: Default.

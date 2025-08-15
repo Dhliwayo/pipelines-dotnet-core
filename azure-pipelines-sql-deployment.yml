@@ -1,0 +1,125 @@
+name: SQL-Deployment-$(Build.BuildId)
+
+# Simple SQL deployment pipeline following KISS principles
+# Backup → Deploy → Verify
+
+trigger:
+  - main
+  - develop
+
+pr:
+  - main
+  - develop
+
+pool:
+  vmImage: 'windows-latest'
+
+parameters:
+  - name: environment
+    displayName: 'Target Environment'
+    type: string
+    default: 'staging'
+    values:
+      - staging
+      - production
+  - name: skipBackup
+    displayName: 'Skip Database Backup'
+    type: boolean
+    default: false
+
+variables:
+  - group: SQL-Deployment-$(parameters.environment)
+  - name: scriptsFolder
+    value: 'sql-scripts'
+
+stages:
+  - stage: Backup
+    displayName: 'Backup Database (Optional)'
+    condition: ne('${{ parameters.skipBackup }}', true)
+    jobs:
+      - deployment: BackupDatabase
+        displayName: 'Create Database Backup'
+        environment: '$(parameters.environment)'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: PowerShellOnTargetMachines@3
+                  displayName: 'Backup Database'
+                  inputs:
+                    Machines: '$(targetMachine)'
+                    UserName: '$(winrmUsername)'
+                    UserPassword: '$(winrmPassword)'
+                    ScriptType: 'Inline'
+                    InlineScript: |
+                      Import-Module SqlServer -Force
+                      $backupFile = "$(backupLocation)/$(databaseName)_$(Get-Date -Format 'yyyyMMdd_HHmmss').bak"
+                      $backupQuery = "BACKUP DATABASE [$(databaseName)] TO DISK = '$backupFile' WITH FORMAT, INIT"
+                      Invoke-Sqlcmd -ServerInstance "$(sqlServer)" -Database "master" -Username "$(sqlUsername)" -Password "$(sqlPassword)" -Query $backupQuery
+                      Write-Host "Backup created: $backupFile"
+                    CommunicationProtocol: 'Https'
+
+  - stage: Deploy
+    displayName: 'Deploy SQL Scripts'
+    dependsOn: 
+      - ${{ if ne(parameters.skipBackup, true) }}: Backup
+      - ${{ if eq(parameters.skipBackup, true) }}: 
+    jobs:
+      - deployment: DeployToTarget
+        displayName: 'Deploy to $(parameters.environment)'
+        environment: '$(parameters.environment)'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # Deploy scripts
+                - task: PowerShellOnTargetMachines@3
+                  displayName: 'Deploy SQL Scripts'
+                  inputs:
+                    Machines: '$(targetMachine)'
+                    UserName: '$(winrmUsername)'
+                    UserPassword: '$(winrmPassword)'
+                    ScriptType: 'Inline'
+                    InlineScript: |
+                      Import-Module SqlServer -Force
+                      $scripts = Get-ChildItem -Path "$(Pipeline.Workspace)/sql-scripts" -Filter "*.sql" -Recurse | Sort-Object Name
+                      foreach ($script in $scripts) {
+                          Write-Host "Executing: $($script.Name)"
+                          $content = Get-Content -Path $script.FullName -Raw
+                          Invoke-Sqlcmd -ServerInstance "$(sqlServer)" -Database "$(databaseName)" -Username "$(sqlUsername)" -Password "$(sqlPassword)" -Query $content
+                      }
+                      Write-Host "All scripts deployed successfully"
+                    CommunicationProtocol: 'Https'
+
+                # Simple verification
+                - task: PowerShellOnTargetMachines@3
+                  displayName: 'Verify Deployment'
+                  inputs:
+                    Machines: '$(targetMachine)'
+                    UserName: '$(winrmUsername)'
+                    UserPassword: '$(winrmPassword)'
+                    ScriptType: 'Inline'
+                    InlineScript: |
+                      Import-Module SqlServer -Force
+                      $testQuery = "SELECT GETDATE() as CurrentTime, DB_NAME() as DatabaseName"
+                      $result = Invoke-Sqlcmd -ServerInstance "$(sqlServer)" -Database "$(databaseName)" -Username "$(sqlUsername)" -Password "$(sqlPassword)" -Query $testQuery
+                      Write-Host "Deployment verified successfully: $($result.CurrentTime) on $($result.DatabaseName)"
+                    CommunicationProtocol: 'Https'
+
+  - stage: Report
+    displayName: 'Generate Report'
+    dependsOn: Deploy
+    condition: always()
+    jobs:
+      - job: GenerateReport
+        displayName: 'Create Simple Report'
+        steps:
+          - task: PowerShell@2
+            displayName: 'Generate Report'
+            inputs:
+              targetType: 'inline'
+              script: |
+                $status = if ("$(Build.Result)" -eq "Failed") { "FAILED" } else { "SUCCESS" }
+                $report = "SQL Deployment Report`nEnvironment: $(parameters.environment)`nStatus: $status`nDate: $(Get-Date)"
+                $report | Out-File -FilePath "$(Build.ArtifactStagingDirectory)/deployment-report.txt"
+                Write-Host $report
