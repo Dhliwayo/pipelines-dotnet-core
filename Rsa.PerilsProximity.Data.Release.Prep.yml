@@ -1,0 +1,164 @@
+name: $(rev:.r)_PerilsProximity_Data_Release_Preparation
+
+#Pipeline actions:
+# Runs only on staging to do various selected date preparations tasks
+
+#TODO:
+# stop and start services
+# smoke testing?
+
+
+trigger:
+  - config-pipeline
+  - master
+
+appendCommitMessageToRunName: false
+
+pool:
+  name: GeoRisk_AWS_LZ
+
+parameters:
+  - name: BuildArtifacts
+    displayName: Build and Copy PnP configs and ArcGIS Server artifacts
+    type: boolean
+    default: true
+  - name: UpdateGdbFeatureClasses
+    displayName: Update geodatabase vector & raster datasets
+    type: boolean
+    default: true
+  - name: ImportRasters
+    displayName: Import UK flood rasters to holding geodatabase
+    type: boolean
+    default: false
+  - name: UpdateMapDataSources
+    displayName: Update release geodatabase
+    type: boolean
+    default: false
+
+variables:
+- group: PerilsProximity.GeoRisk.staging 
+- name: time
+  value: $[ format('{0:yyyy}-{0:MM}-{0:dd}-{0:HHmm}', pipeline.startTime) ]
+- name: build_artifact_name
+  value: Build-drop-staging
+- name: updateGdbFeatureClassesWorkingDir
+  value: $(pnp_config_working_directory)\$(build_artifact_name)\arcgis_services\deploy\scripts\data_preparation\update_gdb_feature_classes
+- name: updateGdbFeatureClassesScriptPath
+  value: $(updateGdbFeatureClassesWorkingDir)\update_feature_class.ps1
+
+stages:
+  - stage: BuildArtifacts
+    condition: and(succeeded(), ${{ eq(parameters.BuildArtifacts,true) }})  
+    jobs:
+    - job: CopyFilesToStaging
+      displayName: Staging build artifact for PnP configs and ArcGIS server
+      steps:
+        - task: CopyFiles@2
+          displayName: 'Copy import_rasters script to: $(Build.ArtifactStagingDirectory)'
+          condition: $[eq(parameters.ImportRasters,true)]
+          inputs:
+            contents: |
+              arcgis_services/deploy/scripts/data_preparation/import_rasters/**
+            targetFolder: $(Build.ArtifactStagingDirectory)
+
+        - task: CopyFiles@2
+          displayName: 'Copy update_feature_class script to: $(Build.ArtifactStagingDirectory)'
+          condition: $[eq(parameters.UpdateGdbFeatureClasses,true)]
+          inputs:
+            contents: |
+              arcgis_services/deploy/scripts/data_preparation/update_gdb_feature_classes/**
+            targetFolder: $(Build.ArtifactStagingDirectory)
+
+
+        - task: CopyFiles@2
+          displayName: 'Copy update_maps_data_sources script to: $(Build.ArtifactStagingDirectory)'
+          condition: $[eq(parameters.UpdateMapDataSources,true)]
+          inputs:
+            contents: |
+              arcgis_services/deploy/scripts/data_preparation/import_rasters/**
+            targetFolder: $(Build.ArtifactStagingDirectory)
+
+
+        - task: CmdLine@2
+          displayName: Display tree of build artifact from $(Build.ArtifactStagingDirectory) 
+          inputs:
+            script: |
+              echo ##[debug]List of built in variables in Build.ArtifactStagingDirectory 
+              tree $(Build.ArtifactStagingDirectory) /F
+        - task: PublishBuildArtifacts@1
+          displayName: 'Publish artifact'
+          inputs:
+            pathToPublish: $(Build.ArtifactStagingDirectory)
+            artifactName: $(build_artifact_name)
+
+        # Download build artifacts v1
+        # Download files that were saved as artifacts of a completed build.
+        - task: DownloadBuildArtifacts@1
+          displayName: 'Download build artifact'
+          inputs:
+            buildType: 'current' 
+            buildVersionToDownload: 'latest' 
+            downloadType: 'single' 
+            artifactName: $(build_artifact_name) 
+            downloadPath: $(System.ArtifactsDirectory) 
+            cleanDestinationFolder: true 
+            checkDownloadedFiles: true 
+        - task: CmdLine@2
+          displayName: Display tree of sytem artifact dir from $(System.ArtifactsDirectory)
+          inputs:
+            script: |
+                echo ##[debug]List of built in variables in System.ArtifactsDirectory 
+                tree $(System.ArtifactsDirectory) /F
+        - task: PowerShell@2
+          displayName: 'Copying files to $(server_service_connections)'
+          inputs:
+            targetType: 'inline'
+            script: |
+              $serverConns = "$(server_service_connections)"
+
+              ForEach ($server in $serverConns.split(",")) {
+                $indexOfPort =$server.IndexOf(":")
+                $computername  = $server.Substring(0,$indexOfPort)
+                $computerport = $server.Substring($indexOfPort + 1, 4)
+
+                $soptions = New-PSSessionOption -SkipCACheck -SkipCNCheck
+                $secpasswd = ConvertTo-SecureString "$(pnp_service_account_password)" -AsPlainText -Force
+                $cred = New-Object System.Management.Automation.PSCredential ("$(pnp_service_account_name)", $secpasswd) 
+                $sourceDirectory="$(System.ArtifactsDirectory)"
+                $destinationFolder="$(pnp_config_working_directory)"
+
+                Write-Host "Copying files source directory:  $sourceDirectory, destination directory:  $destinationFolder, target computer:  $computername, port: $computerport "
+
+                $session = New-PSSession -ComputerName $computername -Port $computerport -Credential $cred -SessionOption $soptions
+
+                Write-Host "Deleting exisiting deployment folder contents"
+
+                Invoke-Command -Session $session -Command {Remove-Item -Path $Using:destinationFolder\* -Recurse -Force   }
+
+                Write-Host "Copying new files"
+
+                Copy-Item $sourceDirectory\* -Destination $destinationFolder -ToSession $session  -Recurse  -Force
+
+                Remove-PSSession -Session $session
+              }
+
+  - stage: UpdateGdbFeatureClasses
+    condition: and(succeeded('BuildArtifacts'), ${{ eq(parameters.UpdateGdbFeatureClasses,true) }})   
+    jobs:
+    - job: UpdateGdbFeatureClasses
+      displayName: Updating featur classes, hosts- $(server_service_connections)
+      steps:
+        - task: PowerShellOnTargetMachines@3
+          displayName: 'Updating feature classes using WinRm '
+          inputs:
+            Machines: $(server_service_connections)
+            UserName: $(pnp_service_account_name)
+            UserPassword: $(pnp_service_account_password)
+            ScriptType: 'FilePath' # 'FilePath' | 'Inline'. Script Type. Default: Inline.
+            ScriptPath: $(updateGdbFeatureClassesScriptPath)
+            WorkingDirectory: $(updateGdbFeatureClassesWorkingDir)
+            CommunicationProtocol: 'Http' # 'Http' | 'Https'. Protocol. Default: Https.
+            AuthenticationMechanism: 'Default' # 'Default' | 'Credssp'. Authentication. Default: Default.
+            NewPsSessionOptionArguments: '-SkipCACheck -IdleTimeout 7200000 -OperationTimeout 0 -OutputBufferingMode Block' # string. Session Option parameters. Default: -SkipCACheck -IdleTimeout 7200000 -OperationTimeout 0 -OutputBufferingMode Block.
+
+#TODO: Add more data prep tasks as required    

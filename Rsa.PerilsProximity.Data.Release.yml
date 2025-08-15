@@ -1,0 +1,190 @@
+name: $(date:yyyyMMdd)$(rev:.r)_PerilsProximity_Data_Release
+
+#Pipeline actions:
+# select environment eg staging, fint, pre-prod, prod
+# Executes selected data release tasks to the environment
+
+#TODO:
+# stop and start services
+# smoke testing?
+
+#This probably needs to be triggered only on Master for higher environments?
+trigger:
+  - config-pipeline
+  - master
+
+appendCommitMessageToRunName: false
+
+pool:
+  name: GeoRisk_AWS_LZ
+
+parameters:
+  - name: environment
+    displayName: Environment
+    type: string
+    default: staging
+    values:
+    - staging
+    - fint
+    - preprod
+    - production
+  - name: BuildArtifacts
+    displayName: Build artifacts data and ArcGIS server release
+    type: boolean
+    default: true
+  - name: AddDomains
+    displayName: Add domains
+    type: boolean
+    default: false
+  - name: CopyGeoDatabases
+    displayName: Copy updated GDBs
+    type: boolean
+    default: true  
+  - name: PublishArcGISServerServices
+    displayName: Publish ArcGIS Server Services
+    type: boolean
+    default: false
+
+variables:
+- group: PerilsProximity.GeoRisk.${{ parameters.environment }} # note there's a dash at the beginning of the line
+- name: time
+  value: $[ format('{0:yyyy}-{0:MM}-{0:dd}-{0:HHmm}', pipeline.startTime) ]
+- name: build_artifact_name
+  value: Build-drop-${{ parameters.environment }}
+- name: manageDomainsWorkingDir
+  value: $(pnp_config_working_directory)\$(build_artifact_name)\arcgis_services\deploy\scripts\data_release\domains_add
+- name: manageDomainsScriptPath
+  value: $(manageDomainsWorkingDir)\add_domains.ps1
+- name: CopyGeoDatabasesWorkingDir
+  value: $(pnp_config_working_directory)\$(build_artifact_name)\arcgis_services\deploy\scripts\data_release\copy_geodatabases
+- name: CopyGeoDatabasesScriptPath
+  value: $(CopyGeoDatabasesWorkingDir)\copy_geodatabases.ps1
+
+stages:
+  - stage: BuildArtifacts
+    condition: and(succeeded(), ${{ eq(parameters.BuildArtifacts,true) }})  
+    jobs:
+    - job: CopyFilesToEnvironment
+      displayName: ${{ parameters.environment }} build artifact for PnP configs and ArcGIS server
+      steps:
+        - task: CopyFiles@2
+          displayName: 'Copy ${{ parameters.environment }} files to: $(Build.ArtifactStagingDirectory)'
+          inputs:
+            contents: |
+              arcgis_services/deploy/scripts/data_release/**
+            targetFolder: $(Build.ArtifactStagingDirectory)
+        - task: CmdLine@2
+          displayName: Display tree of build artifact from $(Build.ArtifactStagingDirectory) 
+          inputs:
+            script: |
+              echo ##[debug]List of built in variables in Build.ArtifactStagingDirectory 
+              tree $(Build.ArtifactStagingDirectory) /F
+        - task: PublishBuildArtifacts@1
+          displayName: 'Publish artifact'
+          inputs:
+            pathToPublish: $(Build.ArtifactStagingDirectory)
+            artifactName: $(build_artifact_name)
+
+        # Download build artifacts v1
+        # Download files that were saved as artifacts of a completed build.
+        - task: DownloadBuildArtifacts@1
+          displayName: 'Download build artifact'
+          inputs:
+            buildType: 'current' 
+            buildVersionToDownload: 'latest' 
+            downloadType: 'single' 
+            artifactName: $(build_artifact_name) 
+            downloadPath: $(System.ArtifactsDirectory) 
+            cleanDestinationFolder: true 
+            checkDownloadedFiles: true 
+        - task: CmdLine@2
+          displayName: Display tree of sytem artifact dir from $(System.ArtifactsDirectory)
+          inputs:
+            script: |
+                echo ##[debug]List of built in variables in System.ArtifactsDirectory 
+                tree $(System.ArtifactsDirectory) /F
+        - task: PowerShell@2
+          displayName: 'Copying files to $(server_service_connections)'
+          inputs:
+            targetType: 'inline'
+            script: |
+              $serverConns = "$(server_service_connections)"
+
+              ForEach ($server in $serverConns.split(",")) {
+                $indexOfPort =$server.IndexOf(":")
+                $computername  = $server.Substring(0,$indexOfPort)
+                $computerport = $server.Substring($indexOfPort + 1, 4)
+
+                $soptions = New-PSSessionOption -SkipCACheck -SkipCNCheck
+                $secpasswd = ConvertTo-SecureString "$(pnp_service_account_password)" -AsPlainText -Force
+                $cred = New-Object System.Management.Automation.PSCredential ("$(pnp_service_account_name)", $secpasswd) 
+                $sourceDirectory="$(System.ArtifactsDirectory)"
+                $destinationFolder="$(pnp_config_working_directory)"
+
+                Write-Host "Copying files source directory:  $sourceDirectory, destination directory:  $destinationFolder, target computer:  $computername, port: $computerport "
+
+                $session = New-PSSession -ComputerName $computername -Port $computerport -Credential $cred -SessionOption $soptions
+
+                Write-Host "Deleting exisiting deployment folder contents"
+
+                Invoke-Command -Session $session -Command {Remove-Item -Path $Using:destinationFolder\* -Recurse -Force   }
+
+                Write-Host "Copying new files"
+
+                Copy-Item $sourceDirectory\* -Destination $destinationFolder -ToSession $session  -Recurse  -Force
+
+                Remove-PSSession -Session $session
+              }
+    - job: ApproveDeployment
+      displayName: ${{ parameters.environment }} wait for manual approval 
+      dependsOn: CopyFilesToEnvironment
+      timeoutInMinutes: 4320 # job times out in 3 days
+      pool: server 
+      steps:   
+      - task: ManualValidation@1
+        timeoutInMinutes: 4320 # task times out in 3 days
+        inputs:
+          notifyUsers: |
+            itai.dhliwayo@uk.rsagroup.com
+          instructions: 'Please validate the build drop in ${{ parameters.environment }} and resume deployment'
+          allowApproversToApproveTheirOwnRuns: true
+          onTimeout: 'reject'
+
+  - stage: AddDomains
+    condition: and(succeeded('BuildArtifacts'), ${{ eq(parameters.AddDomains,true) }}, ${{ eq(parameters.environment,'staging') }})   
+    jobs:
+    - job: AddDomains
+      displayName: Deploying to domains to  ${{ parameters.environment }}, hosts- $(server_service_connections)
+      steps:
+        - task: PowerShellOnTargetMachines@3
+          displayName: 'Deploying to domains using WinRm '
+          inputs:
+            Machines: $(server_service_connections)
+            UserName: $(pnp_service_account_name)
+            UserPassword: $(pnp_service_account_password)
+            ScriptType: 'FilePath' # 'FilePath' | 'Inline'. Script Type. Default: Inline.
+            ScriptPath: $(manageDomainsScriptPath)
+            WorkingDirectory: $(manageDomainsWorkingDir)
+            CommunicationProtocol: 'Http' # 'Http' | 'Https'. Protocol. Default: Https.
+            AuthenticationMechanism: 'Default' # 'Default' | 'Credssp'. Authentication. Default: Default.
+            NewPsSessionOptionArguments: '-SkipCACheck -IdleTimeout 7200000 -OperationTimeout 0 -OutputBufferingMode Block' # string. Session Option parameters. Default: -SkipCACheck -IdleTimeout 7200000 -OperationTimeout 0 -OutputBufferingMode Block.
+    
+  - stage: CopyGeoDatabases
+    condition:  and(succeeded('BuildArtifacts'), ${{ eq(parameters.CopyGeoDatabases,true) }})   
+    jobs:
+    - job: CopyGeoDatabases
+      displayName: Copy updated GBS to EsriUK / Galaxy ready for swapping over
+      steps:
+        - task: PowerShellOnTargetMachines@3
+          displayName: 'Copying geodatabase using WinRm '
+          inputs:
+            Machines: $(server_service_connections)
+            UserName: $(pnp_service_account_name)
+            UserPassword: $(pnp_service_account_password)
+            ScriptType: 'FilePath' # 'FilePath' | 'Inline'. Script Type. Default: Inline.
+            ScriptPath: $(CopyGeoDatabasesScriptPath)
+            WorkingDirectory: $(CopyGeoDatabasesWorkingDir)            
+            CommunicationProtocol: 'Http' # 'Http' | 'Https'. Protocol. Default: Https.
+            AuthenticationMechanism: 'Default' # 'Default' | 'Credssp'. Authentication. Default: Default.
+            NewPsSessionOptionArguments: '-SkipCACheck -IdleTimeout 7200000 -OperationTimeout 0 -OutputBufferingMode Block' # string. Session Option parameters. Default: -SkipCACheck -IdleTimeout 7200000 -OperationTimeout 0 -OutputBufferingMode Block.
+    
