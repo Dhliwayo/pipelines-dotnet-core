@@ -111,38 +111,15 @@ stages:
             script: |
                 echo ##[debug]List of built in variables in System.ArtifactsDirectory 
                 tree $(System.ArtifactsDirectory) /F
-        - task: PowerShell@2
-          displayName: 'Copying files to $(server_service_connections)'
+        - task: WindowsMachineFileCopy@2
+          displayName: 'Copy build artifacts to targets using WinRM $(server_service_connections)'
           inputs:
-            targetType: 'inline'
-            script: |
-              $serverConns = "$(server_service_connections)"
-
-              ForEach ($server in $serverConns.split(",")) {
-                $indexOfPort =$server.IndexOf(":")
-                $computername  = $server.Substring(0,$indexOfPort)
-                $computerport = $server.Substring($indexOfPort + 1, 4)
-
-                $soptions = New-PSSessionOption -SkipCACheck -SkipCNCheck
-                $secpasswd = ConvertTo-SecureString "$(pnp_service_account_password)" -AsPlainText -Force
-                $cred = New-Object System.Management.Automation.PSCredential ("$(pnp_service_account_name)", $secpasswd) 
-                $sourceDirectory="$(System.ArtifactsDirectory)"
-                $destinationFolder="$(deployPnPConfigsWorkingDir)"
-
-                Write-Host "Copying files source directory:  $sourceDirectory, destination directory:  $destinationFolder, target computer:  $computername, port: $computerport "
-
-                $session = New-PSSession -ComputerName $computername -Port $computerport -Credential $cred -SessionOption $soptions
-
-                Write-Host "Deleting exisiting deployment folder contents"
-
-                Invoke-Command -Session $session -Command {Remove-Item -Path $Using:destinationFolder\* -Recurse -Force   }
-
-                Write-Host "Copying new files"
-                
-                Copy-Item $sourceDirectory\* -Destination $destinationFolder -ToSession $session  -Recurse  -Force
-
-                Remove-PSSession -Session $session
-              }
+            MachineNames: '$(server_service_connections)'
+            SourcePath: '$(System.ArtifactsDirectory)'
+            TargetPath: '$(deployPnPConfigsWorkingDir)'
+            AdminUserName: '$(pnp_service_account_name)'
+            AdminPassword: '$(pnp_service_account_password)'
+            CleanTargetBeforeCopy: true
 
 
     - job: ApproveDeployment
