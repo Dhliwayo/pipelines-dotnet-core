@@ -165,15 +165,21 @@ if __name__ == "__main__":
     current_working_directory  = Path(__file__).parent.absolute()
     logger = helpers.get_logger("Add domain entries.py", os.path.join(current_working_directory,"add_domain.log"))
 
-    # argparser = argparse.ArgumentParser(
-    #     description="Script add domains to GLOBAL_EXPOSURE database"
-    # )
+    # Parse command line arguments for database connection
+    argparser = argparse.ArgumentParser(
+        description="Script add domains to GLOBAL_EXPOSURE database"
+    )
+    
+    argparser.add_argument("--db-username", help="Database username")
+    argparser.add_argument("--db-password", help="Database password")
+    argparser.add_argument("--db-server", help="Database server")
+    argparser.add_argument("--db-name", help="Database name")
+    
+    args = argparser.parse_args()
 
-    # logger.info("Checking required parameters have been passed")
-    # argparser.add_argument("--pnp_user_password", required=True, type=str)
-    # args = argparser.parse_args()
-
-
+    # Create temporary directory for SDE connection file
+    temp_dir = tempfile.TemporaryDirectory()
+    
     try: 
         config = configparser.ConfigParser()
         config_ini_path = os.path.join(current_working_directory,"config.ini")
@@ -189,24 +195,35 @@ if __name__ == "__main__":
             logger.info("Executing for config key " + key) 
 
             toolbox_path = os.path.join(current_working_directory,config[key]["toolbox_path"])
-            username = config[key]["username"]
-            server = config[key]["server"]
-            database = config[key]["database"]
+            
+            # Priority order: Command line args -> Environment variables -> Config values
+            username = (args.db_username or 
+                       os.environ.get('DB_USERNAME') or 
+                       config[key]["username"])
+            
+            password = (args.db_password or 
+                       os.environ.get('DB_PASSWORD'))
+            
+            server = (args.db_server or 
+                     os.environ.get('DB_SERVER') or 
+                     config[key]["server"])
+            
+            database = (args.db_name or 
+                       os.environ.get('DB_NAME') or 
+                       config[key]["database"])
+            
+            if not password:
+                logger.error("Database password is required. Provide via --db-password argument, DB_PASSWORD environment variable, or config.ini")
+                raise ValueError("Database password is required")
+            
             domain_type = config[key]["domain_type"]
             codes = config[key]["codes"].split(",")
             values = config[key]["values"].split(",")
 
-            #password = getpass(prompt='Password for user '+username+': ')
-            
-            temp_dir = tempfile.TemporaryDirectory()  # this needs creating outside the function so that the garbage collector doesnt delete it when function context closes
-            # The password is passed in as a parameter into the script
-            #workspace = create_sde_connection_file(username,args.pnp_user_password , temp_dir.name, server, database) 
-            #logger.info("pnp_user_password : {0}".format(args.pnp_user_password))
-            #workspace = os.path.join(current_working_directory,'STAGING_GLOBAL_EXPOSURE_as_PNP_USER.sde')
-
-            #TODO: Secure credentials?
-            workspace = 'D:\\arcgisserver\\connections\\FINT_GLOBAL_EXPOSURE_as_PNP_USER.sde'
-            #workspace = 'C:\\Users\\S01397\\Code\\arcgisserver\\connections\\STAGING_GLOBAL_EXPOSURE_as_PNP_USER.sde'
+            # Create SDE connection file using the determined parameters and existing helper function
+            logger.info(f"Creating SDE connection for {username}@{server}/{database}")
+            workspace = helpers.create_sde_connection_file(username, password, temp_dir.name, server, database)
+            logger.info(f"SDE connection file created at: {workspace}")
 
             domain_name = "GLOBAL_EXPOSURE.dbo.DOMAINLOOKUPS"
             domain_path = os.path.join(workspace, domain_name)
@@ -269,6 +286,14 @@ if __name__ == "__main__":
     except Exception as e:
 
         logger.error(e)
+    
+    finally:
+        # Clean up temporary SDE connection file
+        try:
+            temp_dir.cleanup()
+            logger.info("Temporary SDE connection file cleaned up successfully")
+        except Exception as cleanup_error:
+            logger.warning(f"Failed to clean up temporary directory: {cleanup_error}")
     
     #input("Press return to exit")
         

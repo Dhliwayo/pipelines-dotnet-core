@@ -10,7 +10,19 @@ param(
     [string]$ModulePath,
     
     [Parameter(Mandatory=$true)]
-    [string]$WorkingDirectory
+    [string]$WorkingDirectory,
+    
+    [Parameter(Mandatory=$false)]
+    [string]$DBUsername,
+    
+    [Parameter(Mandatory=$false)]
+    [SecureString]$DBPassword,
+    
+    [Parameter(Mandatory=$false)]
+    [string]$DBServer,
+    
+    [Parameter(Mandatory=$false)]
+    [string]$DBName
 )
 
 # Set working directory
@@ -21,10 +33,42 @@ if (!(Test-Path $WorkingDirectory)) {
 Set-Location -Path $WorkingDirectory
 Write-Output "Working directory: $WorkingDirectory"
 
-Write-Output "Executing Python module: $ModulePath"
+# Build additional arguments for Python module
+$additionalArgs = @()
 
-# Execute Python module
-python -m $ModulePath
+if ($DBUsername) { 
+    $additionalArgs += "--db-username"
+    $additionalArgs += $DBUsername
+}
+if ($DBPassword) { 
+    $additionalArgs += "--db-password"
+    # Convert SecureString to plain text for Python argument
+    $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($DBPassword)
+    $plainPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
+    $additionalArgs += $plainPassword
+    # Clear the plain text password from memory
+    [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($BSTR)
+}
+if ($DBServer) { 
+    $additionalArgs += "--db-server"
+    $additionalArgs += $DBServer
+}
+if ($DBName) { 
+    $additionalArgs += "--db-name"
+    $additionalArgs += $DBName
+}
+
+Write-Output "Executing Python module: $ModulePath"
+if ($additionalArgs.Count -gt 0) {
+    Write-Output "With additional arguments: $($additionalArgs -join ' ')"
+}
+
+# Execute Python module with additional arguments
+if ($additionalArgs.Count -gt 0) {
+    python -m $ModulePath @additionalArgs
+} else {
+    python -m $ModulePath
+}
 
 # Check exit code
 if ($LASTEXITCODE -ne 0) {
