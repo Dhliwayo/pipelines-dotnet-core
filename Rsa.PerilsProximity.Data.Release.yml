@@ -160,39 +160,56 @@ stages:
     condition: and(succeeded('BuildArtifacts'), ${{ eq(parameters.AddDomains,true) }}, ${{ eq(parameters.environment,'staging') }})   
     jobs:
     - job: AddDomains
-      displayName: Deploying to domains to  ${{ parameters.environment }}, hosts- $(server_service_connections)
+      displayName: Adding domains to ${{ parameters.environment }} database
       steps:
-        - task: PowerShellOnTargetMachines@3
-          displayName: 'Deploying to domains using WinRm '
+        - task: PowerShell@2
+          displayName: 'Execute domains script directly on build machine'
           inputs:
-            Machines: $(server_service_connections)
-            UserName: $(pnp_service_account_name)
-            UserPassword: $(pnp_service_account_password)
-            ScriptType: 'FilePath' # 'FilePath' | 'Inline'. Script Type. Default: Inline.
-            ScriptPath: $(manageDomainsScriptPath)
-            ScriptArguments: '-ModulePath "add_domains" -WorkingDirectory "$(manageDomainsWorkingDir)" -DBUsername "$(DB_USERNAME)" -DBPassword "$(DB_PASSWORD)" -DBServer "$(DB_SERVER)" -DBName "$(DB_NAME)"'
-            WorkingDirectory: $(manageDomainsWorkingDir)
-            CommunicationProtocol: 'Http' # 'Http' | 'Https'. Protocol. Default: Https.
-            AuthenticationMechanism: 'Default' # 'Default' | 'Credssp'. Authentication. Default: Default.
-            NewPsSessionOptionArguments: '-SkipCACheck -IdleTimeout 7200000 -OperationTimeout 0 -OutputBufferingMode Block' # string. Session Option parameters. Default: -SkipCACheck -IdleTimeout 7200000 -OperationTimeout 0 -OutputBufferingMode Block.
+            targetType: 'inline'
+            script: |
+              $workingDir = "$(System.ArtifactsDirectory)\arcgis_services\deploy\scripts\data_release\domains_add"
+              Set-Location -Path $workingDir
+              
+              Write-Output "Working directory: $workingDir"
+              Write-Output "Executing domains script directly..."
+              
+              # Execute the Python script directly
+              python -m add_domains --db-username "$(DB_USERNAME)" --db-password "$(DB_PASSWORD)" --db-server "$(DB_SERVER)" --db-name "$(DB_NAME)"
+              
+              if ($LASTEXITCODE -ne 0) {
+                  Write-Error "Python script failed with exit code $LASTEXITCODE"
+                  exit $LASTEXITCODE
+              }
+              
+              Write-Output "Domains script completed successfully"
     
   - stage: CopyGeoDatabases
     condition:  and(succeeded('BuildArtifacts'), ${{ eq(parameters.CopyGeoDatabases,true) }})   
     jobs:
     - job: CopyGeoDatabases
-      displayName: Copy updated GBS to EsriUK / Galaxy ready for swapping over
+      displayName: Copy updated GDBs to EsriUK / Galaxy ready for swapping over
       steps:
         - task: PowerShellOnTargetMachines@3
-          displayName: 'Copying geodatabase using WinRm '
+          displayName: 'Copying geodatabases using WinRM'
           inputs:
             Machines: $(server_service_connections)
             UserName: $(pnp_service_account_name)
             UserPassword: $(pnp_service_account_password)
-            ScriptType: 'FilePath' # 'FilePath' | 'Inline'. Script Type. Default: Inline.
-            ScriptPath: $(CopyGeoDatabasesScriptPath)
-            ScriptArguments: '-ModulePath "copy_geodatabases.copy_geodatabases" -WorkingDirectory "$(CopyGeoDatabasesWorkingDir)"'
-            WorkingDirectory: $(CopyGeoDatabasesWorkingDir)            
-            CommunicationProtocol: 'Http' # 'Http' | 'Https'. Protocol. Default: Https.
-            AuthenticationMechanism: 'Default' # 'Default' | 'Credssp'. Authentication. Default: Default.
-            NewPsSessionOptionArguments: '-SkipCACheck -IdleTimeout 7200000 -OperationTimeout 0 -OutputBufferingMode Block' # string. Session Option parameters. Default: -SkipCACheck -IdleTimeout 7200000 -OperationTimeout 0 -OutputBufferingMode Block.
+            ScriptType: 'FilePath'
+            ScriptPath: $(System.ArtifactsDirectory)\arcgis_services\deploy\scripts\data_release\copy_geodatabases\copy_geodatabases.ps1
+            CommunicationProtocol: 'Http'
+            AuthenticationMechanism: 'Default'
+            NewPsSessionOptionArguments: '-SkipCACheck -IdleTimeout 7200000 -OperationTimeout 0 -OutputBufferingMode Block'
+        
+        - task: PowerShellOnTargetMachines@3
+          displayName: 'Validate copied geodatabases'
+          inputs:
+            Machines: $(server_service_connections)
+            UserName: $(pnp_service_account_name)
+            UserPassword: $(pnp_service_account_password)
+            ScriptType: 'FilePath'
+            ScriptPath: $(System.ArtifactsDirectory)\arcgis_services\deploy\scripts\data_release\copy_geodatabases\validate_file_geodatabase.ps1
+            CommunicationProtocol: 'Http'
+            AuthenticationMechanism: 'Default'
+            NewPsSessionOptionArguments: '-SkipCACheck -IdleTimeout 7200000 -OperationTimeout 0 -OutputBufferingMode Block'
     
