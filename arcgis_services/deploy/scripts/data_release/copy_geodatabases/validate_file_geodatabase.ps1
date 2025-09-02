@@ -96,3 +96,30 @@ try {
     Write-Error "Error during geodatabase validation: $_"
     exit 1
 }
+
+D:\PnPGeoRiskDeploymentWorkingDir\Build-drop-staging\arcgis_services\deploy\scripts\data_release\c
+At line:1 char:1
++ & 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe' -NoLogo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (D:\PnPGeoRiskDe...\data_release\c:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+opy_geodatabases\validate_file_geodatabase.ps1 : Error during geodatabase validation  Hash 
+validation failed for one or more geodatabases!
+At C:\Users\GRAUDATA\AppData\Local\Temp\69d03b76-579c-462f-9346-23e2666529f7.ps1:12 char:13
+
+
++             . 'D:\PnPGeoRiskDeploymentWorkingDir\Build-drop-staging\a ...
+
+
++             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException
+
+
+    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,validate_file_geo 
+
+
+   database.ps1
