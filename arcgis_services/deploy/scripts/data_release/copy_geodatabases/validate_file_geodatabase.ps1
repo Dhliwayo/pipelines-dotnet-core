@@ -2,6 +2,35 @@
 
 Write-Output "Starting geodatabase hash validation..."
 
+function Read-IniFile {
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$Path
+    )
+    if (!(Test-Path $Path)) {
+        throw "INI file not found: $Path"
+    }
+    $ini = @{}
+    $currentSection = $null
+    foreach ($rawLine in Get-Content -Path $Path) {
+        $line = $rawLine.Trim()
+        if ($line -eq '' -or $line.StartsWith(';') -or $line.StartsWith('#')) { continue }
+        if ($line.StartsWith('[') -and $line.EndsWith(']')) {
+            $sectionName = $line.TrimStart('[').TrimEnd(']')
+            if (-not $ini.ContainsKey($sectionName)) { $ini[$sectionName] = @{} }
+            $currentSection = $sectionName
+            continue
+        }
+        $eqIndex = $line.IndexOf('=')
+        if ($eqIndex -gt 0 -and $currentSection) {
+            $key = $line.Substring(0, $eqIndex).Trim()
+            $value = $line.Substring($eqIndex + 1).Trim()
+            $ini[$currentSection][$key] = $value
+        }
+    }
+    return $ini
+}
+
 try {
     # Read config file to get source/destination paths and expected hashes
     $configPath = Join-Path $PSScriptRoot "config\config.ini"
@@ -9,7 +38,7 @@ try {
         throw "Config file not found: $configPath"
     }
     
-    $config = Get-Content $configPath -Raw | ConvertFrom-IniString
+    $config = Read-IniFile -Path $configPath
     
     Function Test-Fgdb-Hash {
         param (
@@ -38,8 +67,8 @@ try {
     foreach ($section in $config.GetEnumerator()) {
         if ($section.Key -eq 'DEFAULT') { continue }
         
-        $destinationPath = $section.Value.destination_path
-        $expectedHash = $section.Value.expected_hash
+        $destinationPath = $section.Value['destination_path']
+        $expectedHash = $section.Value['expected_hash']
         
         Write-Output "Validating: $destinationPath"
         
