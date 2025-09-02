@@ -44,6 +44,16 @@ try {
         
         Write-Output "Processing section: $($section.Key)"
         
+        $shouldUpdate = $true
+        if ($section.Value.ContainsKey('update_in_release')) {
+            $flag = ($section.Value['update_in_release'] | Out-String).Trim().ToLower()
+            if ($flag -in @('false','0','no','off')) { $shouldUpdate = $false }
+        }
+        if (-not $shouldUpdate) {
+            Write-Output "Skipping section '$($section.Key)' because update_in_release is set to false"
+            continue
+        }
+        
         $sourcePath = $section.Value['source_path']
         $destinationPath = $section.Value['destination_path']
         
