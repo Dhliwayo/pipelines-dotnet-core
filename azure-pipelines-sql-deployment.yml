@@ -53,9 +53,10 @@ stages:
                     ScriptType: 'Inline'
                     InlineScript: |
                       Import-Module SqlServer -Force
+                      $ErrorActionPreference = 'Stop'
                       $backupFile = "$(backupLocation)/$(databaseName)_$(Get-Date -Format 'yyyyMMdd_HHmmss').bak"
                       $backupQuery = "BACKUP DATABASE [$(databaseName)] TO DISK = '$backupFile' WITH FORMAT, INIT"
-                      Invoke-Sqlcmd -ServerInstance "$(sqlServer)" -Database "master" -Username "$(sqlUsername)" -Password "$(sqlPassword)" -Query $backupQuery
+                      Invoke-Sqlcmd -ServerInstance "$(sqlServer)" -Database "master" -Username "$(sqlUsername)" -Password "$(sqlPassword)" -Query $backupQuery -ErrorAction Stop -AbortOnError
                       Write-Host "Backup created: $backupFile"
                     CommunicationProtocol: 'Https'
 
@@ -72,6 +73,25 @@ stages:
           runOnce:
             deploy:
               steps:
+                # Copy scripts to target via WinRM
+                - task: PowerShell@2
+                  displayName: 'Copy SQL scripts to target via WinRM'
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      $secpasswd = ConvertTo-SecureString "$(winrmPassword)" -AsPlainText -Force
+                      $cred = New-Object System.Management.Automation.PSCredential ("$(winrmUsername)", $secpasswd)
+                      $sessionOptions = New-PSSessionOption -SkipCACheck -SkipCNCheck
+                      $session = New-PSSession -ComputerName "$(targetMachine)" -UseSSL -Port 5986 -Credential $cred -SessionOption $sessionOptions
+                      try {
+                        $destination = "C:\Deploy\sql-scripts"
+                        Invoke-Command -Session $session -ScriptBlock { param($d) New-Item -ItemType Directory -Path $d -Force | Out-Null } -ArgumentList $destination
+                        $source = "$(Build.SourcesDirectory)\sql-scripts"
+                        Write-Host "Copying SQL scripts from '$source' to '$destination' on $(targetMachine)"
+                        Copy-Item -Path "$source\*" -Destination $destination -Recurse -Force -ToSession $session
+                      } finally {
+                        if ($session) { Remove-PSSession $session }
+                      }
                 # Deploy scripts
                 - task: PowerShellOnTargetMachines@3
                   displayName: 'Deploy SQL Scripts'
@@ -82,11 +102,26 @@ stages:
                     ScriptType: 'Inline'
                     InlineScript: |
                       Import-Module SqlServer -Force
-                      $scripts = Get-ChildItem -Path "$(Pipeline.Workspace)/sql-scripts" -Filter "*.sql" -Recurse | Sort-Object Name
+                      $ErrorActionPreference = 'Stop'
+                      Set-StrictMode -Version Latest
+
+                      $scripts = Get-ChildItem -Path "C:\Deploy\sql-scripts" -Filter "*.sql" -Recurse | Sort-Object Name
+
+                      if (-not $scripts -or $scripts.Count -eq 0) {
+                          Write-Error "No SQL scripts found in C:\Deploy\sql-scripts"
+                          throw "No scripts to execute"
+                      }
+
                       foreach ($script in $scripts) {
                           Write-Host "Executing: $($script.Name)"
-                          $content = Get-Content -Path $script.FullName -Raw
-                          Invoke-Sqlcmd -ServerInstance "$(sqlServer)" -Database "$(databaseName)" -Username "$(sqlUsername)" -Password "$(sqlPassword)" -Query $content
+                          try {
+                              Invoke-Sqlcmd -ServerInstance "$(sqlServer)" -Database "$(databaseName)" -Username "$(sqlUsername)" -Password "$(sqlPassword)" -InputFile $script.FullName -AbortOnError -ErrorAction Stop
+                              Write-Host "Completed: $($script.Name)"
+                          }
+                          catch {
+                              Write-Error "Failed: $($script.Name) - $($_.Exception.Message)"
+                              throw
+                          }
                       }
                       Write-Host "All scripts deployed successfully"
                     CommunicationProtocol: 'Https'
@@ -101,8 +136,10 @@ stages:
                     ScriptType: 'Inline'
                     InlineScript: |
                       Import-Module SqlServer -Force
+                      $ErrorActionPreference = 'Stop'
                       $testQuery = "SELECT GETDATE() as CurrentTime, DB_NAME() as DatabaseName"
-                      $result = Invoke-Sqlcmd -ServerInstance "$(sqlServer)" -Database "$(databaseName)" -Username "$(sqlUsername)" -Password "$(sqlPassword)" -Query $testQuery
+                      $result = Invoke-Sqlcmd -ServerInstance "$(sqlServer)" -Database "$(databaseName)" -Username "$(sqlUsername)" -Password "$(sqlPassword)" -Query $testQuery -ErrorAction Stop -AbortOnError
+                      if (-not $result) { throw "Verification query returned no results" }
                       Write-Host "Deployment verified successfully: $($result.CurrentTime) on $($result.DatabaseName)"
                     CommunicationProtocol: 'Https'
 
