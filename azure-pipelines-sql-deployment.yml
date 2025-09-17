@@ -26,6 +26,10 @@ parameters:
     displayName: 'Skip Database Backup'
     type: boolean
     default: false
+  - name: healthCheckEndpoint
+    displayName: 'Health Check Endpoint URL'
+    type: string
+    default: 'https://httpbin.org/get'
 
 variables:
   - group: SQL-Deployment-$(parameters.environment)
@@ -143,9 +147,76 @@ stages:
                       Write-Host "Deployment verified successfully: $($result.CurrentTime) on $($result.DatabaseName)"
                     CommunicationProtocol: 'Https'
 
+  - stage: HealthCheck
+    displayName: 'Health Check'
+    dependsOn: Deploy
+    jobs:
+      - deployment: EndpointHealthCheck
+        displayName: 'Test HTTP Endpoint'
+        environment: '$(parameters.environment)'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: PowerShellOnTargetMachines@3
+                  displayName: 'HTTP Endpoint Health Check'
+                  inputs:
+                    Machines: '$(targetMachine)'
+                    UserName: '$(winrmUsername)'
+                    UserPassword: '$(winrmPassword)'
+                    ScriptType: 'Inline'
+                    InlineScript: |
+                      $ErrorActionPreference = 'Continue'
+                      $endpoint = "${{ parameters.healthCheckEndpoint }}"
+                      $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+                      $logFile = "C:\Deploy\health-check-log.txt"
+                      
+                      Write-Host "[$timestamp] Starting health check for endpoint: $endpoint"
+                      
+                      try {
+                          # Create HTTP request with timeout and ignore certificate errors
+                          $response = Invoke-WebRequest -Uri $endpoint -Method GET -TimeoutSec 30 -UseBasicParsing -SkipCertificateCheck
+                          
+                          if ($response.StatusCode -eq 200) {
+                              $successMessage = "[$timestamp] SUCCESS: HTTP $($response.StatusCode) - Endpoint '$endpoint' is reachable"
+                              Write-Host $successMessage -ForegroundColor Green
+                              Add-Content -Path $logFile -Value $successMessage
+                          } else {
+                              $warningMessage = "[$timestamp] WARNING: HTTP $($response.StatusCode) - Endpoint '$endpoint' returned non-200 status"
+                              Write-Host $warningMessage -ForegroundColor Yellow
+                              Add-Content -Path $logFile -Value $warningMessage
+                          }
+                          
+                          # Log response details
+                          $detailsMessage = "[$timestamp] Response Time: $($response.Headers.'X-Response-Time') | Content Length: $($response.Content.Length) bytes"
+                          Write-Host $detailsMessage
+                          Add-Content -Path $logFile -Value $detailsMessage
+                          
+                      } catch {
+                          $errorMessage = "[$timestamp] ERROR: Failed to reach endpoint '$endpoint' - $($_.Exception.Message)"
+                          Write-Host $errorMessage -ForegroundColor Red
+                          Add-Content -Path $logFile -Value $errorMessage
+                          
+                          # Don't fail the pipeline, just log the error
+                          Write-Warning "Health check failed but pipeline will continue"
+                      }
+                      
+                      # Display recent log entries
+                      Write-Host "`n=== Recent Health Check Log Entries ==="
+                      if (Test-Path $logFile) {
+                          Get-Content $logFile | Select-Object -Last 10 | ForEach-Object { Write-Host $_ }
+                      } else {
+                          Write-Host "Log file not found at $logFile"
+                      }
+                      
+                      Write-Host "Health check completed at $timestamp"
+                    CommunicationProtocol: 'Https'
+
   - stage: Report
     displayName: 'Generate Report'
-    dependsOn: Deploy
+    dependsOn: 
+      - Deploy
+      - HealthCheck
     condition: always()
     jobs:
       - job: GenerateReport
