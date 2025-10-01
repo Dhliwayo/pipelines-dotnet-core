@@ -1,0 +1,149 @@
+/*
+Purpose:
+- Create a copy of a given table
+- TRUNCATE the original table (mandatory; fail if blocked by FKs/permissions)
+- Reload data from the copy while REGENERATING new IDs for the specified identity column
+
+Usage:
+- Set @SchemaName, @TableName, @IdColumn. Optionally @CopyTableName.
+*/
+
+SET NOCOUNT ON;
+SET XACT_ABORT ON;
+
+DECLARE
+    @SchemaName     sysname = N'dbo',
+    @TableName      sysname = N'YourTable',
+    @IdColumn       sysname = N'Id',        -- identity column to regenerate
+    @CopyTableName  sysname = NULL;         -- NULL => <TableName>_Copy
+
+DECLARE
+    @QualifiedTable nvarchar(300),
+    @QualifiedCopy  nvarchar(300),
+    @IdentityColumn sysname,
+    @ColsForInsert  nvarchar(max),
+    @sql            nvarchar(max);
+
+-- Resolve names
+SET @QualifiedTable = QUOTENAME(@SchemaName) + N'.' + QUOTENAME(@TableName);
+IF @CopyTableName IS NULL
+    SET @CopyTableName = @TableName + N'_Copy';
+SET @QualifiedCopy  = QUOTENAME(@SchemaName) + N'.' + QUOTENAME(@CopyTableName);
+
+-- Validate table exists
+IF OBJECT_ID(@QualifiedTable, 'U') IS NULL
+BEGIN
+    RAISERROR('Table %s does not exist.', 16, 1, @QualifiedTable);
+    RETURN;
+END
+
+-- Validate ID column exists on table
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.columns c
+    JOIN sys.objects o ON o.object_id = c.object_id
+    JOIN sys.schemas s ON s.schema_id = o.schema_id
+    WHERE s.name = @SchemaName AND o.name = @TableName AND c.name = @IdColumn
+)
+BEGIN
+    RAISERROR('Column %s does not exist on %s.', 16, 1, @IdColumn, @QualifiedTable);
+    RETURN;
+END
+
+-- Ensure @IdColumn is the identity column
+SELECT @IdentityColumn = ic.name
+FROM sys.identity_columns ic
+JOIN sys.objects o ON o.object_id = ic.object_id
+JOIN sys.schemas s ON s.schema_id = o.schema_id
+WHERE s.name = @SchemaName AND o.name = @TableName;
+
+IF @IdentityColumn IS NULL OR @IdentityColumn <> @IdColumn
+BEGIN
+    RAISERROR('Column %s is not the IDENTITY column on %s.', 16, 1, @IdColumn, @QualifiedTable);
+    RETURN;
+END
+
+BEGIN TRY
+    BEGIN TRAN;
+
+    -- Drop existing copy table if present
+    IF OBJECT_ID(@QualifiedCopy, 'U') IS NOT NULL
+    BEGIN
+        SET @sql = N'DROP TABLE ' + @QualifiedCopy + N';';
+        EXEC sp_executesql @sql;
+    END
+
+    -- Create copy table with current data
+    SET @sql = N'SELECT * INTO ' + @QualifiedCopy + N' FROM ' + @QualifiedTable + N';';
+    EXEC sp_executesql @sql;
+
+    -- Build column list for insert EXCLUDING:
+    -- - identity column (@IdColumn)
+    -- - computed columns
+    -- - rowversion/timestamp columns (system_type_id = 189)
+    ;WITH ordered_cols AS (
+        SELECT
+            c.name AS colname,
+            c.column_id
+        FROM sys.columns c
+        JOIN sys.objects o ON o.object_id = c.object_id
+        JOIN sys.schemas s ON s.schema_id = o.schema_id
+        WHERE s.name = @SchemaName
+          AND o.name = @TableName
+          AND c.name <> @IdColumn
+          AND c.is_computed = 0
+          AND c.system_type_id <> 189
+    )
+    SELECT @ColsForInsert =
+        STRING_AGG(QUOTENAME(colname), N',') WITHIN GROUP (ORDER BY column_id)
+    FROM ordered_cols;
+
+    IF @ColsForInsert IS NULL OR LEN(@ColsForInsert) = 0
+    BEGIN
+        RAISERROR('No insertable columns found after excluding identity/computed/rowversion.', 16, 1);
+        ROLLBACK TRAN;
+        RETURN;
+    END
+
+    -- TRUNCATE is mandatory. Fail if blocked (e.g., FKs) or not permitted.
+    BEGIN TRY
+        SET @sql = N'TRUNCATE TABLE ' + @QualifiedTable + N';';
+        EXEC sp_executesql @sql;
+    END TRY
+    BEGIN CATCH
+        DECLARE
+            @err int = ERROR_NUMBER(),
+            @sev int = ERROR_SEVERITY(),
+            @state int = ERROR_STATE(),
+            @line int = ERROR_LINE(),
+            @msg nvarchar(2048) = ERROR_MESSAGE();
+
+        -- Rollback and rethrow with clear context
+        IF XACT_STATE() <> 0 ROLLBACK TRAN;
+        RAISERROR('TRUNCATE failed for %s. Likely due to foreign keys or permissions. Details: %s (Err %d, Sev %d, State %d, Line %d)',
+                  16, 1, @QualifiedTable, @msg, @err, @sev, @state, @line);
+        RETURN;
+    END CATCH
+
+    -- Reload WITHOUT the identity column so new IDs are generated
+    SET @sql = N'
+        INSERT INTO ' + @QualifiedTable + N' (' + @ColsForInsert + N')
+        SELECT ' + @ColsForInsert + N'
+        FROM ' + @QualifiedCopy + N';';
+    EXEC sp_executesql @sql;
+
+    COMMIT TRAN;
+    PRINT 'Success: Data reloaded and identity regenerated for ' + @QualifiedTable + N'.';
+END TRY
+BEGIN CATCH
+    IF XACT_STATE() <> 0 ROLLBACK TRAN;
+
+    DECLARE
+        @err2 int = ERROR_NUMBER(),
+        @sev2 int = ERROR_SEVERITY(),
+        @state2 int = ERROR_STATE(),
+        @line2 int = ERROR_LINE(),
+        @msg2 nvarchar(2048) = ERROR_MESSAGE();
+
+    RAISERROR('Failed: %s (Err %d, Sev %d, State %d, Line %d)', 16, 1, @msg2, @err2, @sev2, @state2, @line2);
+END CATCH
