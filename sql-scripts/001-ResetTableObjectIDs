@@ -81,10 +81,9 @@ BEGIN TRY
     -- - identity column (@IdColumn)
     -- - computed columns
     -- - rowversion/timestamp columns (system_type_id = 189)
-    ;WITH ordered_cols AS (
-        SELECT
-            c.name AS colname,
-            c.column_id
+    -- Using FOR XML PATH for SQL Server 2012+ compatibility
+    SELECT @ColsForInsert = STUFF((
+        SELECT N',' + QUOTENAME(c.name)
         FROM sys.columns c
         JOIN sys.objects o ON o.object_id = c.object_id
         JOIN sys.schemas s ON s.schema_id = o.schema_id
@@ -93,10 +92,9 @@ BEGIN TRY
           AND c.name <> @IdColumn
           AND c.is_computed = 0
           AND c.system_type_id <> 189
-    )
-    SELECT @ColsForInsert =
-        STRING_AGG(QUOTENAME(colname), N',') WITHIN GROUP (ORDER BY column_id)
-    FROM ordered_cols;
+        ORDER BY c.column_id
+        FOR XML PATH(''), TYPE
+    ).value('.', 'NVARCHAR(MAX)'), 1, 1, '');
 
     IF @ColsForInsert IS NULL OR LEN(@ColsForInsert) = 0
     BEGIN
