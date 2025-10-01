@@ -2,10 +2,11 @@
 Purpose:
 - Create a copy of a given table
 - TRUNCATE the original table (mandatory; fail if blocked by FKs/permissions)
-- Reload data from the copy while REGENERATING new IDs for the specified identity column
+- Reload data from the copy while REGENERATING new IDs starting from 1 for the specified ID column
 
 Usage:
 - Set @SchemaName, @TableName, @IdColumn. Optionally @CopyTableName.
+- @IdColumn does NOT need to be an identity column; new IDs will be generated sequentially from 1.
 */
 
 SET NOCOUNT ON;
@@ -14,14 +15,15 @@ SET XACT_ABORT ON;
 DECLARE
     @SchemaName     sysname = N'dbo',
     @TableName      sysname = N'YourTable',
-    @IdColumn       sysname = N'Id',        -- identity column to regenerate
+    @IdColumn       sysname = N'Id',        -- ID column to regenerate (NOT identity)
     @CopyTableName  sysname = NULL;         -- NULL => <TableName>_Copy
 
 DECLARE
     @QualifiedTable nvarchar(300),
     @QualifiedCopy  nvarchar(300),
-    @IdentityColumn sysname,
     @ColsForInsert  nvarchar(max),
+    @ColsWithNewId  nvarchar(max),
+    @TempIdColumn   sysname = N'__TempRowNum__',
     @sql            nvarchar(max);
 
 -- Resolve names
@@ -50,19 +52,6 @@ BEGIN
     RETURN;
 END
 
--- Ensure @IdColumn is the identity column
-SELECT @IdentityColumn = ic.name
-FROM sys.identity_columns ic
-JOIN sys.objects o ON o.object_id = ic.object_id
-JOIN sys.schemas s ON s.schema_id = o.schema_id
-WHERE s.name = @SchemaName AND o.name = @TableName;
-
-IF @IdentityColumn IS NULL OR @IdentityColumn <> @IdColumn
-BEGIN
-    RAISERROR('Column %s is not the IDENTITY column on %s.', 16, 1, @IdColumn, @QualifiedTable);
-    RETURN;
-END
-
 BEGIN TRY
     BEGIN TRAN;
 
@@ -73,12 +62,17 @@ BEGIN TRY
         EXEC sp_executesql @sql;
     END
 
-    -- Create copy table with current data
-    SET @sql = N'SELECT * INTO ' + @QualifiedCopy + N' FROM ' + @QualifiedTable + N';';
+    -- Create copy table with current data INCLUDING a new identity column for row numbering
+    SET @sql = N'
+        SELECT 
+            IDENTITY(INT, 1, 1) AS ' + QUOTENAME(@TempIdColumn) + N',
+            *
+        INTO ' + @QualifiedCopy + N'
+        FROM ' + @QualifiedTable + N';';
     EXEC sp_executesql @sql;
 
     -- Build column list for insert EXCLUDING:
-    -- - identity column (@IdColumn)
+    -- - ID column (@IdColumn) - we'll regenerate this
     -- - computed columns
     -- - rowversion/timestamp columns (system_type_id = 189)
     -- Using FOR XML PATH for SQL Server 2012+ compatibility
@@ -98,10 +92,13 @@ BEGIN TRY
 
     IF @ColsForInsert IS NULL OR LEN(@ColsForInsert) = 0
     BEGIN
-        RAISERROR('No insertable columns found after excluding identity/computed/rowversion.', 16, 1);
+        RAISERROR('No insertable columns found after excluding ID/computed/rowversion.', 16, 1);
         ROLLBACK TRAN;
         RETURN;
     END
+
+    -- Build column list WITH new ID: temp identity column AS the ID column, plus other columns
+    SET @ColsWithNewId = QUOTENAME(@TempIdColumn) + N' AS ' + QUOTENAME(@IdColumn) + N',' + @ColsForInsert;
 
     -- TRUNCATE is mandatory. Fail if blocked (e.g., FKs) or not permitted.
     BEGIN TRY
@@ -123,15 +120,16 @@ BEGIN TRY
         RETURN;
     END CATCH
 
-    -- Reload WITHOUT the identity column so new IDs are generated
+    -- Reload with new IDs: use temp identity column as new ID values starting from 1
     SET @sql = N'
-        INSERT INTO ' + @QualifiedTable + N' (' + @ColsForInsert + N')
-        SELECT ' + @ColsForInsert + N'
-        FROM ' + @QualifiedCopy + N';';
+        INSERT INTO ' + @QualifiedTable + N' (' + QUOTENAME(@IdColumn) + N',' + @ColsForInsert + N')
+        SELECT ' + @ColsWithNewId + N'
+        FROM ' + @QualifiedCopy + N'
+        ORDER BY ' + QUOTENAME(@TempIdColumn) + N';';
     EXEC sp_executesql @sql;
 
     COMMIT TRAN;
-    PRINT 'Success: Data reloaded and identity regenerated for ' + @QualifiedTable + N'.';
+    PRINT 'Success: Data reloaded with new sequential IDs starting from 1 for ' + @QualifiedTable + N'.';
 END TRY
 BEGIN CATCH
     IF XACT_STATE() <> 0 ROLLBACK TRAN;
