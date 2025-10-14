@@ -188,6 +188,48 @@ stages:
             folderPath: '$(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/config/PerilsPlusWS'
             xmlTransformationRules: |
               -transform $(Build.SourcesDirectory)/transforms/PerilsPlusWS/Web.${{ parameters.environment }}.config -xml $(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/config/PerilsPlusWS/Web.config
+
+        # Token replacement for all config files
+        - task: PowerShell@2
+          displayName: 'Replace tokens in configuration files'
+          inputs:
+            targetType: 'inline'
+            script: |
+              $configPath = "$(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/config"
+              
+              Write-Host "Replacing tokens in configuration files at: $configPath"
+              
+              # Get all config files
+              $configFiles = Get-ChildItem -Path $configPath -Recurse -Include "*.config", "*.xml", "*.ini" -File
+              
+              foreach ($file in $configFiles) {
+                Write-Host "Processing file: $($file.FullName)"
+                
+                # Read file content
+                $content = Get-Content $file.FullName -Raw
+                
+                # Replace tokens with pipeline variables
+                # Connection string tokens
+                $content = $content -replace '#\{DB_SERVER\}#', '$(DB_SERVER)'
+                $content = $content -replace '#\{DB_NAME\}#', '$(DB_NAME)'
+                $content = $content -replace '#\{DB_USER\}#', '$(DB_USER)'
+                $content = $content -replace '#\{DB_PASSWORD\}#', '$(DB_PASSWORD)'
+                
+                # API endpoint tokens
+                $content = $content -replace '#\{API_ENDPOINT\}#', '$(API_ENDPOINT)'
+                $content = $content -replace '#\{ENVIRONMENT\}#', '$(Environment)'
+                
+                # Service connection tokens
+                $content = $content -replace '#\{SERVICE_CONNECTION\}#', '$(server_service_connections)'
+                
+                # Write back to file
+                Set-Content -Path $file.FullName -Value $content -NoNewline
+                
+                Write-Host "Completed token replacement for: $($file.Name)"
+              }
+              
+              Write-Host "Token replacement completed for all configuration files"
+
         - task: PowerShell@2
           displayName: 'Move deploy_config script'
           inputs:
