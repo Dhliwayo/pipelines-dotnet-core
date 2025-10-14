@@ -133,61 +133,68 @@ stages:
               SetVarIfExists $loc "hasTransform_LocatorHubWS"
               SetVarIfExists $pp "hasTransform_PerilsPlusWS"
 
-        - task: XMLTransformation@2
+        - task: FileTransform@2
           displayName: 'Apply transform: BestAddress'
           condition: and(succeeded(), eq(variables.hasTransform_BestAddress, 'true'))
           inputs:
             folderPath: '$(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/config/BestAddress'
-            xmlTransformationRules: |
-              -transform $(Build.SourcesDirectory)/transforms/BestAddress/Web.${{ parameters.environment }}.config -xml $(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/config/BestAddress/Web.config
+            fileType: 'xml'
+            targetFiles: '**/Web.config'
+            transformFile: '$(Build.SourcesDirectory)/transforms/BestAddress/Web.${{ parameters.environment }}.config'
 
-        - task: XMLTransformation@2
+        - task: FileTransform@2
           displayName: 'Apply transform: BatchManager'
           condition: and(succeeded(), eq(variables.hasTransform_BatchManager, 'true'))
           inputs:
             folderPath: '$(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/config/BatchManager'
-            xmlTransformationRules: |
-              -transform $(Build.SourcesDirectory)/transforms/BatchManager/Web.${{ parameters.environment }}.config -xml $(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/config/BatchManager/Web.config
+            fileType: 'xml'
+            targetFiles: '**/Web.config'
+            transformFile: '$(Build.SourcesDirectory)/transforms/BatchManager/Web.${{ parameters.environment }}.config'
 
-        - task: XMLTransformation@2
+        - task: FileTransform@2
           displayName: 'Apply transform: BatchStatus'
           condition: and(succeeded(), eq(variables.hasTransform_BatchStatus, 'true'))
           inputs:
             folderPath: '$(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/config/BatchStatus'
-            xmlTransformationRules: |
-              -transform $(Build.SourcesDirectory)/transforms/BatchStatus/Web.${{ parameters.environment }}.config -xml $(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/config/BatchStatus/Web.config
+            fileType: 'xml'
+            targetFiles: '**/Web.config'
+            transformFile: '$(Build.SourcesDirectory)/transforms/BatchStatus/Web.${{ parameters.environment }}.config'
 
-        - task: XMLTransformation@2
+        - task: FileTransform@2
           displayName: 'Apply transform: Geoassessment'
           condition: and(succeeded(), eq(variables.hasTransform_Geoassessment, 'true'))
           inputs:
             folderPath: '$(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/config/Geoassessment'
-            xmlTransformationRules: |
-              -transform $(Build.SourcesDirectory)/transforms/Geoassessment/Web.${{ parameters.environment }}.config -xml $(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/config/Geoassessment/Web.config
+            fileType: 'xml'
+            targetFiles: '**/Web.config'
+            transformFile: '$(Build.SourcesDirectory)/transforms/Geoassessment/Web.${{ parameters.environment }}.config'
 
-        - task: XMLTransformation@2
+        - task: FileTransform@2
           displayName: 'Apply transform: GlobalExposure'
           condition: and(succeeded(), eq(variables.hasTransform_GlobalExposure, 'true'))
           inputs:
             folderPath: '$(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/config/GlobalExposure'
-            xmlTransformationRules: |
-              -transform $(Build.SourcesDirectory)/transforms/GlobalExposure/Web.${{ parameters.environment }}.config -xml $(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/config/GlobalExposure/Web.config
+            fileType: 'xml'
+            targetFiles: '**/Web.config'
+            transformFile: '$(Build.SourcesDirectory)/transforms/GlobalExposure/Web.${{ parameters.environment }}.config'
 
-        - task: XMLTransformation@2
+        - task: FileTransform@2
           displayName: 'Apply transform: LocatorHubWS'
           condition: and(succeeded(), eq(variables.hasTransform_LocatorHubWS, 'true'))
           inputs:
             folderPath: '$(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/config/LocatorHubWS'
-            xmlTransformationRules: |
-              -transform $(Build.SourcesDirectory)/transforms/LocatorHubWS/Web.${{ parameters.environment }}.config -xml $(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/config/LocatorHubWS/Web.config
+            fileType: 'xml'
+            targetFiles: '**/Web.config'
+            transformFile: '$(Build.SourcesDirectory)/transforms/LocatorHubWS/Web.${{ parameters.environment }}.config'
 
-        - task: XMLTransformation@2
+        - task: FileTransform@2
           displayName: 'Apply transform: PerilsPlusWS'
           condition: and(succeeded(), eq(variables.hasTransform_PerilsPlusWS, 'true'))
           inputs:
             folderPath: '$(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/config/PerilsPlusWS'
-            xmlTransformationRules: |
-              -transform $(Build.SourcesDirectory)/transforms/PerilsPlusWS/Web.${{ parameters.environment }}.config -xml $(Build.ArtifactStagingDirectory)/${{ parameters.environment }}/config/PerilsPlusWS/Web.config
+            fileType: 'xml'
+            targetFiles: '**/Web.config'
+            transformFile: '$(Build.SourcesDirectory)/transforms/PerilsPlusWS/Web.${{ parameters.environment }}.config'
 
         # Token replacement for all config files
         - task: PowerShell@2
