@@ -54,21 +54,28 @@ try {
             continue
         }
         
-        $sourcePath = $section.Value['source_path']
-        $destinationPath = $section.Value['destination_path']
+        # Expect keys to match config.ini: source_gdb and target_gdb
+        $sourcePath = $section.Value['source_gdb']
+        $destinationPath = $section.Value['target_gdb']
         
         Write-Output "Copying from: $sourcePath"
         Write-Output "Copying to: $destinationPath"
         
         # Create destination directory if it doesn't exist
         $destDir = Split-Path $destinationPath -Parent
-        if (!(Test-Path $destDir)) {
+        if ($destDir -and -not (Test-Path $destDir)) {
             New-Item -ItemType Directory -Path $destDir -Force | Out-Null
             Write-Output "Created destination directory: $destDir"
         }
-        
-        # Copy the files
-        Copy-Item -Path $sourcePath -Destination $destinationPath -Recurse -Force
+
+        # If destination exists, remove it to avoid nesting a .gdb within an existing one
+        if (Test-Path $destinationPath) {
+            Write-Output "Destination exists. Removing: $destinationPath"
+            Remove-Item -Path $destinationPath -Recurse -Force -ErrorAction Stop
+        }
+
+        # Copy the geodatabase folder (file GDBs are directories)
+        Copy-Item -Path $sourcePath -Destination $destinationPath -Recurse -Force -ErrorAction Stop
         
         Write-Output "Copy completed: $sourcePath -> $destinationPath"
     }
