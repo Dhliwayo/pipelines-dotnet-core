@@ -130,7 +130,7 @@ try {
     }
 }
 catch {
-    Write-Error "Error during transformation: $_"
+    Write-Error "Error during transformation: $($_.Exception.Message)"
     exit 1
 }
 finally {
@@ -140,20 +140,3 @@ finally {
 }
 
 
-At C:\Users\S01397\Code\PerilsProximity\configs\test_transform.ps1:133 char:49
-+     Write-Error "Error during transformation: $_"
-+                                                 ~
-The string is missing the terminator: ".
-At C:\Users\S01397\Code\PerilsProximity\configs\test_transform.ps1:112 char:19
-+     if ($success) {
-+                   ~
-Missing closing '}' in statement block or type definition.
-At C:\Users\S01397\Code\PerilsProximity\configs\test_transform.ps1:97 char:5  
-+ try {
-+     ~
-Missing closing '}' in statement block or type definition.
-At C:\Users\S01397\Code\PerilsProximity\configs\test_transform.ps1:142 char:1 
-+ 
-The Try statement is missing its Catch or Finally block.
-    + CategoryInfo          : ParserError: (:) [], ParseException
-    + FullyQualifiedErrorId : TerminatorExpectedAtEndOfString
