@@ -108,29 +108,34 @@ class CopyGeodatabases:
             max_workers = min(len(copy_tasks), 8)
         
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            # Submit all tasks
-            future_to_task = {
-                executor.submit(self.execute_copy_gdb, config_key, source_gdb, target_gdb): 
-                (config_key, source_gdb, target_gdb)
-                for config_key, source_gdb, target_gdb in copy_tasks
-            }
+            # Submit all tasks and store futures
+            future_to_task = {}
+            for config_key, source_gdb, target_gdb in copy_tasks:
+                future = executor.submit(self.execute_copy_gdb, config_key, source_gdb, target_gdb)
+                future_to_task[future] = (config_key, source_gdb, target_gdb)
             
-            # Process completed tasks
+            # Process completed tasks - as_completed yields futures as they complete
             completed = 0
             failed = []
             
             for future in as_completed(future_to_task):
                 config_key, source_gdb, target_gdb = future_to_task[future]
-                completed += 1
                 
                 try:
-                    future.result()  # This will raise any exception that occurred
+                    # Wait for the future to complete and get result
+                    # as_completed() only yields futures that have completed, but result() ensures
+                    # we get any exceptions that occurred and confirms completion
+                    result = future.result()  # This will raise if there was an exception
+                    completed += 1
                     with self.__log_lock:
                         self.__logger.info(f"[{completed}/{len(copy_tasks)}] ... finished copying {config_key}: {target_gdb}")
                 except Exception as e:
+                    completed += 1
                     failed.append((config_key, source_gdb, target_gdb, str(e)))
                     with self.__log_lock:
-                        self.__logger.error(f"[{completed}/{len(copy_tasks)}] FAILED copying {config_key}: {target_gdb}")
+                        self.__logger.error(f"[{completed}/{len(copy_tasks)}] FAILED copying {config_key}: {target_gdb} - {str(e)}")
+            
+            # ThreadPoolExecutor context manager will wait for all tasks before exiting
             
             # Report summary
             if failed:
@@ -184,7 +189,12 @@ class CopyGeodatabases:
             with self.__log_lock:
                 self.__logger.info(f"[{config_key}] Copying geodatabase using arcpy.Copy_management")
             
+            # Execute the copy - this blocks until completion
             arcpy.Copy_management(source_gdb, target_gdb)
+            
+            # Verify the copy completed successfully by checking if target exists
+            if not arcpy.Exists(target_gdb):
+                raise Exception(f"Copy operation completed but target geodatabase does not exist: {target_gdb}")
             
             # Capture and log all arcpy messages (info, warnings, errors)
             # GetMessages() returns all messages since last ClearMessages()
@@ -205,6 +215,10 @@ class CopyGeodatabases:
                 with self.__log_lock:
                     self.__logger.error(f"[{config_key}] arcpy Errors:\n{errors}")
                 raise Exception(f"arcpy reported errors: {errors}")
+            
+            # Verify copy completed successfully
+            with self.__log_lock:
+                self.__logger.info(f"[{config_key}] Copy operation completed successfully. Target verified: {target_gdb}")
             
             # Clear messages after successful operation
             arcpy.ClearMessages()
