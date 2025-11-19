@@ -1,0 +1,23 @@
+Staging - January 5th->8th
+Staging QA - January 8th/9th
+FINT - January 13th
+FINT QA - January 14th
+Raise PreProd - January 15th
+PreProd - January 21st
+PreProd QA - January 22nd
+Raise Prod - January 23rd
+Prod - February 1st (CHG0098149)
+Prod QA -  February 2nd
+
+
+2026.01 - February 1st
+2026.02 – March 1st
+2026.03 - March 29th
+2026.04 – May 3rd
+2026.05 - May 31st
+2026.06 - June 28th
+2026.07 – August 2nd
+2026.08 - August 30th
+2026.09 – October 4th
+2026.10 – November 1st
+2026.11 - November 29th
