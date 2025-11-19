@@ -48,8 +48,8 @@ Prod - March 29th
 Prod QA - March 30th
 
 2026.04:
-Staging - April 7th->10th
-Staging QA - April 10th/11th
+Staging - April 7th->10th (Tue-Fri, adjusted to avoid Easter Monday bank holiday)
+Staging QA - April 9th/10th
 FINT - April 14th
 FINT QA - April 15th
 Raise PreProd - April 16th
