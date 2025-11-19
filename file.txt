@@ -57,7 +57,7 @@ PreProd - April 16th
 PreProd QA - April 17th
 Raise Prod - April 18th
 Prod - May 3rd
-Prod QA - May 4th
+Prod QA - May 5th (May 4th is bank holiday)
 
 2026.05:
 Staging - April 29th->May 2nd
@@ -105,7 +105,7 @@ PreProd - August 6th
 PreProd QA - August 7th
 Raise Prod - August 8th
 Prod - August 30th
-Prod QA - August 31st
+Prod QA - September 1st (August 31st is bank holiday)
 
 2026.09:
 Staging - August 26th->29th
