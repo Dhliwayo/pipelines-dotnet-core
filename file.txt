@@ -90,8 +90,8 @@ FINT - July 15th
 FINT QA - July 16th
 Raise PreProd - July 18th
 PreProd - July 23rd
-PreProd QA - July 25th
-Raise Prod - July 25th
+PreProd QA - July 24th
+Raise Prod - July 24th
 Prod - August 2nd
 Prod QA - August 3rd
 
@@ -102,8 +102,8 @@ FINT - August 13th
 FINT QA - August 14th
 Raise PreProd - August 16th
 PreProd - August 21st
-PreProd QA - August 23rd
-Raise Prod - August 23rd
+PreProd QA - August 22nd
+Raise Prod - August 22nd
 Prod - August 30th
 Prod QA - September 1st (August 31st is bank holiday)
 
@@ -113,9 +113,9 @@ Staging QA - September 13th/14th
 FINT - September 18th
 FINT QA - September 19th
 Raise PreProd - September 20th
-PreProd - September 26th
-PreProd QA - September 27th
-Raise Prod - September 27th
+PreProd - September 25th
+PreProd QA - September 26th
+Raise Prod - September 26th
 Prod - October 4th
 Prod QA - October 5th
 
@@ -125,9 +125,9 @@ Staging QA - October 11th/12th
 FINT - October 16th
 FINT QA - October 17th
 Raise PreProd - October 18th
-PreProd - October 24th
-PreProd QA - October 25th
-Raise Prod - October 25th
+PreProd - October 23rd
+PreProd QA - October 24th
+Raise Prod - October 24th
 Prod - November 1st
 Prod QA - November 2nd
 
@@ -137,9 +137,9 @@ Staging QA - November 8th/9th
 FINT - November 13th
 FINT QA - November 14th
 Raise PreProd - November 15th
-PreProd - November 21st
-PreProd QA - November 22nd
-Raise Prod - November 22nd
+PreProd - November 20th
+PreProd QA - November 21st
+Raise Prod - November 21st
 Prod - November 29th
 Prod QA - November 30th
 
