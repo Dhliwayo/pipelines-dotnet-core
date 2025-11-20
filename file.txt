@@ -84,62 +84,62 @@ Prod - June 28th
 Prod QA - June 29th
 
 2026.07:
-Staging - June 30th->July 3rd
-Staging QA - July 2nd/3rd
-FINT - July 7th
-FINT QA - July 8th
-Raise PreProd - July 10th
-PreProd - July 15th
-PreProd QA - July 17th
-Raise Prod - July 17th
+Staging - July 7th->10th
+Staging QA - July 10th/11th
+FINT - July 15th
+FINT QA - July 16th
+Raise PreProd - July 18th
+PreProd - July 23rd
+PreProd QA - July 25th
+Raise Prod - July 25th
 Prod - August 2nd
 Prod QA - August 3rd
 
 2026.08:
-Staging - July 28th->31st
-Staging QA - July 30th/31st
-FINT - August 4th
-FINT QA - August 5th
-Raise PreProd - August 7th
-PreProd - August 12th
-PreProd QA - August 14th
-Raise Prod - August 14th
+Staging - August 5th->8th
+Staging QA - August 8th/9th
+FINT - August 13th
+FINT QA - August 14th
+Raise PreProd - August 16th
+PreProd - August 21st
+PreProd QA - August 23rd
+Raise Prod - August 23rd
 Prod - August 30th
 Prod QA - September 1st (August 31st is bank holiday)
 
 2026.09:
-Staging - September 1st->4th
-Staging QA - September 3rd/4th
-FINT - September 8th
-FINT QA - September 9th
-Raise PreProd - September 11th
-PreProd - September 16th
-PreProd QA - September 18th
-Raise Prod - September 18th
+Staging - September 10th->13th
+Staging QA - September 13th/14th
+FINT - September 18th
+FINT QA - September 19th
+Raise PreProd - September 20th
+PreProd - September 26th
+PreProd QA - September 27th
+Raise Prod - September 27th
 Prod - October 4th
 Prod QA - October 5th
 
 2026.10:
-Staging - September 29th->October 2nd
-Staging QA - October 1st/2nd
-FINT - October 6th
-FINT QA - October 7th
-Raise PreProd - October 9th
-PreProd - October 14th
-PreProd QA - October 16th
-Raise Prod - October 16th
+Staging - October 8th->11th
+Staging QA - October 11th/12th
+FINT - October 16th
+FINT QA - October 17th
+Raise PreProd - October 18th
+PreProd - October 24th
+PreProd QA - October 25th
+Raise Prod - October 25th
 Prod - November 1st
 Prod QA - November 2nd
 
 2026.11:
-Staging - October 27th->30th
-Staging QA - October 29th/30th
-FINT - November 3rd
-FINT QA - November 4th
-Raise PreProd - November 6th
-PreProd - November 11th
-PreProd QA - November 13th
-Raise Prod - November 13th
+Staging - November 5th->8th
+Staging QA - November 8th/9th
+FINT - November 13th
+FINT QA - November 14th
+Raise PreProd - November 15th
+PreProd - November 21st
+PreProd QA - November 22nd
+Raise Prod - November 22nd
 Prod - November 29th
 Prod QA - November 30th
 
