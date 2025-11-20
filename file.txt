@@ -60,86 +60,86 @@ Prod - May 3rd
 Prod QA - May 5th (May 4th is bank holiday)
 
 2026.05:
-Staging - April 29th->May 2nd
-Staging QA - May 2nd/3rd
-FINT - May 6th
-FINT QA - May 7th
-Raise PreProd - May 8th
-PreProd - May 14th
-PreProd QA - May 15th
-Raise Prod - May 16th
+Staging - May 5th->8th
+Staging QA - May 8th/9th
+FINT - May 12th
+FINT QA - May 13th
+Raise PreProd - May 14th
+PreProd - May 19th
+PreProd QA - May 21st
+Raise Prod - May 21st
 Prod - May 31st
 Prod QA - June 1st
 
 2026.06:
-Staging - May 27th->30th
-Staging QA - May 30th/31st
-FINT - June 3rd
-FINT QA - June 4th
-Raise PreProd - June 5th
-PreProd - June 11th
-PreProd QA - June 12th
-Raise Prod - June 13th
+Staging - June 2nd->5th
+Staging QA - June 5th/6th
+FINT - June 9th
+FINT QA - June 10th
+Raise PreProd - June 11th
+PreProd - June 16th
+PreProd QA - June 18th
+Raise Prod - June 18th
 Prod - June 28th
 Prod QA - June 29th
 
 2026.07:
-Staging - June 24th->27th
-Staging QA - June 27th/28th
-FINT - July 1st
-FINT QA - July 2nd
-Raise PreProd - July 3rd
-PreProd - July 9th
-PreProd QA - July 10th
-Raise Prod - July 11th
+Staging - June 30th->July 3rd
+Staging QA - July 3rd/4th
+FINT - July 7th
+FINT QA - July 8th
+Raise PreProd - July 9th
+PreProd - July 14th
+PreProd QA - July 16th
+Raise Prod - July 16th
 Prod - August 2nd
 Prod QA - August 3rd
 
 2026.08:
-Staging - July 22nd->25th
-Staging QA - July 25th/26th
-FINT - July 29th
-FINT QA - July 30th
-Raise PreProd - July 31st
-PreProd - August 6th
-PreProd QA - August 7th
-Raise Prod - August 8th
+Staging - July 28th->31st
+Staging QA - July 31st/August 1st
+FINT - August 4th
+FINT QA - August 5th
+Raise PreProd - August 6th
+PreProd - August 11th
+PreProd QA - August 13th
+Raise Prod - August 13th
 Prod - August 30th
 Prod QA - September 1st (August 31st is bank holiday)
 
 2026.09:
-Staging - August 26th->29th
-Staging QA - August 29th/30th
-FINT - September 2nd
-FINT QA - September 3rd
-Raise PreProd - September 4th
-PreProd - September 10th
-PreProd QA - September 11th
-Raise Prod - September 12th
+Staging - September 1st->4th
+Staging QA - September 4th/5th
+FINT - September 8th
+FINT QA - September 9th
+Raise PreProd - September 10th
+PreProd - September 15th
+PreProd QA - September 17th
+Raise Prod - September 17th
 Prod - October 4th
 Prod QA - October 5th
 
 2026.10:
-Staging - September 23rd->26th
-Staging QA - September 26th/27th
-FINT - September 30th
-FINT QA - October 1st
-Raise PreProd - October 2nd
-PreProd - October 8th
-PreProd QA - October 9th
-Raise Prod - October 10th
+Staging - September 29th->October 2nd
+Staging QA - October 2nd/3rd
+FINT - October 6th
+FINT QA - October 7th
+Raise PreProd - October 8th
+PreProd - October 13th
+PreProd QA - October 15th
+Raise Prod - October 15th
 Prod - November 1st
 Prod QA - November 2nd
 
 2026.11:
-Staging - October 21st->24th
-Staging QA - October 24th/25th
-FINT - October 28th
-FINT QA - October 29th
-Raise PreProd - October 30th
-PreProd - November 5th
-PreProd QA - November 6th
-Raise Prod - November 7th
+Staging - October 27th->30th
+Staging QA - October 30th/31st
+FINT - November 3rd
+FINT QA - November 4th
+Raise PreProd - November 5th
+PreProd - November 10th
+PreProd QA - November 12th
+Raise Prod - November 12th
 Prod - November 29th
 Prod QA - November 30th
 
