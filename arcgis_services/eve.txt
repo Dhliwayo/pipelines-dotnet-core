@@ -1,0 +1,378 @@
+[30/09, 19:30] D Sithole -Roy: Latitude: S 20°51'17.89308"
+Longitude: E 31°51'16.57008"
+https://www.google.com/maps/search/?api=1&query=-20.8549703,31.8546028
+
+Altitude: 518 yd a.s.l
+Location read date: 9/30/25 7:56 AM
+Location source: Fused
+Save date: 9/30/25 7:56 AM
+
+Street: -
+City: -
+State: -
+Country: -
+[30/09, 19:30] D Sithole -Roy: Latitude: S 20°51'19.61676"
+Longitude: E 31°51'17.50824"
+https://www.google.com/maps/search/?api=1&query=-20.8554491,31.8548634
+
+Altitude: 520 yd a.s.l
+Location read date: 9/30/25 7:55 AM
+Location source: Fused
+Save date: 9/30/25 7:55 AM
+
+Street: -
+City: -
+State: -
+Country: -
+[30/09, 19:30] D Sithole -Roy: Latitude: S 20°51'20.1726"
+Longitude: E 31°51'17.32392"
+https://www.google.com/maps/search/?api=1&query=-20.8556035,31.8548122
+
+Altitude: 519 yd a.s.l
+Location read date: 9/30/25 7:54 AM
+Location source: Fused
+Save date: 9/30/25 7:55 AM
+
+Street: -
+City: -
+State: -
+Country: -
+[30/09, 19:30] D Sithole -Roy: Latitude: S 20°51'22.47516"
+Longitude: E 31°51'16.84332"
+https://www.google.com/maps/search/?api=1&query=-20.8562431,31.8546787
+
+Altitude: 516 yd a.s.l
+Location read date: 9/30/25 7:51 AM
+Location source: Fused
+Save date: 9/30/25 7:52 AM
+
+Street: -
+City: -
+State: -
+Country: -
+[30/09, 19:30] D Sithole -Roy: Latitude: S 20°51'22.56012"
+Longitude: E 31°51'16.51356"
+https://www.google.com/maps/search/?api=1&query=-20.8562667,31.8545871
+
+Altitude: 513 yd a.s.l
+Location read date: 9/30/25 7:52 AM
+Location source: Fused
+Save date: 9/30/25 7:52 AM
+
+Street: -
+City: -
+State: -
+Country: -
+[30/09, 19:30] D Sithole -Roy: Latitude: S 20°51'25.62732"
+Longitude: E 31°51'15.81948"
+https://www.google.com/maps/search/?api=1&query=-20.8571187,31.8543943
+
+Altitude: 512 yd a.s.l
+Location read date: 9/30/25 7:48 AM
+Location source: Fused
+Save date: 9/30/25 7:49 AM
+
+Street: -
+City: -
+State: -
+Country: -
+[30/09, 19:30] D Sithole -Roy: Latitude: S 20°51'34.15428"
+Longitude: E 31°51'12.39372"
+https://www.google.com/maps/search/?api=1&query=-20.8594873,31.8534427
+
+Altitude: 508 yd a.s.l
+Location read date: 9/30/25 7:42 AM
+Location source: Fused
+Save date: 9/30/25 7:43 AM
+
+Street: -
+City: -
+State: -
+Country: -
+[30/09, 19:30] D Sithole -Roy: Latitude: S 20°51'33.14556"
+Longitude: E 31°51'14.85828"
+https://www.google.com/maps/search/?api=1&query=-20.8592071,31.8541273
+
+Altitude: 510 yd a.s.l
+Location read date: 9/30/25 7:44 AM
+Location source: Fused
+Save date: 9/30/25 7:45 AM
+
+Street: -
+City: -
+State: -
+Country: -
+[30/09, 19:30] D Sithole -Roy: Latitude: S 20°51'31.75848"
+Longitude: E 31°51'6.92316"
+https://www.google.com/maps/search/?api=1&query=-20.8588218,31.8519231
+
+Altitude: 516 yd a.s.l
+Location read date: 9/30/25 7:39 AM
+Location source: Fused
+Save date: 9/30/25 7:39 AM
+
+Street: -
+City: -
+State: -
+Country: -
+[30/09, 19:30] D Sithole -Roy: Latitude: S 20°51'32.59332"
+Longitude: E 31°51'8.45496"
+https://www.google.com/maps/search/?api=1&query=-20.8590537,31.8523486
+
+Altitude: 516 yd a.s.l
+Location read date: 9/30/25 7:40 AM
+Location source: Fused
+Save date: 9/30/25 7:42 AM
+
+Street: -
+City: -
+State: -
+Country: -
+[30/09, 19:30] D Sithole -Roy: Latitude: S 20°51'29.72484"
+Longitude: E 31°51'6.92388"
+https://www.google.com/maps/search/?api=1&query=-20.8582569,31.8519233
+
+Altitude: 520 yd a.s.l
+Location read date: 9/30/25 7:38 AM
+Location source: Fused
+Save date: 9/30/25 7:39 AM
+
+Street: -
+City: -
+State: -
+Country: -
+[30/09, 19:30] D Sithole -Roy: Latitude: S 20°51'28.24128"
+Longitude: E 31°51'6.46344"
+https://www.google.com/maps/search/?api=1&query=-20.8578448,31.8517954
+
+Altitude: 515 yd a.s.l
+Location read date: 9/30/25 7:36 AM
+Location source: Fused
+Save date: 9/30/25 7:37 AM
+
+Street: -
+City: -
+State: -
+Country: -
+[30/09, 19:30] D Sithole -Roy: Latitude: S 20°51'27.3564"
+Longitude: E 31°51'7.13844"
+https://www.google.com/maps/search/?api=1&query=-20.857599,31.8519829
+
+Altitude: 515 yd a.s.l
+Location read date: 9/30/25 7:36 AM
+Location source: Fused
+Save date: 9/30/25 7:37 AM
+
+Street: -
+City: -
+State: -
+Country: -
+[30/09, 19:30] D Sithole -Roy: Latitude: S 20°51'29.53476"
+Longitude: E 31°51'4.54536"
+https://www.google.com/maps/search/?api=1&query=-20.8582041,31.8512626
+
+Altitude: 511 yd a.s.l
+Location read date: 9/30/25 7:35 AM
+Location source: Fused
+Save date: 9/30/25 7:36 AM
+
+Street: -
+City: -
+State: -
+Country: -
+[30/09, 19:30] D Sithole -Roy: Latitude: S 20°51'32.53608"
+Longitude: E 31°51'2.59848"
+https://www.google.com/maps/search/?api=1&query=-20.8590378,31.8507218
+
+Altitude: 512 yd a.s.l
+Location read date: 9/30/25 7:33 AM
+Location source: Fused
+Save date: 9/30/25 7:34 AM
+
+Street: -
+City: -
+State: -
+Country: -
+[30/09, 19:30] D Sithole -Roy: Latitude: S 20°51'30.89304"
+Longitude: E 31°51'3.13272"
+https://www.google.com/maps/search/?api=1&query=-20.8585814,31.8508702
+
+Altitude: 511 yd a.s.l
+Location read date: 9/30/25 7:34 AM
+Location source: Fused
+Save date: 9/30/25 7:35 AM
+
+Street: -
+City: -
+State: -
+Country: -
+[30/09, 19:30] D Sithole -Roy: Latitude: S 20°51'33.68196"
+Longitude: E 31°51'3.95388"
+https://www.google.com/maps/search/?api=1&query=-20.8593561,31.8510983
+
+Altitude: 516 yd a.s.l
+Location read date: 9/30/25 7:33 AM
+Location source: Fused
+Save date: 9/30/25 7:33 AM
+
+Street: -
+City: -
+State: -
+Country: -
+[30/09, 19:30] D Sithole -Roy: Latitude: S 20°51'36.42912"
+Longitude: E 31°51'4.13676"
+https://www.google.com/maps/search/?api=1&query=-20.8601192,31.8511491
+
+Altitude: 508 yd a.s.l
+Location read date: 9/30/25 7:30 AM
+Location source: Fused
+Save date: 9/30/25 7:31 AM
+
+Street: -
+City: -
+State: -
+Country: -
+[30/09, 19:30] D Sithole -Roy: Latitude: S 20°51'33.70212"
+Longitude: E 31°51'3.74364"
+https://www.google.com/maps/search/?api=1&query=-20.8593617,31.8510399
+
+Altitude: 519 yd a.s.l
+Location read date: 9/30/25 7:32 AM
+Location source: Fused
+Save date: 9/30/25 7:33 AM
+
+Street: -
+City: -
+State: -
+Country: -
+[30/09, 19:30] D Sithole -Roy: Latitude: S 20°51'48.99312"
+Longitude: E 31°50'57.89148"
+https://www.google.com/maps/search/?api=1&query=-20.8636092,31.8494143
+
+Altitude: 500 yd a.s.l
+Location read date: 9/30/25 7:25 AM
+Location source: Fused
+Save date: 9/30/25 7:27 AM
+
+Street: -
+City: -
+State: -
+Country: -
+[30/09, 19:30] D Sithole -Roy: Latitude: S 20°51'42.9804"
+Longitude: E 31°50'59.78616"
+https://www.google.com/maps/search/?api=1&query=-20.861939,31.8499406
+
+Altitude: 507 yd a.s.l
+Location read date: 9/30/25 7:27 AM
+Location source: Fused
+Save date: 9/30/25 7:28 AM
+
+Street: -
+City: -
+State: -
+Country: -
+[30/09, 19:30] D Sithole -Roy: Latitude: S 20°51'49.194"
+Longitude: E 31°50'55.58388"
+https://www.google.com/maps/search/?api=1&query=-20.863665,31.8487733
+
+Altitude: 501 yd a.s.l
+Location read date: 9/30/25 7:23 AM
+Location source: Fused
+Save date: 9/30/25 7:23 AM
+
+Street: -
+City: -
+State: -
+Country: -
+[30/09, 19:30] D Sithole -Roy: Latitude: S 20°51'50.09256"
+Longitude: E 31°50'56.57424"
+https://www.google.com/maps/search/?api=1&query=-20.8639146,31.8490484
+
+Altitude: 500 yd a.s.l
+Location read date: 9/30/25 7:23 AM
+Location source: Fused
+Save date: 9/30/25 7:24 AM
+
+Street: -
+City: -
+State: -
+Country: -
+[30/09, 19:30] D Sithole -Roy: Latitude: S 20°51'42.30216"
+Longitude: E 31°50'55.47804"
+https://www.google.com/maps/search/?api=1&query=-20.8617506,31.8487439
+
+Altitude: 504 yd a.s.l
+Location read date: 9/30/25 7:20 AM
+Location source: Fused
+Save date: 9/30/25 7:20 AM
+
+Street: -
+City: -
+State: -
+Country: -
+[30/09, 19:30] D Sithole -Roy: Latitude: S 20°51'36.8172"
+Longitude: E 31°50'56.64444"
+https://www.google.com/maps/search/?api=1&query=-20.860227,31.8490679
+
+Altitude: 512 yd a.s.l
+Location read date: 9/30/25 7:17 AM
+Location source: Fused
+Save date: 9/30/25 7:18 AM
+
+Street: -
+City: -
+State: -
+Country: -
+[30/09, 19:30] D Sithole -Roy: Latitude: S 20°51'39.19176"
+Longitude: E 31°50'55.3542"
+https://www.google.com/maps/search/?api=1&query=-20.8608866,31.8487095
+
+Altitude: 507 yd a.s.l
+Location read date: 9/30/25 7:18 AM
+Location source: Fused
+Save date: 9/30/25 7:19 AM
+
+Street: -
+City: -
+State: -
+Country: -
+[30/09, 19:30] D Sithole -Roy: Latitude: S 20°51'28.20708"
+Longitude: E 31°50'56.19804"
+https://www.google.com/maps/search/?api=1&query=-20.8578353,31.8489439
+
+Altitude: 513 yd a.s.l
+Location read date: 9/30/25 7:14 AM
+Location source: Fused
+Save date: 9/30/25 7:17 AM
+
+Street: -
+City: -
+State: -
+Country: -
+[30/09, 19:30] D Sithole -Roy: Latitude: S 20°51'35.55972"
+Longitude: E 31°50'56.364"
+https://www.google.com/maps/search/?api=1&query=-20.8598777,31.84899
+
+Altitude: 507 yd a.s.l
+Location read date: 9/30/25 7:17 AM
+Location source: Fused
+Save date: 9/30/25 7:17 AM
+
+Street: -
+City: -
+State: -
+Country: -
+[30/09, 19:30] D Sithole -Roy: Latitude: S 20°51'27.17208"
+Longitude: E 31°50'57.71256"
+https://www.google.com/maps/search/?api=1&query=-20.8575478,31.8493646
+
+Altitude: 516 yd a.s.l
+Location read date: 9/30/25 7:13 AM
+Location source: Fused
+Save date: 9/30/25 7:13 AM
+
+Street: -
+City: -
+State: -
+Country: -
+

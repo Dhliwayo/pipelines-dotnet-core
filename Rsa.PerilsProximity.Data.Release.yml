@@ -115,31 +115,43 @@ stages:
             targetType: 'inline'
             script: |
               $serverConns = "$(server_service_connections)"
+              $sourceDirectory = "$(System.ArtifactsDirectory)"
+              $destinationFolder = "$(pnp_config_working_directory)"
 
               ForEach ($server in $serverConns.split(",")) {
-                $indexOfPort =$server.IndexOf(":")
-                $computername  = $server.Substring(0,$indexOfPort)
+                $indexOfPort = $server.IndexOf(":")
+                $computername = $server.Substring(0, $indexOfPort)
                 $computerport = $server.Substring($indexOfPort + 1, 4)
 
-                $soptions = New-PSSessionOption -SkipCACheck -SkipCNCheck
+                $soptions = New-PSSessionOption -SkipCACheck -SkipCNCheck -IdleTimeout 7200000 -OperationTimeout 0 -OutputBufferingMode Block
                 $secpasswd = ConvertTo-SecureString "$(pnp_service_account_password)" -AsPlainText -Force
-                $cred = New-Object System.Management.Automation.PSCredential ("$(pnp_service_account_name)", $secpasswd) 
-                $sourceDirectory="$(System.ArtifactsDirectory)"
-                $destinationFolder="$(pnp_config_working_directory)"
+                $cred = New-Object System.Management.Automation.PSCredential ("$(pnp_service_account_name)", $secpasswd)
 
-                Write-Host "Copying files source directory:  $sourceDirectory, destination directory:  $destinationFolder, target computer:  $computername, port: $computerport "
+                Write-Host "Copying files source directory: $sourceDirectory, destination directory: $destinationFolder, target computer: $computername, port: $computerport"
 
-                $session = New-PSSession -ComputerName $computername -Port $computerport -Credential $cred -SessionOption $soptions
+                try {
+                  $session = New-PSSession -ComputerName $computername -Port $computerport -Credential $cred -SessionOption $soptions
 
-                Write-Host "Deleting exisiting deployment folder contents"
+                  Write-Host "Deleting existing deployment folder contents"
+                  Invoke-Command -Session $session -Command {
+                    param($destFolder)
+                    Remove-Item -Path "$destFolder\*" -Recurse -Force -ErrorAction SilentlyContinue
+                  } -ArgumentList $destinationFolder
 
-                Invoke-Command -Session $session -Command {Remove-Item -Path $Using:destinationFolder\* -Recurse -Force   }
+                  Write-Host "Copying new files"
+                  Copy-Item "$sourceDirectory\*" -Destination $destinationFolder -ToSession $session -Recurse -Force
 
-                Write-Host "Copying new files"
-
-                Copy-Item $sourceDirectory\* -Destination $destinationFolder -ToSession $session  -Recurse  -Force
-
-                Remove-PSSession -Session $session
+                  Write-Host "File copy completed successfully to $computername"
+                }
+                catch {
+                  Write-Error "Failed to copy files to $computername : $($_.Exception.Message)"
+                  throw
+                }
+                finally {
+                  if ($session) {
+                    Remove-PSSession -Session $session
+                  }
+                }
               }
     - job: ApproveDeployment
       displayName: ${{ parameters.environment }} wait for manual approval 

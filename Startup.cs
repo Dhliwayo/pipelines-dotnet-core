@@ -26,6 +26,17 @@ namespace pipelines_dotnet_core
                   options.MinimumSameSitePolicy = SameSiteMode.None;
               });
 
+            // Enable CORS
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAngularApp", builder =>
+                {
+                    builder.WithOrigins("http://localhost:4200") // Angular dev server
+                           .AllowAnyMethod()
+                           .AllowAnyHeader()
+                           .AllowCredentials();
+                });
+            });
 
             services.AddRazorPages();
         }
@@ -49,6 +60,9 @@ namespace pipelines_dotnet_core
             app.UseCookiePolicy();
 
             app.UseRouting();
+
+            // Enable CORS (must be after UseRouting and before UseEndpoints)
+            app.UseCors("AllowAngularApp");
 
             app.UseEndpoints(endpoints =>
             {
